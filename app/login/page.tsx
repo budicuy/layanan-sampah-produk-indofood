@@ -1,42 +1,10 @@
 "use client";
 
-import { signIn } from "@/lib/auth-client";
-import { ArrowLeft, AlertCircle, Loader2, Lock, User } from "lucide-react";
+import { ArrowLeft, Lock, User } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
 
 export default function LoginPage() {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
-  const router = useRouter();
-
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
-    setLoading(true);
-
-    try {
-      const { error: authError } = await signIn.username({
-        username,
-        password,
-      });
-
-      if (authError) {
-        setError(authError.message || "Username atau password salah.");
-      } else {
-        router.push("/dashboard");
-      }
-    } catch {
-      setError("Terjadi kesalahan. Silakan coba lagi.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
     <div className="min-h-screen bg-white flex flex-col md:flex-row">
       {/* Left Side: Branding/Visual (Hidden on mobile) */}
@@ -103,14 +71,7 @@ export default function LoginPage() {
             Masuk ke akun Anda untuk melanjutkan pengelolaan sampah.
           </p>
 
-          {error && (
-            <div className="mb-6 flex items-center gap-3 p-4 bg-red-50 border border-red-100 rounded-2xl text-red-600 text-sm">
-              <AlertCircle className="w-5 h-5 shrink-0" />
-              {error}
-            </div>
-          )}
-
-          <form onSubmit={handleLogin} className="space-y-6">
+          <form className="space-y-6">
             <div>
               <label
                 className="block text-sm font-bold text-zinc-700 mb-2"
@@ -125,12 +86,9 @@ export default function LoginPage() {
                 <input
                   type="text"
                   id="username"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
                   className="block w-full pl-12 pr-4 py-4 bg-zinc-50 border border-zinc-100 rounded-2xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none text-zinc-900"
                   placeholder="Masukkan username Anda"
                   required
-                  disabled={loading}
                 />
               </div>
             </div>
@@ -143,6 +101,12 @@ export default function LoginPage() {
                 >
                   Kata Sandi
                 </label>
+                <a
+                  href="/"
+                  className="text-sm font-bold text-primary hover:text-accent"
+                >
+                  Lupa kata sandi?
+                </a>
               </div>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -151,40 +115,26 @@ export default function LoginPage() {
                 <input
                   type="password"
                   id="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
                   className="block w-full pl-12 pr-4 py-4 bg-zinc-50 border border-zinc-100 rounded-2xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none text-zinc-900"
                   placeholder="••••••••"
                   required
-                  disabled={loading}
                 />
               </div>
             </div>
 
             <button
               type="submit"
-              disabled={loading}
-              className="w-full py-4 bg-primary text-white rounded-2xl font-bold text-lg hover:bg-accent transition-all shadow-xl shadow-primary/20 transform active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="w-full py-4 bg-primary text-white rounded-2xl font-bold text-lg hover:bg-accent transition-all shadow-xl shadow-primary/20 transform active:scale-[0.98]"
             >
-              {loading ? (
-                <>
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                  Memproses...
-                </>
-              ) : (
-                "Masuk Sekarang"
-              )}
+              Masuk Sekarang
             </button>
           </form>
 
           <div className="mt-10 text-center text-zinc-600">
             Belum punya akun?{" "}
-            <Link
-              href="/register"
-              className="font-bold text-primary hover:text-accent"
-            >
+            <a href="/" className="font-bold text-primary hover:text-accent">
               Daftar Gratis
-            </Link>
+            </a>
           </div>
         </div>
       </div>
