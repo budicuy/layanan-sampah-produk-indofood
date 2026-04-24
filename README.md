@@ -1,11 +1,18 @@
 # Cara Install 
 
+
+## Requirement 
+
+- Bun >= 1.3.11
+- Postgres >= 15
+
+
 #### Step 1 : Clone repositories
 
 ```bash
 
-git clone https://github.com/budicuy/sistem-informasi-bank-sampah-indofood.git
-cd sistem-informasi-bank-sampah-indofood
+git clone https://github.com/budicuy/layanan-sampah-produk-indofood.git
+cd layanan-sampah-produk-indofood
 
 ```
 

@@ -1,32 +1,36 @@
 "use client";
 
-import { signIn } from "@/lib/auth-client";
-import { ArrowLeft, AlertCircle, Loader2, Lock, User } from "lucide-react";
+import { signUp } from "@/lib/auth-client";
+import { ArrowLeft, AlertCircle, Loader2, Lock, Mail, User } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-export default function LoginPage() {
+export default function RegisterPage() {
+  const [name, setName] = useState("");
   const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setLoading(true);
 
     try {
-      const { error: authError } = await signIn.username({
+      const { error: authError } = await signUp.email({
+        name,
         username,
+        email,
         password,
       });
 
       if (authError) {
-        setError(authError.message || "Username atau password salah.");
+        setError(authError.message || "Gagal mendaftar. Silakan coba lagi.");
       } else {
         router.push("/dashboard");
       }
@@ -39,7 +43,7 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-white flex flex-col md:flex-row">
-      {/* Left Side: Branding/Visual (Hidden on mobile) */}
+      {/* Left Side: Branding */}
       <div className="hidden md:flex md:w-1/2 bg-zinc-900 p-12 flex-col justify-between relative overflow-hidden">
         <div className="absolute top-0 right-0 w-96 h-96 bg-primary/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
         <div className="absolute bottom-0 left-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
@@ -60,12 +64,12 @@ export default function LoginPage() {
 
         <div className="relative z-10">
           <h2 className="text-5xl font-heading font-extrabold text-white mb-6 leading-tight">
-            Membangun Masa Depan <br />
-            <span className="text-primary">Lebih Bersih</span> Bersama.
+            Bergabunglah <br />
+            <span className="text-primary">Bersama Kami</span> Hari Ini.
           </h2>
           <p className="text-zinc-400 text-lg max-w-md leading-relaxed">
-            Kelola sampah Anda dengan sistem tercanggih di Indonesia. Bersama
-            kita ciptakan lingkungan yang berkelanjutan.
+            Daftarkan akun Anda dan mulai berkontribusi untuk lingkungan yang
+            lebih baik.
           </p>
         </div>
 
@@ -74,7 +78,7 @@ export default function LoginPage() {
         </div>
       </div>
 
-      {/* Right Side: Login Form */}
+      {/* Right Side: Register Form */}
       <div className="flex-1 flex flex-col justify-center px-6 py-12 md:px-24 bg-white relative">
         <Link
           href="/"
@@ -97,10 +101,10 @@ export default function LoginPage() {
           </div>
 
           <h1 className="text-3xl md:text-4xl font-heading font-bold text-zinc-900 mb-2">
-            Selamat Datang Kembali
+            Buat Akun Baru
           </h1>
           <p className="text-zinc-500 mb-10">
-            Masuk ke akun Anda untuk melanjutkan pengelolaan sampah.
+            Daftar untuk mulai mengelola sampah bersama BANK SAMPAH.
           </p>
 
           {error && (
@@ -110,11 +114,35 @@ export default function LoginPage() {
             </div>
           )}
 
-          <form onSubmit={handleLogin} className="space-y-6">
+          <form onSubmit={handleRegister} className="space-y-5">
             <div>
               <label
                 className="block text-sm font-bold text-zinc-700 mb-2"
-                htmlFor="username"
+                htmlFor="name"
+              >
+                Nama Lengkap
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <User className="w-5 h-5 text-zinc-400" />
+                </div>
+                <input
+                  type="text"
+                  id="name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="block w-full pl-12 pr-4 py-4 bg-zinc-50 border border-zinc-100 rounded-2xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none text-zinc-900"
+                  placeholder="Masukkan nama lengkap"
+                  required
+                  disabled={loading}
+                />
+              </div>
+            </div>
+
+            <div>
+              <label
+                className="block text-sm font-bold text-zinc-700 mb-2"
+                htmlFor="reg-username"
               >
                 Username
               </label>
@@ -124,11 +152,11 @@ export default function LoginPage() {
                 </div>
                 <input
                   type="text"
-                  id="username"
+                  id="reg-username"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   className="block w-full pl-12 pr-4 py-4 bg-zinc-50 border border-zinc-100 rounded-2xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none text-zinc-900"
-                  placeholder="Masukkan username Anda"
+                  placeholder="Pilih username Anda"
                   required
                   disabled={loading}
                 />
@@ -136,26 +164,49 @@ export default function LoginPage() {
             </div>
 
             <div>
-              <div className="flex items-center justify-between mb-2">
-                <label
-                  className="block text-sm font-bold text-zinc-700"
-                  htmlFor="password"
-                >
-                  Kata Sandi
-                </label>
+              <label
+                className="block text-sm font-bold text-zinc-700 mb-2"
+                htmlFor="reg-email"
+              >
+                Email
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <Mail className="w-5 h-5 text-zinc-400" />
+                </div>
+                <input
+                  type="email"
+                  id="reg-email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="block w-full pl-12 pr-4 py-4 bg-zinc-50 border border-zinc-100 rounded-2xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none text-zinc-900"
+                  placeholder="nama@email.com"
+                  required
+                  disabled={loading}
+                />
               </div>
+            </div>
+
+            <div>
+              <label
+                className="block text-sm font-bold text-zinc-700 mb-2"
+                htmlFor="reg-password"
+              >
+                Kata Sandi
+              </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                   <Lock className="w-5 h-5 text-zinc-400" />
                 </div>
                 <input
                   type="password"
-                  id="password"
+                  id="reg-password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="block w-full pl-12 pr-4 py-4 bg-zinc-50 border border-zinc-100 rounded-2xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none text-zinc-900"
-                  placeholder="••••••••"
+                  placeholder="Minimal 8 karakter"
                   required
+                  minLength={8}
                   disabled={loading}
                 />
               </div>
@@ -172,18 +223,18 @@ export default function LoginPage() {
                   Memproses...
                 </>
               ) : (
-                "Masuk Sekarang"
+                "Daftar Sekarang"
               )}
             </button>
           </form>
 
           <div className="mt-10 text-center text-zinc-600">
-            Belum punya akun?{" "}
+            Sudah punya akun?{" "}
             <Link
-              href="/register"
+              href="/login"
               className="font-bold text-primary hover:text-accent"
             >
-              Daftar Gratis
+              Masuk
             </Link>
           </div>
         </div>
