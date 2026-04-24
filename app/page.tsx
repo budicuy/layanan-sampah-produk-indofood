@@ -33,6 +33,7 @@ export default function Home() {
                 src="/logo.png"
                 alt="Logo Bank Sampah"
                 fill
+                sizes="64px"
                 className="object-contain"
               />
             </div>
@@ -118,6 +119,7 @@ export default function Home() {
                   src="/hero.png"
                   alt="Modern Waste Management"
                   fill
+                  sizes="(max-width: 768px) 100vw, 50vw"
                   className="object-cover"
                   priority
                 />
@@ -175,6 +177,7 @@ export default function Home() {
                     src="/logo.png"
                     alt="Logo Bank Sampah"
                     fill
+                    sizes="(max-width: 768px) 80vw, 480px"
                     className="object-contain drop-shadow-[0_20px_50px_rgba(220,38,38,0.2)]"
                   />
                 </div>
@@ -604,6 +607,7 @@ export default function Home() {
                     src="/logo.png"
                     alt="Logo Bank Sampah"
                     fill
+                    sizes="64px"
                     className="object-contain"
                   />
                 </div>

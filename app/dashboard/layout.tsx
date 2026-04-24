@@ -15,6 +15,7 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
+import { logoutAction } from "@/app/action/auth";
 
 export default function DashboardLayout({
   children,
@@ -67,6 +68,7 @@ export default function DashboardLayout({
                 src="/logo.png"
                 alt="Logo Bank Sampah"
                 fill
+                sizes="64px"
                 className="object-contain"
               />
             </div>
@@ -106,13 +108,15 @@ export default function DashboardLayout({
         </nav>
 
         <div className="p-4 border-t border-zinc-800">
-          <button
-            type="button"
-            className="w-full flex items-center gap-4 px-4 py-3 text-zinc-400 hover:bg-red-500/10 hover:text-red-500 rounded-xl transition-all group"
-          >
-            <LogOut size={20} />
-            {isSidebarOpen && <span className="font-medium">Keluar</span>}
-          </button>
+          <form action={logoutAction}>
+            <button
+              type="submit"
+              className="w-full flex items-center gap-4 px-4 py-3 text-zinc-400 hover:bg-red-500/10 hover:text-red-500 rounded-xl transition-all group"
+            >
+              <LogOut size={20} />
+              {isSidebarOpen && <span className="font-medium">Keluar</span>}
+            </button>
+          </form>
         </div>
       </aside>
 

@@ -1,33 +1,66 @@
-# Cara Install 
+# 🏦 Bank Sampah
 
+Platform digital pengelolaan sampah modern berbasis web, dibangun untuk membantu masyarakat mengelola sampah secara efisien dan mendapatkan reward.
 
-## Requirement 
+## 🛠️ Tech Stack
 
-- Bun >= 1.3.11
-- Postgres >= 15
+| Layer | Teknologi |
+|---|---|
+| Framework | Next.js 16 (App Router) |
+| Runtime | Bun |
+| Bahasa | TypeScript |
+| Styling | Tailwind CSS 4 |
+| Database | Neon PostgreSQL |
+| ORM | Drizzle ORM |
+| Autentikasi | Better Auth (username + password) |
+| Linting | Biome |
 
-
-#### Step 1 : Clone repositories
-
-```bash
-
-git clone https://github.com/budicuy/layanan-sampah-produk-indofood.git
-cd layanan-sampah-produk-indofood
-
-```
-
-### Step 2 : Install dependencies menggunakan bun
-
-```bash
-bun i
-```
-
-### Step 3 : Jalankan aplikasi
+## 🚀 Memulai
 
 ```bash
+# Install dependencies
+bun install
+
+# Jalankan development server
 bun dev
 ```
 
-### Step 4 : Open Browser
+## 🗄️ Database
 
-Buka [http://localhost:3000](http://localhost:3000) di browser.
+```bash
+# Push schema ke database
+bun run db:push
+
+# Seed user awal (budi / budi)
+bun run db:seed
+```
+
+## 📁 Struktur Proyek
+
+```
+app/
+  page.tsx              # Landing page
+  layout.tsx            # Root layout
+  login/
+    page.tsx            # Halaman login
+    actions.ts          # Server Action login
+  dashboard/
+    layout.tsx          # Layout dashboard (sidebar)
+    page.tsx            # Overview dashboard
+  api/auth/[...all]/
+    route.ts            # Better Auth API handler
+lib/
+  auth.ts               # Konfigurasi Better Auth
+  db/
+    index.ts            # Koneksi Drizzle + Postgres
+    schema.ts           # Schema tabel database
+scripts/
+  seed.ts               # Seeder user awal
+```
+
+## 🔑 Akun Default
+
+| Field | Value |
+|---|---|
+| Username | `budi` |
+| Password | `budi` |

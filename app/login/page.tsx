@@ -1,13 +1,18 @@
 "use client";
 
-import { ArrowLeft, Lock, User } from "lucide-react";
+import { ArrowLeft, Eye, EyeOff, Lock, User } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useActionState, useState } from "react";
+import { loginAction } from "@/app/action/auth";
 
 export default function LoginPage() {
+  const [state, formAction, isPending] = useActionState(loginAction, null);
+  const [showPassword, setShowPassword] = useState(false);
+
   return (
     <div className="min-h-screen bg-white flex flex-col md:flex-row">
-      {/* Left Side: Branding/Visual (Hidden on mobile) */}
+      {/* Left Side: Branding */}
       <div className="hidden md:flex md:w-1/2 bg-zinc-900 p-12 flex-col justify-between relative overflow-hidden">
         <div className="absolute top-0 right-0 w-96 h-96 bg-primary/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
         <div className="absolute bottom-0 left-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
@@ -18,6 +23,7 @@ export default function LoginPage() {
               src="/logo.png"
               alt="Logo Bank Sampah"
               fill
+              sizes="64px"
               className="object-contain"
             />
           </div>
@@ -59,6 +65,7 @@ export default function LoginPage() {
                 src="/logo.png"
                 alt="Logo Bank Sampah"
                 fill
+                sizes="64px"
                 className="object-contain"
               />
             </div>
@@ -71,7 +78,13 @@ export default function LoginPage() {
             Masuk ke akun Anda untuk melanjutkan pengelolaan sampah.
           </p>
 
-          <form className="space-y-6">
+          {state?.error && (
+            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-2xl text-red-600 text-sm font-medium">
+              {state.error}
+            </div>
+          )}
+
+          <form action={formAction} className="space-y-6">
             <div>
               <label
                 className="block text-sm font-bold text-zinc-700 mb-2"
@@ -86,54 +99,91 @@ export default function LoginPage() {
                 <input
                   type="text"
                   id="username"
+                  name="username"
                   className="block w-full pl-12 pr-4 py-4 bg-zinc-50 border border-zinc-100 rounded-2xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none text-zinc-900"
                   placeholder="Masukkan username Anda"
                   required
+                  autoComplete="username"
+                  disabled={isPending}
                 />
               </div>
             </div>
 
             <div>
-              <div className="flex items-center justify-between mb-2">
-                <label
-                  className="block text-sm font-bold text-zinc-700"
-                  htmlFor="password"
-                >
-                  Kata Sandi
-                </label>
-                <a
-                  href="/"
-                  className="text-sm font-bold text-primary hover:text-accent"
-                >
-                  Lupa kata sandi?
-                </a>
-              </div>
+              <label
+                className="block text-sm font-bold text-zinc-700 mb-2"
+                htmlFor="password"
+              >
+                Kata Sandi
+              </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                   <Lock className="w-5 h-5 text-zinc-400" />
                 </div>
                 <input
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   id="password"
-                  className="block w-full pl-12 pr-4 py-4 bg-zinc-50 border border-zinc-100 rounded-2xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none text-zinc-900"
+                  name="password"
+                  className="block w-full pl-12 pr-12 py-4 bg-zinc-50 border border-zinc-100 rounded-2xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none text-zinc-900"
                   placeholder="••••••••"
                   required
+                  autoComplete="current-password"
+                  disabled={isPending}
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-zinc-400 hover:text-zinc-600 transition-colors"
+                >
+                  {showPassword ? (
+                    <EyeOff className="w-5 h-5" />
+                  ) : (
+                    <Eye className="w-5 h-5" />
+                  )}
+                </button>
               </div>
             </div>
 
             <button
               type="submit"
-              className="w-full py-4 bg-primary text-white rounded-2xl font-bold text-lg hover:bg-accent transition-all shadow-xl shadow-primary/20 transform active:scale-[0.98]"
+              disabled={isPending}
+              className="w-full py-4 bg-primary text-white rounded-2xl font-bold text-lg hover:bg-accent transition-all shadow-xl shadow-primary/20 transform active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-3"
             >
-              Masuk Sekarang
+              {isPending ? (
+                <>
+                  <svg
+                    className="animate-spin w-5 h-5"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    aria-label="Loading"
+                    role="img"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                    />
+                  </svg>
+                  Memproses...
+                </>
+              ) : (
+                "Masuk Sekarang"
+              )}
             </button>
           </form>
 
           <div className="mt-10 text-center text-zinc-600">
             Belum punya akun?{" "}
             <a href="/" className="font-bold text-primary hover:text-accent">
-              Daftar Gratis
+              Hubungi Admin
             </a>
           </div>
         </div>
