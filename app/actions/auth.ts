@@ -1,50 +1,45 @@
 "use server";
 
-import { AuthError } from "next-auth";
+import { APIError } from "better-auth/api";
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
 import * as v from "valibot";
-import { signIn, signOut } from "@/lib/auth";
+import { auth } from "@/lib/auth";
 
-const LoginSchema = v.object({
-  username: v.pipe(v.string(), v.minLength(1, "Username wajib diisi")),
-  password: v.pipe(v.string(), v.minLength(1, "Kata sandi wajib diisi")),
-});
-
-export type LoginState = {
-  error?: string;
-};
+type ActionState = { msg: string; ok?: boolean };
 
 export async function loginAction(
-  _prevState: LoginState,
+  _prevState: ActionState,
   formData: FormData,
-): Promise<LoginState> {
-  const raw = {
-    username: formData.get("username"),
-    password: formData.get("password"),
-  };
+): Promise<ActionState> {
+  const parsed = v.safeParse(
+    v.object({
+      username: v.pipe(v.string(), v.minLength(1, "Username wajib diisi")),
+      password: v.pipe(v.string(), v.minLength(1, "Kata sandi wajib diisi")),
+    }),
+    { username: formData.get("username"), password: formData.get("password") },
+  );
 
-  const parsed = v.safeParse(LoginSchema, raw);
   if (!parsed.success) {
-    const firstError = parsed.issues[0]?.message ?? "Input tidak valid";
-    return { error: firstError };
+    return { msg: parsed.issues[0]?.message ?? "Input tidak valid" };
   }
 
   try {
-    await signIn("credentials", {
-      username: parsed.output.username,
-      password: parsed.output.password,
-      redirectTo: "/dashboard",
+    await auth.api.signInUsername({
+      body: parsed.output,
+      headers: await headers(),
     });
   } catch (err) {
-    if (err instanceof AuthError) {
-      return { error: "Username atau kata sandi salah." };
-    }
-    // next-auth throws NEXT_REDIRECT internally on success — re-throw agar redirect berjalan
+    if (err instanceof APIError)
+      return { msg: "Username atau kata sandi salah." };
     throw err;
   }
 
-  return {};
+  // Kembalikan ok:true — redirect dilakukan di client setelah toast tampil
+  return { msg: "Login berhasil! Mengalihkan...", ok: true };
 }
 
 export async function logoutAction() {
-  await signOut({ redirectTo: "/login" });
+  await auth.api.signOut({ headers: await headers() });
+  redirect("/login");
 }

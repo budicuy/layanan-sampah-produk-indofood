@@ -11,7 +11,7 @@ Platform digital pengelolaan sampah modern berbasis web, dibangun untuk membantu
 | Bahasa | TypeScript |
 | Styling | Tailwind CSS 4 |
 | Database | Neon PostgreSQL |
-| ORM | Drizzle ORM |
+| ORM | Prisma |
 | Autentikasi | Better Auth (username + password) |
 | Linting | Biome |
 

@@ -1,23 +1,57 @@
 "use client";
 
-import {
-  ArrowLeft,
-  Leaf,
-  LoaderCircle,
-  Lock,
-  TriangleAlert,
-  User,
-} from "lucide-react";
+import { ArrowLeft, Leaf, LoaderCircle, Lock, User } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useActionState } from "react";
+import { useRouter } from "next/navigation";
+import { useActionState, useEffect } from "react";
+import toast, { Toaster } from "react-hot-toast";
 import { loginAction } from "@/app/actions/auth";
 
 export default function LoginPage() {
-  const [state, action, isPending] = useActionState(loginAction, {});
+  const router = useRouter();
+  const [state, action, isPending] = useActionState(loginAction, { msg: "" });
+
+  useEffect(() => {
+    if (!state.msg) return;
+    if (state.ok) {
+      toast.success(state.msg);
+      setTimeout(() => router.push("/dashboard"), 1000);
+    } else {
+      toast.error(state.msg);
+    }
+  }, [state, router]);
 
   return (
     <div className="flex min-h-screen bg-zinc-50">
+      <Toaster
+        position="top-center"
+        toastOptions={{
+          error: {
+            style: {
+              background: "#fff",
+              color: "#dc2626",
+              border: "1px solid #fee2e2",
+              borderRadius: "12px",
+              fontWeight: 600,
+              fontSize: "14px",
+            },
+            iconTheme: { primary: "#dc2626", secondary: "#fff" },
+          },
+          success: {
+            style: {
+              background: "#fff",
+              color: "#16a34a",
+              border: "1px solid #dcfce7",
+              borderRadius: "12px",
+              fontWeight: 600,
+              fontSize: "14px",
+            },
+            iconTheme: { primary: "#16a34a", secondary: "#fff" },
+          },
+        }}
+      />
+
       {/* Left Panel */}
       <div className="hidden lg:flex w-1/2 relative bg-zinc-900 overflow-hidden items-center justify-center">
         <div className="absolute inset-0 opacity-40">
@@ -29,7 +63,7 @@ export default function LoginPage() {
             priority
           />
         </div>
-        <div className="absolute inset-0 bg-gradient-to-t from-zinc-900 via-zinc-900/60 to-transparent" />
+        <div className="absolute inset-0 bg-linear-to-t from-zinc-900 via-zinc-900/60 to-transparent" />
         <div className="absolute bottom-0 left-0 right-0 p-16 z-10">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md text-white text-sm font-bold mb-6 border border-white/20">
             <Leaf className="w-4 h-4 text-primary" />
@@ -78,14 +112,8 @@ export default function LoginPage() {
           </div>
 
           <form action={action} className="space-y-6 mt-8">
-            {state.error && (
-              <div className="flex items-center gap-3 p-4 rounded-xl bg-red-50 border border-red-100 text-red-600 text-sm">
-                <TriangleAlert className="w-4 h-4 shrink-0" />
-                <span>{state.error}</span>
-              </div>
-            )}
-
             <div className="space-y-4">
+              {/* Username */}
               <div className="space-y-2">
                 <label
                   htmlFor="username"
@@ -110,6 +138,7 @@ export default function LoginPage() {
                 </div>
               </div>
 
+              {/* Password */}
               <div className="space-y-2">
                 <label
                   htmlFor="password"
