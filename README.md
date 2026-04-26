@@ -2,6 +2,12 @@
 
 Platform digital pengelolaan sampah modern berbasis web, dibangun untuk membantu masyarakat mengelola sampah secara efisien dan mendapatkan reward.
 
+## Requirements
+
+- Bun >= 1.3 | https://bun.com/
+- Neon PostgreSQL | https://neon.tech/
+
+
 ## 🛠️ Tech Stack
 
 | Layer | Teknologi |
@@ -14,6 +20,7 @@ Platform digital pengelolaan sampah modern berbasis web, dibangun untuk membantu
 | ORM | Prisma |
 | Autentikasi | Better Auth (username + password) |
 | Linting | Biome |
+
 
 ## 🚀 Memulai
 
