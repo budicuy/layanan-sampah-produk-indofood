@@ -18,6 +18,10 @@ Platform digital pengelolaan sampah modern berbasis web, dibangun untuk membantu
 ## 🚀 Memulai
 
 ```bash
+# Clone repository
+git clone  https://github.com/budicuy/layanan-sampah-produk-indofood.git
+cd layanan-sampah-produk-indofood
+
 # Install dependencies
 bun install
 ```
