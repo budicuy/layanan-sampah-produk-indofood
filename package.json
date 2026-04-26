@@ -8,10 +8,14 @@
     "start": "next start",
     "lint": "biome check --write",
     "format": "biome format --write",
-    "db:push": "drizzle-kit push",
-    "db:seed": "bun run scripts/seed.ts"
+    "db:push": "bun prisma db push",
+    "db:seed": "bun run prisma/seed.ts"
   },
   "dependencies": {
+    "@prisma/adapter-neon": "^7.8.0",
+    "@prisma/client": "^7.8.0",
+    "bcrypt": "^6.0.0",
+    "dotenv": "^17.4.2",
     "lucide-react": "^1.11.0",
     "next": "16.2.4",
     "react": "19.2.4",
@@ -20,13 +24,16 @@
   "devDependencies": {
     "@biomejs/biome": "2.2.0",
     "@tailwindcss/postcss": "^4",
-    "@types/node": "^20",
+    "@types/bcrypt": "^6.0.0",
+    "@types/node": "^25.6.0",
+    "@types/pg": "^8.20.0",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "babel-plugin-react-compiler": "1.0.0",
-    "dotenv": "^17.4.2",
+    "prisma": "^7.8.0",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "tsx": "^4.21.0",
+    "typescript": "^6.0.3"
   },
   "ignoreScripts": [
     "sharp",

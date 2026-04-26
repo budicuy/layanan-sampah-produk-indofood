@@ -3,7 +3,6 @@
 import {
   ArrowRight,
   CalendarCheck,
-  CheckCircle2,
   Leaf,
   Mail,
   MapPin,
