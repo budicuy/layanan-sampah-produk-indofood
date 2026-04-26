@@ -46,7 +46,7 @@ bun install
 
 ```bash
 # Buat file .env di root direktory dan copas konfigurasi berikut:
-DATABASE_URL="" # database neon bisa cek di https://neon.tech/
+DATABASE_URL="" # database neon bisa cek di https://neon.tech/ | Contoh: postgresql://neondb_owner:[EMAIL_ADDRESS]/neondb?sslmode=require&channel_binding=require
 BETTER_AUTH_SECRET="" # secret better auth teks random 32 karakter
 BETTER_AUTH_URL="http://localhost:3000" # url better auth untuk local development
 ```
