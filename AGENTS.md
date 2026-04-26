@@ -11,7 +11,7 @@ Spesifikasi :
 - Frontend
   - Next js
 - Backend
-  - Prisma
+  - Drizzle ORM
 - Database
   - Postgres
 - Runtime

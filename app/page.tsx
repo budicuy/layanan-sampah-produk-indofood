@@ -125,7 +125,7 @@ export default function Home() {
                 />
               </div>
               {/* Floating Cards */}
-              <div className="absolute -bottom-6 -left-6 bg-white p-6 rounded-2xl shadow-xl border border-zinc-50 flex items-center gap-4 animate-bounce-slow">
+              <div className="absolute -bottom-6 -left-6 bg-white p-6 rounded-2xl shadow-xl border border-zinc-50 flex items-center gap-4">
                 <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-white">
                   <Recycle className="w-6 h-6" />
                 </div>
@@ -362,99 +362,6 @@ export default function Home() {
                     {stat.value}
                   </div>
                   <div className="text-white/80 font-medium">{stat.label}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Pricing Section */}
-        <section id="pricing" className="py-24 bg-zinc-50">
-          <div className="max-w-7xl mx-auto px-6">
-            <div className="text-center max-w-3xl mx-auto mb-16">
-              <h2 className="text-4xl font-heading font-bold text-zinc-900 mb-4">
-                Pilihan Layanan
-              </h2>
-              <p className="text-lg text-zinc-600">
-                Pilih paket yang paling sesuai dengan kebutuhan pengelolaan
-                sampah Anda.
-              </p>
-            </div>
-
-            <div className="grid md:grid-cols-3 gap-8">
-              {[
-                {
-                  name: "Rumah Tangga",
-                  price: "49K",
-                  period: "/bulan",
-                  features: [
-                    "Penjemputan 2x seminggu",
-                    "Gratis kantong sampah",
-                    "Laporan bulanan",
-                    "Akses aplikasi",
-                  ],
-                  recommended: false,
-                },
-                {
-                  name: "Bisnis Kecil",
-                  price: "199K",
-                  period: "/bulan",
-                  features: [
-                    "Penjemputan 4x seminggu",
-                    "Sampah anorganik & organik",
-                    "Sertifikat ramah lingkungan",
-                    "Prioritas penjemputan",
-                  ],
-                  recommended: true,
-                },
-                {
-                  name: "Korporat",
-                  price: "Custom",
-                  period: "",
-                  features: [
-                    "Penjemputan harian",
-                    "Audit sampah berkala",
-                    "Manajer akun khusus",
-                    "Integrasi sistem",
-                  ],
-                  recommended: false,
-                },
-              ].map((plan) => (
-                <div
-                  key={plan.name}
-                  className={`bg-white p-10 rounded-[32px] border ${plan.recommended ? "border-primary shadow-2xl scale-105 relative z-10" : "border-zinc-100"} transition-all`}
-                >
-                  {plan.recommended && (
-                    <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-primary text-white px-4 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
-                      Terpopuler
-                    </div>
-                  )}
-                  <h3 className="text-xl font-bold text-zinc-900 mb-4 font-heading">
-                    {plan.name}
-                  </h3>
-                  <div className="flex items-baseline gap-1 mb-8">
-                    <span className="text-4xl font-extrabold text-zinc-900">
-                      Rp {plan.price}
-                    </span>
-                    <span className="text-zinc-500">{plan.period}</span>
-                  </div>
-                  <ul className="space-y-4 mb-10">
-                    {plan.features.map((feature) => (
-                      <li
-                        key={feature}
-                        className="flex items-center gap-3 text-zinc-600"
-                      >
-                        <CheckCircle2 className="w-5 h-5 text-primary shrink-0" />
-                        {feature}
-                      </li>
-                    ))}
-                  </ul>
-                  <button
-                    type="button"
-                    className={`w-full py-4 rounded-2xl font-bold transition-all ${plan.recommended ? "bg-primary text-white hover:bg-accent" : "bg-zinc-50 text-zinc-900 hover:bg-zinc-100"}`}
-                  >
-                    Pilih Paket
-                  </button>
                 </div>
               ))}
             </div>
