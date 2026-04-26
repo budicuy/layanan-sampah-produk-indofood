@@ -59,6 +59,7 @@ export default function LoginPage() {
             src="/hero.png"
             alt="Hero Background"
             fill
+            sizes="50vw"
             className="object-cover"
             priority
           />
