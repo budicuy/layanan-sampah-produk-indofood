@@ -76,8 +76,7 @@ proxy.ts                # Middleware untuk proteksi route & session
 
 ## 🔑 Akun Default
 
-Jalankan `bun run db:seed` untuk membuat akun berikut:
-* Konfigurasi ada di `prisma/seed.ts`
+Jalankan `bun run db:seed` untuk membuat akun berikut (Konfigurasi ada di `prisma/seed.ts`):
 
 | Field | Value |
 |---|---|
