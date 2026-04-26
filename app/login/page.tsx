@@ -1,0 +1,145 @@
+import { ArrowLeft, Leaf, Lock, Mail } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+
+export default function LoginPage() {
+  return (
+    <div className="flex min-h-screen bg-zinc-50">
+      {/* Left Panel - Image/Brand */}
+      <div className="hidden lg:flex w-1/2 relative bg-zinc-900 overflow-hidden items-center justify-center">
+        <div className="absolute inset-0 opacity-40">
+          <Image
+            src="/hero.png"
+            alt="Hero Background"
+            fill
+            className="object-cover"
+            priority
+          />
+        </div>
+        <div className="absolute inset-0 bg-linear-to-t from-zinc-900 via-zinc-900/60 to-transparent" />
+        <div className="absolute bottom-0 left-0 right-0 p-16 z-10">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md text-white text-sm font-bold mb-6 border border-white/20">
+            <Leaf className="w-4 h-4 text-primary" />
+            Platform Terpercaya
+          </div>
+          <h1 className="text-4xl lg:text-5xl font-heading font-extrabold text-white leading-tight mb-4">
+            Kelola Sampah, <br />
+            <span className="text-primary">Lindungi Bumi</span>
+          </h1>
+          <p className="text-zinc-300 text-lg max-w-md">
+            Masuk ke akun Anda untuk mulai berkontribusi dalam menjaga
+            kelestarian lingkungan bersama Bank Sampah.
+          </p>
+        </div>
+      </div>
+
+      {/* Right Panel - Form */}
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-6 relative">
+        <div className="absolute top-8 left-8">
+          <Link
+            href="/"
+            className="flex items-center gap-2 text-sm font-medium text-zinc-500 hover:text-zinc-900 transition-colors group"
+          >
+            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+            Kembali ke Beranda
+          </Link>
+        </div>
+
+        <div className="w-full max-w-md space-y-8 animate-in slide-in-from-bottom-4 duration-700 fade-in">
+          <div className="flex flex-col items-center lg:items-start text-center lg:text-left">
+            <div className="w-16 h-16 relative mb-6">
+              <Image
+                src="/logo.png"
+                alt="Logo Bank Sampah"
+                fill
+                sizes="64px"
+                className="object-contain"
+              />
+            </div>
+            <h2 className="text-3xl font-heading font-bold text-zinc-900 mb-2">
+              Selamat Datang Kembali
+            </h2>
+            <p className="text-zinc-500">
+              Silakan masukkan kredensial Anda untuk melanjutkan.
+            </p>
+          </div>
+
+          <form className="space-y-6 mt-8">
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <label
+                  htmlFor="email"
+                  className="text-sm font-semibold text-zinc-900"
+                >
+                  Email
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-zinc-400">
+                    <Mail className="h-5 w-5" />
+                  </div>
+                  <input
+                    id="email"
+                    name="email"
+                    type="email"
+                    autoComplete="email"
+                    required
+                    className="block w-full pl-11 pr-4 py-3 bg-white border border-zinc-200 rounded-xl text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all sm:text-sm shadow-sm"
+                    placeholder="nama@email.com"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <label
+                    htmlFor="password"
+                    className="text-sm font-semibold text-zinc-900"
+                  >
+                    Kata Sandi
+                  </label>
+                  <Link
+                    href="/forgot-password"
+                    className="text-sm font-medium text-primary hover:text-accent transition-colors"
+                  >
+                    Lupa sandi?
+                  </Link>
+                </div>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-zinc-400">
+                    <Lock className="h-5 w-5" />
+                  </div>
+                  <input
+                    id="password"
+                    name="password"
+                    type="password"
+                    autoComplete="current-password"
+                    required
+                    className="block w-full pl-11 pr-4 py-3 bg-white border border-zinc-200 rounded-xl text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all sm:text-sm shadow-sm"
+                    placeholder="••••••••"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              className="w-full flex justify-center py-3.5 px-4 border border-transparent rounded-xl shadow-lg shadow-primary/25 text-sm font-bold text-white bg-primary hover:bg-accent focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-all transform hover:scale-[1.02] active:scale-[0.98]"
+            >
+              Masuk
+            </button>
+          </form>
+
+          <p className="text-center text-sm text-zinc-500">
+            Belum punya akun?{" "}
+            <Link
+              href="/register"
+              className="font-bold text-primary hover:text-accent transition-colors"
+            >
+              Daftar sekarang
+            </Link>
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
