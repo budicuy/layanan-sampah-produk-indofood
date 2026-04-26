@@ -44,17 +44,17 @@ app/
   api/auth/[...all]/
     route.ts            # Better Auth API handler
   dashboard/
-    page.tsx            # Overview dashboard (protected)
+    page.tsx            # Halaman Dashboard
   login/
-    page.tsx            # Halaman login + toast notifications
-  layout.tsx            # Root layout (fonts & global styles)
-  page.tsx              # Landing page (hero, features, FAQ)
+    page.tsx            # Halaman Login
+  layout.tsx            # Root layout
+  page.tsx              # Halaman Landing page
 lib/
-  auth.ts               # Konfigurasi Better Auth & Plugins
-  prisma.ts             # Singleton Prisma Client
+  auth.ts               # Konfigurasi Better Auth
+  prisma.ts             # Prisma Client
 prisma/
-  schema.prisma         # Schema database (User, Session, etc.)
-  seed.ts               # Script seeder user admin
+  schema.prisma         # Schema / Tabel Database
+  seed.ts               # Script seeder untuk generate data user dll
 proxy.ts                # Middleware untuk proteksi route & session
 ```
 
