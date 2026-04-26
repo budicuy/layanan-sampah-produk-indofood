@@ -63,14 +63,19 @@ app/
     page.tsx            # Halaman Dashboard
   login/
     page.tsx            # Halaman Login
+  global.css            # Global CSS (Tailwind CSS)
   layout.tsx            # Root layout
   page.tsx              # Halaman Landing page
 lib/
   auth.ts               # Konfigurasi Better Auth
   prisma.ts             # Prisma Client
 prisma/
+  generated/            # Generated Prisma Client (biarkan saja default tidak boleh di edit)
   schema.prisma         # Schema / Tabel Database
   seed.ts               # Script seeder untuk generate data user dll
+public/                 # File statis (favicon, robots.txt, images dll)
+package.json            # Package yang di install
+prisma.config.ts        # Konfigurasi Config Prisma
 proxy.ts                # Middleware untuk proteksi route & session
 ```
 

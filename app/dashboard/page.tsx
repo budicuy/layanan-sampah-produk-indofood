@@ -75,8 +75,7 @@ export default async function DashboardPage() {
               <button
                 id="logout-btn"
                 type="submit"
-                className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-zinc-600 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all"
-              >
+                className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-zinc-600 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all">
                 <LogOut className="w-4 h-4" />
                 <span className="hidden sm:inline">Keluar</span>
               </button>
@@ -106,11 +105,9 @@ export default async function DashboardPage() {
           {STATS.map(({ icon: Icon, label, value, color }) => (
             <div
               key={label}
-              className="bg-white rounded-2xl border border-zinc-100 p-6 flex items-center gap-5 shadow-sm hover:shadow-md transition-shadow"
-            >
+              className="bg-white rounded-2xl border border-zinc-100 p-6 flex items-center gap-5 shadow-sm hover:shadow-md transition-shadow">
               <div
-                className={`w-12 h-12 rounded-2xl flex items-center justify-center ${color}`}
-              >
+                className={`w-12 h-12 rounded-2xl flex items-center justify-center ${color}`}>
                 <Icon className="w-6 h-6" />
               </div>
               <div>

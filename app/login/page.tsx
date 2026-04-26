@@ -86,8 +86,7 @@ export default function LoginPage() {
         <div className="absolute top-8 left-8">
           <Link
             href="/"
-            className="flex items-center gap-2 text-sm font-medium text-zinc-500 hover:text-zinc-900 transition-colors group"
-          >
+            className="flex items-center gap-2 text-sm font-medium text-zinc-500 hover:text-zinc-900 transition-colors group">
             <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
             Kembali ke Beranda
           </Link>
@@ -118,8 +117,7 @@ export default function LoginPage() {
               <div className="space-y-2">
                 <label
                   htmlFor="username"
-                  className="text-sm font-semibold text-zinc-900"
-                >
+                  className="text-sm font-semibold text-zinc-900">
                   Username
                 </label>
                 <div className="relative">
@@ -143,8 +141,7 @@ export default function LoginPage() {
               <div className="space-y-2">
                 <label
                   htmlFor="password"
-                  className="text-sm font-semibold text-zinc-900"
-                >
+                  className="text-sm font-semibold text-zinc-900">
                   Kata Sandi
                 </label>
                 <div className="relative">
@@ -169,8 +166,7 @@ export default function LoginPage() {
               id="login-submit"
               type="submit"
               disabled={isPending}
-              className="w-full flex justify-center items-center gap-2 py-3.5 px-4 rounded-xl shadow-lg shadow-primary/25 text-sm font-bold text-white bg-primary hover:bg-accent focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-all transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-70 disabled:scale-100 disabled:cursor-not-allowed"
-            >
+              className="w-full flex justify-center items-center gap-2 py-3.5 px-4 rounded-xl shadow-lg shadow-primary/25 text-sm font-bold text-white bg-primary hover:bg-accent focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-all transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-70 disabled:scale-100 disabled:cursor-not-allowed">
               {isPending ? (
                 <>
                   <LoaderCircle className="w-4 h-4 animate-spin" />
