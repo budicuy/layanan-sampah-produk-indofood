@@ -8,6 +8,15 @@ Platform digital pengelolaan sampah modern berbasis web, dibangun untuk membantu
 - Neon PostgreSQL | https://neon.tech/
 
 
+## VScode Extensions
+
+| Extension | Link | 
+| --- | --- |
+| Biome | https://marketplace.visualstudio.com/items?itemName=biomejs.biome |
+| Prisma | https://marketplace.visualstudio.com/items?itemName=Prisma.prisma |
+| Tailwind CSS IntelliSense | https://marketplace.visualstudio.com/items?itemName=bradlc.vscode-tailwindcss |
+| PostCSS Language Support | https://marketplace.visualstudio.com/items?itemName=csstools.postcss |
+
 ## 🛠️ Tech Stack
 
 | Layer | Teknologi |
@@ -18,7 +27,7 @@ Platform digital pengelolaan sampah modern berbasis web, dibangun untuk membantu
 | Styling | Tailwind CSS 4 |
 | Database | Neon PostgreSQL |
 | ORM | Prisma |
-| Autentikasi | Better Auth (username + password) |
+| Autentikasi | Better Auth |
 | Linting | Biome |
 
 
