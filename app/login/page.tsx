@@ -1,11 +1,24 @@
-import { ArrowLeft, Leaf, Lock, Mail } from "lucide-react";
+"use client";
+
+import {
+  ArrowLeft,
+  Leaf,
+  LoaderCircle,
+  Lock,
+  TriangleAlert,
+  User,
+} from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useActionState } from "react";
+import { loginAction } from "@/app/actions/auth";
 
 export default function LoginPage() {
+  const [state, action, isPending] = useActionState(loginAction, {});
+
   return (
     <div className="flex min-h-screen bg-zinc-50">
-      {/* Left Panel - Image/Brand */}
+      {/* Left Panel */}
       <div className="hidden lg:flex w-1/2 relative bg-zinc-900 overflow-hidden items-center justify-center">
         <div className="absolute inset-0 opacity-40">
           <Image
@@ -16,7 +29,7 @@ export default function LoginPage() {
             priority
           />
         </div>
-        <div className="absolute inset-0 bg-linear-to-t from-zinc-900 via-zinc-900/60 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-zinc-900 via-zinc-900/60 to-transparent" />
         <div className="absolute bottom-0 left-0 right-0 p-16 z-10">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md text-white text-sm font-bold mb-6 border border-white/20">
             <Leaf className="w-4 h-4 text-primary" />
@@ -33,7 +46,7 @@ export default function LoginPage() {
         </div>
       </div>
 
-      {/* Right Panel - Form */}
+      {/* Right Panel */}
       <div className="w-full lg:w-1/2 flex items-center justify-center p-6 relative">
         <div className="absolute top-8 left-8">
           <Link
@@ -45,7 +58,7 @@ export default function LoginPage() {
           </Link>
         </div>
 
-        <div className="w-full max-w-md space-y-8 animate-in slide-in-from-bottom-4 duration-700 fade-in">
+        <div className="w-full max-w-md space-y-8">
           <div className="flex flex-col items-center lg:items-start text-center lg:text-left">
             <div className="w-16 h-16 relative mb-6">
               <Image
@@ -64,46 +77,46 @@ export default function LoginPage() {
             </p>
           </div>
 
-          <form className="space-y-6 mt-8">
+          <form action={action} className="space-y-6 mt-8">
+            {state.error && (
+              <div className="flex items-center gap-3 p-4 rounded-xl bg-red-50 border border-red-100 text-red-600 text-sm">
+                <TriangleAlert className="w-4 h-4 shrink-0" />
+                <span>{state.error}</span>
+              </div>
+            )}
+
             <div className="space-y-4">
               <div className="space-y-2">
                 <label
-                  htmlFor="email"
+                  htmlFor="username"
                   className="text-sm font-semibold text-zinc-900"
                 >
-                  Email
+                  Username
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-zinc-400">
-                    <Mail className="h-5 w-5" />
+                    <User className="h-5 w-5" />
                   </div>
                   <input
-                    id="email"
-                    name="email"
-                    type="email"
-                    autoComplete="email"
+                    id="username"
+                    name="username"
+                    type="text"
+                    autoComplete="username"
                     required
-                    className="block w-full pl-11 pr-4 py-3 bg-white border border-zinc-200 rounded-xl text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all sm:text-sm shadow-sm"
-                    placeholder="nama@email.com"
+                    disabled={isPending}
+                    className="block w-full pl-11 pr-4 py-3 bg-white border border-zinc-200 rounded-xl text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all sm:text-sm shadow-sm disabled:opacity-60"
+                    placeholder="username Anda"
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <label
-                    htmlFor="password"
-                    className="text-sm font-semibold text-zinc-900"
-                  >
-                    Kata Sandi
-                  </label>
-                  <Link
-                    href="/forgot-password"
-                    className="text-sm font-medium text-primary hover:text-accent transition-colors"
-                  >
-                    Lupa sandi?
-                  </Link>
-                </div>
+                <label
+                  htmlFor="password"
+                  className="text-sm font-semibold text-zinc-900"
+                >
+                  Kata Sandi
+                </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-zinc-400">
                     <Lock className="h-5 w-5" />
@@ -114,7 +127,8 @@ export default function LoginPage() {
                     type="password"
                     autoComplete="current-password"
                     required
-                    className="block w-full pl-11 pr-4 py-3 bg-white border border-zinc-200 rounded-xl text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all sm:text-sm shadow-sm"
+                    disabled={isPending}
+                    className="block w-full pl-11 pr-4 py-3 bg-white border border-zinc-200 rounded-xl text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all sm:text-sm shadow-sm disabled:opacity-60"
                     placeholder="••••••••"
                   />
                 </div>
@@ -122,22 +136,21 @@ export default function LoginPage() {
             </div>
 
             <button
-              type="button"
-              className="w-full flex justify-center py-3.5 px-4 border border-transparent rounded-xl shadow-lg shadow-primary/25 text-sm font-bold text-white bg-primary hover:bg-accent focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-all transform hover:scale-[1.02] active:scale-[0.98]"
+              id="login-submit"
+              type="submit"
+              disabled={isPending}
+              className="w-full flex justify-center items-center gap-2 py-3.5 px-4 rounded-xl shadow-lg shadow-primary/25 text-sm font-bold text-white bg-primary hover:bg-accent focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-all transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-70 disabled:scale-100 disabled:cursor-not-allowed"
             >
-              Masuk
+              {isPending ? (
+                <>
+                  <LoaderCircle className="w-4 h-4 animate-spin" />
+                  Memproses...
+                </>
+              ) : (
+                "Masuk"
+              )}
             </button>
           </form>
-
-          <p className="text-center text-sm text-zinc-500">
-            Belum punya akun?{" "}
-            <Link
-              href="/register"
-              className="font-bold text-primary hover:text-accent transition-colors"
-            >
-              Daftar sekarang
-            </Link>
-          </p>
         </div>
       </div>
     </div>
