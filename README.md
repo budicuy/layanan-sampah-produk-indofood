@@ -45,7 +45,7 @@ bun install
 ## 🗄️ Setup Env
 
 ```bash
-# Buat file .env dari .env.example atau jalankan perintah
+# Buat file .env di root direktory dan copas konfigurasi berikut:
 DATABASE_URL="" # database neon bisa cek di https://neon.tech/
 BETTER_AUTH_SECRET="" # secret better auth teks random 32 karakter
 BETTER_AUTH_URL="http://localhost:3000" # url better auth untuk local development
