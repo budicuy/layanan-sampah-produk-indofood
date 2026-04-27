@@ -6,4 +6,7 @@ const adapter = new PrismaNeon({
   connectionString: process.env.DATABASE_URL,
 });
 
-export const prisma = new PrismaClient({ adapter });
+export const prisma = new PrismaClient({
+  adapter,
+  log: ["query"],
+});

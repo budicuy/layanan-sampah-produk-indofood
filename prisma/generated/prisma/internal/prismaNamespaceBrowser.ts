@@ -54,7 +54,8 @@ export const ModelName = {
   User: 'User',
   Session: 'Session',
   Account: 'Account',
-  Verification: 'Verification'
+  Verification: 'Verification',
+  Nasabah: 'Nasabah'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -78,9 +79,8 @@ export const UserScalarFieldEnum = {
   name: 'name',
   email: 'email',
   emailVerified: 'emailVerified',
-  image: 'image',
   username: 'username',
-  displayUsername: 'displayUsername',
+  password: 'password',
   role: 'role',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -112,7 +112,6 @@ export const AccountScalarFieldEnum = {
   refreshToken: 'refreshToken',
   idToken: 'idToken',
   expiresAt: 'expiresAt',
-  password: 'password',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -130,6 +129,26 @@ export const VerificationScalarFieldEnum = {
 } as const
 
 export type VerificationScalarFieldEnum = (typeof VerificationScalarFieldEnum)[keyof typeof VerificationScalarFieldEnum]
+
+
+export const NasabahScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  nama: 'nama',
+  alamat: 'alamat',
+  noTelp: 'noTelp',
+  kategori: 'kategori',
+  nik: 'nik',
+  noRek: 'noRek',
+  jenisBank: 'jenisBank',
+  fotoLokasi: 'fotoLokasi',
+  titikLokasi: 'titikLokasi',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type NasabahScalarFieldEnum = (typeof NasabahScalarFieldEnum)[keyof typeof NasabahScalarFieldEnum]
 
 
 export const SortOrder = {

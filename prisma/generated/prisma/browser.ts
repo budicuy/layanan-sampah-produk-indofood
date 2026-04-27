@@ -37,3 +37,8 @@ export type Account = Prisma.AccountModel
  * 
  */
 export type Verification = Prisma.VerificationModel
+/**
+ * Model Nasabah
+ * 
+ */
+export type Nasabah = Prisma.NasabahModel

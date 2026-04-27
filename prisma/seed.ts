@@ -1,25 +1,47 @@
 import "dotenv/config";
-import { auth } from "../lib/auth";
+import type { KategoriNasabah, StatusNasabah } from "./generated/prisma/enums";
+import { NasabahsSeed } from "./seed_nasabah";
+import { hashPassword } from "better-auth/crypto";
 
 async function main() {
   console.log("🌱 Seeding user admin...");
 
-  // Better Auth mengelola hash password & account secara otomatis
-  await auth.api.signUpEmail({
-    body: {
+  const { prisma } = await import("../lib/prisma");
+  const UserPassword = await hashPassword("password");
+  await prisma.user.upsert({
+    where: { username: "admin" },
+    update: {},
+    create: {
       name: "Admin",
-      email: "admin@banksampah.id",
-      password: "password",
+      email: "admin@gmail.com",
       username: "admin",
+      password: UserPassword,
+      role: "ADMIN",
     },
   });
 
-  // Update role ke ADMIN via Prisma (Better Auth tidak expose ini langsung)
-  const { prisma } = await import("../lib/prisma");
-  await prisma.user.update({
-    where: { username: "admin" },
-    data: { role: "ADMIN" },
-  });
+  console.log("Seeding dummy Nasabah data...");
+
+  for (const n of NasabahsSeed) {
+    await prisma.nasabah.upsert({
+      where: { nik: n.nik },
+      update: {},
+      create: {
+        nama: n.nama,
+        alamat: n.alamat,
+        noTelp: n.noTelp,
+        kategori: n.kategori as KategoriNasabah,
+        nik: n.nik,
+        noRek: n.noRek,
+        jenisBank: n.jenisBank,
+        fotoLokasi: n.fotoLokasi,
+        titikLokasi: n.titikLokasi,
+        status: n.status as StatusNasabah,
+      },
+    });
+  }
+
+  console.log("Seeding complete!");
 
   console.log("✅ Admin berhasil dibuat: username=admin, password=password");
 }

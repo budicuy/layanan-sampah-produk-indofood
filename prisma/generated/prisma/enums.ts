@@ -16,3 +16,20 @@ export const Role = {
 } as const
 
 export type Role = (typeof Role)[keyof typeof Role]
+
+
+export const KategoriNasabah = {
+  BANK_SAMPAH: 'BANK_SAMPAH',
+  WARMIENDO: 'WARMIENDO',
+  PERORANGAN: 'PERORANGAN'
+} as const
+
+export type KategoriNasabah = (typeof KategoriNasabah)[keyof typeof KategoriNasabah]
+
+
+export const StatusNasabah = {
+  AKTIF: 'AKTIF',
+  NONAKTIF: 'NONAKTIF'
+} as const
+
+export type StatusNasabah = (typeof StatusNasabah)[keyof typeof StatusNasabah]

@@ -387,7 +387,8 @@ export const ModelName = {
   User: 'User',
   Session: 'Session',
   Account: 'Account',
-  Verification: 'Verification'
+  Verification: 'Verification',
+  Nasabah: 'Nasabah'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -403,7 +404,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "session" | "account" | "verification"
+    modelProps: "user" | "session" | "account" | "verification" | "nasabah"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -703,6 +704,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    Nasabah: {
+      payload: Prisma.$NasabahPayload<ExtArgs>
+      fields: Prisma.NasabahFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.NasabahFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NasabahPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.NasabahFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NasabahPayload>
+        }
+        findFirst: {
+          args: Prisma.NasabahFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NasabahPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.NasabahFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NasabahPayload>
+        }
+        findMany: {
+          args: Prisma.NasabahFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NasabahPayload>[]
+        }
+        create: {
+          args: Prisma.NasabahCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NasabahPayload>
+        }
+        createMany: {
+          args: Prisma.NasabahCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.NasabahCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NasabahPayload>[]
+        }
+        delete: {
+          args: Prisma.NasabahDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NasabahPayload>
+        }
+        update: {
+          args: Prisma.NasabahUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NasabahPayload>
+        }
+        deleteMany: {
+          args: Prisma.NasabahDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.NasabahUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.NasabahUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NasabahPayload>[]
+        }
+        upsert: {
+          args: Prisma.NasabahUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NasabahPayload>
+        }
+        aggregate: {
+          args: Prisma.NasabahAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateNasabah>
+        }
+        groupBy: {
+          args: Prisma.NasabahGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.NasabahGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.NasabahCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.NasabahCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -747,9 +822,8 @@ export const UserScalarFieldEnum = {
   name: 'name',
   email: 'email',
   emailVerified: 'emailVerified',
-  image: 'image',
   username: 'username',
-  displayUsername: 'displayUsername',
+  password: 'password',
   role: 'role',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -781,7 +855,6 @@ export const AccountScalarFieldEnum = {
   refreshToken: 'refreshToken',
   idToken: 'idToken',
   expiresAt: 'expiresAt',
-  password: 'password',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -799,6 +872,26 @@ export const VerificationScalarFieldEnum = {
 } as const
 
 export type VerificationScalarFieldEnum = (typeof VerificationScalarFieldEnum)[keyof typeof VerificationScalarFieldEnum]
+
+
+export const NasabahScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  nama: 'nama',
+  alamat: 'alamat',
+  noTelp: 'noTelp',
+  kategori: 'kategori',
+  nik: 'nik',
+  noRek: 'noRek',
+  jenisBank: 'jenisBank',
+  fotoLokasi: 'fotoLokasi',
+  titikLokasi: 'titikLokasi',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type NasabahScalarFieldEnum = (typeof NasabahScalarFieldEnum)[keyof typeof NasabahScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -877,6 +970,34 @@ export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel
  * Reference to a field of type 'DateTime[]'
  */
 export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime[]'>
+    
+
+
+/**
+ * Reference to a field of type 'KategoriNasabah'
+ */
+export type EnumKategoriNasabahFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'KategoriNasabah'>
+    
+
+
+/**
+ * Reference to a field of type 'KategoriNasabah[]'
+ */
+export type ListEnumKategoriNasabahFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'KategoriNasabah[]'>
+    
+
+
+/**
+ * Reference to a field of type 'StatusNasabah'
+ */
+export type EnumStatusNasabahFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StatusNasabah'>
+    
+
+
+/**
+ * Reference to a field of type 'StatusNasabah[]'
+ */
+export type ListEnumStatusNasabahFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StatusNasabah[]'>
     
 
 
@@ -1007,6 +1128,7 @@ export type GlobalOmitConfig = {
   session?: Prisma.SessionOmit
   account?: Prisma.AccountOmit
   verification?: Prisma.VerificationOmit
+  nasabah?: Prisma.NasabahOmit
 }
 
 /* Types for Logging */

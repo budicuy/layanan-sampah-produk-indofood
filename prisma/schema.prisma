@@ -11,19 +11,19 @@ datasource db {
 // Better Auth membutuhkan: id (String), name, email, emailVerified, image, createdAt, updatedAt.
 // Field tambahan proyek: username (unik), role.
 model User {
-  id            String   @id
+  id            String   @id @default(cuid())
   name          String
   email         String   @unique
   emailVerified Boolean  @default(false)
-  image         String?
   username      String   @unique
-  displayUsername String?
+  password      String
   role          Role     @default(KONSUMEN)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
   sessions Session[]
   accounts Account[]
+  nasabah  Nasabah?
 
   @@map("user")
 }
@@ -55,7 +55,6 @@ model Account {
   refreshToken String?
   idToken      String?
   expiresAt    DateTime?
-  password     String?
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 
@@ -85,19 +84,21 @@ enum Role {
 }
 
 model Nasabah {
-  id           String          @id @default(cuid())
-  nama         String
-  alamat       String
-  noTelp       String
-  kategori     KategoriNasabah
-  nik          String          @unique // No Nasabah (NIK)
-  noRek        String
-  jenisBank    String
-  fotoLokasi   String?
-  titikLokasi  String? // Koordinat
-  status       StatusNasabah   @default(AKTIF)
-  createdAt    DateTime        @default(now())
-  updatedAt    DateTime        @updatedAt
+  id          String          @id @default(cuid())
+  userId      String?         @unique // Relasi ke User
+  user        User?           @relation(fields: [userId], references: [id], onDelete: SetNull)
+  nama        String
+  alamat      String
+  noTelp      String
+  kategori    KategoriNasabah
+  nik         String          @unique // No Nasabah (NIK)
+  noRek       String
+  jenisBank   String
+  fotoLokasi  String?
+  titikLokasi String? // Koordinat
+  status      StatusNasabah   @default(AKTIF)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
 
   @@map("nasabah")
 }
