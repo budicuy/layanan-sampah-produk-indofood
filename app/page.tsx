@@ -6,6 +6,7 @@ import {
   Leaf,
   Mail,
   MapPin,
+  Menu,
   PhoneCall,
   Plus,
   Recycle,
@@ -14,6 +15,7 @@ import {
   Star,
   Truck,
   Users,
+  X,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -27,22 +29,19 @@ const NAV_LINKS = [
   { label: "Tentang Kami", href: "#about" },
   { label: "Layanan", href: "#services" },
   { label: "Proses", href: "#process" },
-  { label: "Harga", href: "#pricing" },
   { label: "FAQ", href: "#faq" },
 ];
-
-const PARTNERS = ["INDOFOOD", "NESTLE", "UNILEVER", "DANONE", "PERTAMINA"];
 
 const SERVICES = [
   {
     icon: <Truck className="w-8 h-8" />,
-    title: "Penjemputan Rutin",
-    desc: "Layanan jemput sampah harian atau mingguan dengan armada modern yang terjadwal.",
+    title: "Penjemputan Otomatis",
+    desc: "Layanan jemput sampah otomatis untuk lingkungan PT Indofood Banjarmasin dengan armada modern yang terjadwal.",
   },
   {
     icon: <Recycle className="w-8 h-8" />,
     title: "Pemisahan Sampah",
-    desc: "Sistem pemilahan otomatis untuk memastikan setiap sampah berakhir di tempat yang tepat.",
+    desc: "Sistem pemilahan sampah untuk memastikan setiap sampah berakhir di tempat yang tepat.",
   },
   {
     icon: <ShieldCheck className="w-8 h-8" />,
@@ -68,7 +67,7 @@ const PROCESS_STEPS = [
     icon: <Scan className="w-10 h-10" />,
     step: "03",
     title: "Pemilahan",
-    desc: "Sampah dipilah secara otomatis menggunakan teknologi AI di pusat pengolahan kami.",
+    desc: "Sampah dipilah secara teliti oleh tim ahli kami di pusat pengolahan untuk menjamin akurasi pemisahan.",
   },
   {
     icon: <Recycle className="w-10 h-10" />,
@@ -112,12 +111,8 @@ const FAQS = [
     a: "Kami menerima hampir semua jenis sampah domestik, termasuk organik (sisa makanan), anorganik (plastik, kertas, logam), hingga limbah elektronik dalam kategori khusus.",
   },
   {
-    q: "Bagaimana cara melakukan pembayaran?",
-    a: "Pembayaran dapat dilakukan melalui berbagai metode digital seperti transfer bank, e-wallet (GoPay, OVO), atau kartu kredit melalui aplikasi kami.",
-  },
-  {
     q: "Apakah saya harus memilah sampah sendiri?",
-    a: "Meskipun kami memiliki sistem pemilahan otomatis, kami sangat menyarankan Anda memisahkan antara sampah basah (organik) dan kering (anorganik) untuk efisiensi maksimal.",
+    a: "Meskipun kami memiliki tim pemilahan yang sangat teliti, kami tetap menyarankan Anda memisahkan antara sampah basah (organik) dan kering (anorganik) untuk efisiensi maksimal.",
   },
   {
     q: "Bagaimana jika jadwal penjemputan terlewat?",
@@ -153,6 +148,7 @@ const SOCIAL_ICONS = [
 
 export default function Home() {
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
     <div className="flex flex-col min-h-screen bg-white">
@@ -175,28 +171,55 @@ export default function Home() {
             </span>
           </div>
 
-          {/* Nav Links Section */}
+          {/* Mobile Menu Button */}
+          <button
+            type="button"
+            className="md:hidden p-2 text-zinc-600 hover:text-primary transition-colors"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}>
+            {isMenuOpen ? <X size={28} /> : <Menu size={28} />}
+          </button>
+
+          {/* Desktop Nav Links Section */}
           <div className="hidden md:flex items-center gap-8 text-sm font-medium text-zinc-600">
             {NAV_LINKS.map((link) => (
-              <a
+              <Link
                 key={link.label}
                 href={link.href}
                 className="hover:text-primary transition-colors">
                 {link.label}
-              </a>
+              </Link>
             ))}
             <Link
               href="/login"
-              className="text-sm font-bold text-zinc-900 hover:text-primary transition-colors">
+              className="px-6 py-2.5 bg-primary text-white rounded-full font-semibold hover:bg-accent transition-all transform hover:scale-105 active:scale-95 shadow-lg shadow-primary/20">
               Masuk
             </Link>
-            <button
-              type="button"
-              className="px-6 py-2.5 bg-primary text-white rounded-full font-semibold hover:bg-accent transition-all transform hover:scale-105 active:scale-95 shadow-lg shadow-primary/20">
-              Hubungi Kami
-            </button>
           </div>
         </div>
+
+        {/* Mobile Menu Overlay */}
+        {isMenuOpen && (
+          <div className="md:hidden absolute top-20 left-0 right-0 bg-white border-b border-zinc-100 shadow-xl animate-in slide-in-from-top duration-300">
+            <div className="flex flex-col p-6 gap-6">
+              {NAV_LINKS.map((link) => (
+                <Link
+                  key={link.label}
+                  href={link.href}
+                  className="text-lg font-medium text-zinc-600 hover:text-primary transition-colors"
+                  onClick={() => setIsMenuOpen(false)}>
+                  {link.label}
+                </Link>
+              ))}
+              <div className="h-px bg-zinc-100 my-2" />
+              <Link
+                href="/login"
+                className="w-full py-4 bg-primary text-white rounded-2xl font-bold text-lg hover:bg-accent transition-all shadow-lg shadow-primary/20 text-center"
+                onClick={() => setIsMenuOpen(false)}>
+                Masuk
+              </Link>
+            </div>
+          </div>
+        )}
       </nav>
 
       <main className="flex-1 pt-20">
@@ -214,21 +237,21 @@ export default function Home() {
               </h1>
               <p className="text-lg text-zinc-600 mb-10 max-w-lg leading-relaxed">
                 Kami hadir dengan sistem pengelolaan sampah terintegrasi untuk
-                menciptakan lingkungan yang bersih, sehat, dan berkelanjutan di
-                seluruh Indonesia.
+                menciptakan lingkungan yang bersih, sehat, dan berkelanjutan
+                bagi perusahaan PT Indofood cabang Banjarmasin.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
-                <button
-                  type="button"
+                <Link
+                  href="/login"
                   className="flex items-center justify-center gap-2 px-8 py-4 bg-primary text-white rounded-2xl font-bold text-lg hover:bg-accent transition-all shadow-xl shadow-primary/25 group">
                   Mulai Sekarang
                   <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                </button>
-                <button
-                  type="button"
-                  className="px-8 py-4 bg-white border-2 border-zinc-100 text-zinc-900 rounded-2xl font-bold text-lg hover:border-primary hover:text-primary transition-all">
+                </Link>
+                <Link
+                  href="#about"
+                  className="px-8 py-4 bg-white border-2 border-zinc-100 text-zinc-900 rounded-2xl font-bold text-lg hover:border-primary hover:text-primary transition-all text-center">
                   Pelajari Layanan
-                </button>
+                </Link>
               </div>
             </div>
 
@@ -256,24 +279,6 @@ export default function Home() {
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
-        </section>
-
-        {/* ── Partners Section ─────────────────────────────────────────── */}
-        <section className="py-12 border-y border-zinc-100">
-          <div className="max-w-7xl mx-auto px-6">
-            <p className="text-center text-zinc-400 text-sm font-bold uppercase tracking-widest mb-8">
-              Dipercaya oleh Institusi Terkemuka
-            </p>
-            <div className="flex flex-wrap justify-center items-center gap-12 md:gap-24 opacity-50 grayscale hover:grayscale-0 transition-all">
-              {PARTNERS.map((partner) => (
-                <div
-                  key={partner}
-                  className="text-2xl font-bold text-zinc-900 font-heading">
-                  {partner}
-                </div>
-              ))}
             </div>
           </div>
         </section>
@@ -306,9 +311,10 @@ export default function Home() {
                 </h2>
                 <p className="text-lg text-zinc-600 leading-relaxed">
                   <strong>BANK SAMPAH</strong> lahir dari keinginan untuk
-                  mengatasi krisis sampah di Indonesia. Bukan sekadar tempat
-                  pembuangan, kami adalah ekosistem yang mengubah limbah menjadi
-                  nilai ekonomi sambil menjaga kelestarian alam.
+                  mengatasi krisis sampah di lingkungan operasional PT Indofood
+                  Banjarmasin. Bukan sekadar tempat pembuangan, kami adalah
+                  ekosistem yang mengubah limbah menjadi nilai ekonomi sambil
+                  menjaga kelestarian alam.
                 </p>
                 <div className="grid grid-cols-2 gap-8">
                   <div className="space-y-2">
@@ -518,7 +524,7 @@ export default function Home() {
                 <button
                   type="button"
                   className="px-10 py-5 bg-white/10 text-white rounded-2xl font-bold text-xl hover:bg-white/20 backdrop-blur-sm transition-all">
-                  Lihat Harga
+                  Pelajari Lebih Lanjut
                 </button>
               </div>
             </div>
@@ -588,11 +594,11 @@ export default function Home() {
               <ul className="space-y-4 text-zinc-600">
                 {FOOTER_LINKS.support.map((link) => (
                   <li key={link.label}>
-                    <a
+                    <Link
                       href={link.href}
                       className="hover:text-primary transition-colors">
                       {link.label}
-                    </a>
+                    </Link>
                   </li>
                 ))}
               </ul>

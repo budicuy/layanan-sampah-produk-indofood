@@ -1,125 +1,143 @@
-import { LogOut, Recycle, ShieldCheck, User } from "lucide-react";
+import { Calendar, Recycle, ShieldCheck, TrendingUp, User } from "lucide-react";
 import { headers } from "next/headers";
-import Image from "next/image";
-import { redirect } from "next/navigation";
-import { logoutAction } from "@/app/actions/auth";
 import { auth } from "@/lib/auth";
+import { WasteLineChart, WasteTypeChart } from "./components/Charts";
 
-// ---------------------------------------------------------------------------
-// Konten statistik untuk ditampilkan di dashboard
-// ---------------------------------------------------------------------------
 const STATS = [
   {
     icon: Recycle,
     label: "Total Sampah",
-    value: "0 kg",
-    color: "text-green-600 bg-green-50",
+    value: "156.4 kg",
+    subValue: "+12% dari bulan lalu",
+    color: "text-red-600 bg-red-50",
   },
   {
     icon: User,
     label: "Poin Reward",
-    value: "0 pts",
-    color: "text-blue-600 bg-blue-50",
+    value: "2.450",
+    subValue: "Setara Rp 24.500",
+    color: "text-zinc-600 bg-zinc-100",
   },
   {
     icon: ShieldCheck,
     label: "Status Akun",
-    value: "Aktif",
+    value: "Premium",
+    subValue: "Hingga Des 2026",
     color: "text-primary bg-secondary",
   },
 ] as const;
 
-// ---------------------------------------------------------------------------
-// Halaman Dashboard
-// ---------------------------------------------------------------------------
 export default async function DashboardPage() {
   const session = await auth.api.getSession({ headers: await headers() });
-
-  if (!session) redirect("/login");
-
-  const { user } = session;
-  const displayName = user.name ?? user.username ?? user.email;
-  const avatar = displayName[0].toUpperCase();
+  // Layout handles redirect, but we need user for the name
+  const user = session?.user;
+  const displayName = user?.name ?? user?.username ?? user?.email;
 
   return (
-    <div className="flex flex-col min-h-screen bg-zinc-50">
-      {/* ── Header ──────────────────────────────────────────────────────── */}
-      <header className="bg-white border-b border-zinc-100 sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          {/* Logo */}
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 relative">
-              <Image
-                src="/logo.png"
-                alt="Logo Bank Sampah"
-                fill
-                sizes="40px"
-                className="object-contain"
-              />
-            </div>
-            <span className="font-heading text-lg font-bold tracking-tighter text-zinc-900 uppercase">
-              BANK <span className="text-primary">SAMPAH</span>
-            </span>
-          </div>
-
-          {/* User info + Logout */}
-          <div className="flex items-center gap-4">
-            <div className="hidden sm:flex items-center gap-2 text-sm text-zinc-600">
-              <div className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold">
-                {avatar}
-              </div>
-              <span className="font-medium">{displayName}</span>
-            </div>
-
-            <form action={logoutAction}>
-              <button
-                id="logout-btn"
-                type="submit"
-                className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-zinc-600 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all">
-                <LogOut className="w-4 h-4" />
-                <span className="hidden sm:inline">Keluar</span>
-              </button>
-            </form>
-          </div>
+    <div className="space-y-8 animate-in fade-in duration-500">
+      {/* Header Section */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-heading font-bold text-zinc-900">
+            Halo, {displayName}! 👋
+          </h1>
+          <p className="text-zinc-500 mt-1">
+            Pantau kontribusi lingkungan Anda hari ini.
+          </p>
         </div>
-      </header>
-
-      {/* ── Main ────────────────────────────────────────────────────────── */}
-      <main className="flex-1 max-w-7xl mx-auto px-6 py-10 w-full">
-        {/* Welcome Banner */}
-        <div className="bg-white rounded-3xl border border-zinc-100 p-8 mb-8 relative overflow-hidden shadow-sm">
-          <div className="absolute right-0 top-0 w-64 h-64 bg-primary/5 rounded-full -translate-y-1/2 translate-x-1/2" />
-          <div className="relative z-10">
-            <p className="text-sm font-semibold text-primary mb-1">Dashboard</p>
-            <h1 className="text-3xl font-heading font-bold text-zinc-900 mb-2">
-              Halo, {displayName}! 👋
-            </h1>
-            <p className="text-zinc-500">
-              Selamat datang di panel manajemen Bank Sampah.
-            </p>
-          </div>
+        <div className="flex items-center gap-3 bg-white p-2 px-4 rounded-2xl border border-zinc-100 shadow-sm">
+          <Calendar className="w-5 h-5 text-zinc-400" />
+          <span className="text-sm font-medium text-zinc-600">
+            {new Date().toLocaleDateString("id-ID", {
+              day: "numeric",
+              month: "long",
+              year: "numeric",
+            })}
+          </span>
         </div>
+      </div>
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {STATS.map(({ icon: Icon, label, value, color }) => (
-            <div
-              key={label}
-              className="bg-white rounded-2xl border border-zinc-100 p-6 flex items-center gap-5 shadow-sm hover:shadow-md transition-shadow">
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {STATS.map(({ icon: Icon, label, value, subValue, color }) => (
+          <div
+            key={label}
+            className="bg-white rounded-[32px] border border-zinc-100 p-8 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all group">
+            <div className="flex items-start justify-between mb-6">
               <div
-                className={`w-12 h-12 rounded-2xl flex items-center justify-center ${color}`}>
-                <Icon className="w-6 h-6" />
+                className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-transform group-hover:scale-110 ${color}`}>
+                <Icon className="w-7 h-7" />
               </div>
-              <div>
-                <p className="text-sm text-zinc-500 font-medium">{label}</p>
-                <p className="text-2xl font-heading font-bold text-zinc-900">
-                  {value}
+              <div className="px-3 py-1 bg-green-50 text-green-600 text-xs font-bold rounded-full flex items-center gap-1">
+                <TrendingUp size={12} />
+                Aktif
+              </div>
+            </div>
+            <div>
+              <p className="text-sm text-zinc-500 font-medium mb-1">{label}</p>
+              <h3 className="text-3xl font-heading font-bold text-zinc-900">
+                {value}
+              </h3>
+              <p className="text-sm text-zinc-400 mt-2">{subValue}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Charts Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Main Chart */}
+        <div className="bg-white rounded-[32px] border border-zinc-100 p-8 shadow-sm">
+          <div className="flex items-center justify-between mb-8">
+            <h3 className="text-xl font-bold text-zinc-900 font-heading">
+              Statistik Setoran
+            </h3>
+            <select className="bg-zinc-50 border-none text-sm font-bold text-zinc-600 rounded-xl px-4 py-2 focus:ring-2 focus:ring-primary/20">
+              <option>6 Bulan Terakhir</option>
+              <option>12 Bulan Terakhir</option>
+            </select>
+          </div>
+          <WasteLineChart />
+        </div>
+
+        {/* Distribution Chart */}
+        <div className="bg-white rounded-[32px] border border-zinc-100 p-8 shadow-sm">
+          <h3 className="text-xl font-bold text-zinc-900 font-heading mb-8">
+            Komposisi Sampah
+          </h3>
+          <WasteTypeChart />
+        </div>
+      </div>
+
+      {/* Recent Activity (Placeholder) */}
+      <div className="bg-white rounded-[32px] border border-zinc-100 p-8 shadow-sm">
+        <h3 className="text-xl font-bold text-zinc-900 font-heading mb-6">
+          Aktivitas Terakhir
+        </h3>
+        <div className="space-y-6">
+          {[1, 2, 3].map((i) => (
+            <div
+              key={i}
+              className="flex items-center gap-4 p-4 rounded-2xl hover:bg-zinc-50 transition-colors">
+              <div className="w-12 h-12 rounded-xl bg-secondary flex items-center justify-center text-primary">
+                <Recycle size={24} />
+              </div>
+              <div className="flex-1">
+                <h4 className="font-bold text-zinc-900">
+                  Setoran Sampah Anorganik
+                </h4>
+                <p className="text-sm text-zinc-500">
+                  Pusat Pengolahan Banjarmasin • 12.5 kg
                 </p>
+              </div>
+              <div className="text-right">
+                <p className="font-bold text-zinc-900">+125 Poin</p>
+                <p className="text-xs text-zinc-400">2 jam yang lalu</p>
               </div>
             </div>
           ))}
         </div>
-      </main>
+      </div>
     </div>
   );
 }

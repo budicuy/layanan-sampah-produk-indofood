@@ -26,7 +26,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${outfit.variable} ${nunitoSans.variable} h-full antialiased`}>
+      className={`${outfit.variable} ${nunitoSans.variable} h-full antialiased scroll-smooth`}>
       <body className="min-h-full flex flex-col font-sans">{children}</body>
     </html>
   );
