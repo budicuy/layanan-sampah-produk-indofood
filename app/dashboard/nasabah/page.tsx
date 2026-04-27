@@ -10,7 +10,6 @@ import {
   Users,
   XCircle,
 } from "lucide-react";
-import Image from "next/image";
 import {
   NasabahCategoryChart,
   NasabahStatusChart,
@@ -126,20 +125,6 @@ export default async function NasabahPage() {
                     className="hover:bg-zinc-50/50 transition-colors group">
                     <td className="px-8 py-6">
                       <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-2xl bg-zinc-100 overflow-hidden relative shrink-0">
-                          {n.fotoLokasi ? (
-                            <Image
-                              src={n.fotoLokasi}
-                              alt={n.nama}
-                              fill
-                              className="object-cover"
-                            />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center text-zinc-400">
-                              <Users size={20} />
-                            </div>
-                          )}
-                        </div>
                         <div>
                           <p className="font-bold text-zinc-900">{n.nama}</p>
                           <p className="text-xs text-zinc-400 mt-1 font-mono">

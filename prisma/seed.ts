@@ -1,13 +1,12 @@
 import "dotenv/config";
+import { hashPassword } from "better-auth/crypto";
 import type { KategoriNasabah, StatusNasabah } from "./generated/prisma/enums";
 import { NasabahsSeed } from "./seed_nasabah";
-import { hashPassword } from "better-auth/crypto";
 
 async function main() {
   console.log("🌱 Seeding user admin...");
 
   const { prisma } = await import("../lib/prisma");
-  const UserPassword = await hashPassword("password");
   await prisma.user.upsert({
     where: { username: "admin" },
     update: {},
@@ -15,8 +14,16 @@ async function main() {
       name: "Admin",
       email: "admin@gmail.com",
       username: "admin",
-      password: UserPassword,
+      emailVerified: true,
       role: "ADMIN",
+      accounts: {
+        create: {
+          id: "admin-account-id", // ID unik untuk account
+          accountId: "admin", // biasanya sama dengan userId atau username
+          providerId: "credential", // Better Auth pakai "credential" untuk email/password
+          password: await hashPassword("password"),
+        },
+      },
     },
   });
 
