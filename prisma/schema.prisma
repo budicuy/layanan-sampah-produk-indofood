@@ -83,3 +83,32 @@ enum Role {
   ADMIN
   HRD
 }
+
+model Nasabah {
+  id           String          @id @default(cuid())
+  nama         String
+  alamat       String
+  noTelp       String
+  kategori     KategoriNasabah
+  nik          String          @unique // No Nasabah (NIK)
+  noRek        String
+  jenisBank    String
+  fotoLokasi   String?
+  titikLokasi  String? // Koordinat
+  status       StatusNasabah   @default(AKTIF)
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+
+  @@map("nasabah")
+}
+
+enum KategoriNasabah {
+  BANK_SAMPAH
+  WARMIENDO
+  PERORANGAN
+}
+
+enum StatusNasabah {
+  AKTIF
+  NONAKTIF
+}
