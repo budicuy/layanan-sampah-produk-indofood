@@ -33,3 +33,36 @@ export const StatusNasabah = {
 } as const
 
 export type StatusNasabah = (typeof StatusNasabah)[keyof typeof StatusNasabah]
+
+
+export const JenisProduk = {
+  PLASTIK: 'PLASTIK',
+  KARTON: 'KARTON'
+} as const
+
+export type JenisProduk = (typeof JenisProduk)[keyof typeof JenisProduk]
+
+
+export const StatusUser = {
+  AKTIF: 'AKTIF',
+  NONAKTIF: 'NONAKTIF'
+} as const
+
+export type StatusUser = (typeof StatusUser)[keyof typeof StatusUser]
+
+
+export const StatusEkpedisi = {
+  BELUM_DI_PROSES: 'BELUM_DI_PROSES',
+  PROSES: 'PROSES',
+  DONE: 'DONE'
+} as const
+
+export type StatusEkpedisi = (typeof StatusEkpedisi)[keyof typeof StatusEkpedisi]
+
+
+export const JenisSampah = {
+  PLASTIK: 'PLASTIK',
+  KARTON: 'KARTON'
+} as const
+
+export type JenisSampah = (typeof JenisSampah)[keyof typeof JenisSampah]

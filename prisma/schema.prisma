@@ -10,19 +10,23 @@ datasource db {
 // Tabel User — satu-satunya tabel entitas bisnis.
 // Better Auth membutuhkan: id (String), name, email, emailVerified, image, createdAt, updatedAt.
 // Field tambahan proyek: username (unik), role.
-model User {
-  id            String   @id @default(cuid())
-  name          String
-  email         String   @unique
-  emailVerified Boolean  @default(false)
-  username      String   @unique
-  role          Role     @default(KONSUMEN)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
 
-  sessions Session[]
-  accounts Account[]
-  nasabah  Nasabah?
+model User {
+  id            String     @id @default(cuid())
+  name          String
+  email         String     @unique
+  emailVerified Boolean    @default(false)
+  username      String     @unique
+  role          Role       @default(KONSUMEN)
+  status        StatusUser @default(AKTIF)
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  sessions   Session[]
+  accounts   Account[]
+  nasabah    Nasabah?
+  ekpedisiId String[]
+  ekpedisi   Ekpedisi?
 
   @@map("user")
 }
@@ -112,4 +116,67 @@ enum KategoriNasabah {
 enum StatusNasabah {
   AKTIF
   NONAKTIF
+}
+
+model Produk {
+  id        String      @id @default(cuid())
+  kode      String      @unique
+  nama      String
+  jenis     JenisProduk
+  berat     Float
+  brand     String
+  harga     Int
+  isi       Int
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  @@map("produk")
+}
+
+enum JenisProduk {
+  PLASTIK
+  KARTON
+}
+
+enum StatusUser {
+  AKTIF
+  NONAKTIF
+}
+
+model Ekpedisi {
+  id          String         @id @default(cuid())
+  userId      String?        @unique // Relasi ke User
+  noTelp      String
+  alamat      String
+  titikLokasi String?
+  status      StatusEkpedisi @default(BELUM_DI_PROSES)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@map("ekpedisi")
+}
+
+enum StatusEkpedisi {
+  BELUM_DI_PROSES
+  PROSES
+  DONE
+}
+
+model HargaSampah {
+  id          String      @id @default(cuid())
+  harga       Int
+  bulan       DateTime
+  jenisSampah JenisSampah
+  berat       Float
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  @@map("harga_sampah")
+}
+
+enum JenisSampah {
+  PLASTIK
+  KARTON
 }

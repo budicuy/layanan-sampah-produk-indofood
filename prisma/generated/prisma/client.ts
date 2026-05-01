@@ -66,3 +66,18 @@ export type Verification = Prisma.VerificationModel
  * 
  */
 export type Nasabah = Prisma.NasabahModel
+/**
+ * Model Produk
+ * 
+ */
+export type Produk = Prisma.ProdukModel
+/**
+ * Model Ekpedisi
+ * 
+ */
+export type Ekpedisi = Prisma.EkpedisiModel
+/**
+ * Model HargaSampah
+ * 
+ */
+export type HargaSampah = Prisma.HargaSampahModel

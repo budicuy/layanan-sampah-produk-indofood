@@ -1,12 +1,24 @@
 import "dotenv/config";
 import { hashPassword } from "better-auth/crypto";
-import type { KategoriNasabah, StatusNasabah } from "./generated/prisma/enums";
+import type {
+  JenisProduk,
+  JenisSampah,
+  KategoriNasabah,
+  Role,
+  StatusEkpedisi,
+  StatusNasabah,
+  StatusUser,
+} from "./generated/prisma/enums";
+import { EkpedisiSeed } from "./seed_ekspedisi";
+import { HargaSampahSeed } from "./seed_harga_sampah";
 import { NasabahsSeed } from "./seed_nasabah";
+import { ProdukSeed } from "./seed_produk";
+import { UsersSeed } from "./seed_user";
 
 async function main() {
-  console.log("🌱 Seeding user admin...");
-
   const { prisma } = await import("../lib/prisma");
+
+  console.log("🌱 Seeding user admin...");
   await prisma.user.upsert({
     where: { username: "admin" },
     update: {},
@@ -18,17 +30,40 @@ async function main() {
       role: "ADMIN",
       accounts: {
         create: {
-          id: "admin-account-id", // ID unik untuk account
-          accountId: "admin", // biasanya sama dengan userId atau username
-          providerId: "credential", // Better Auth pakai "credential" untuk email/password
+          id: "admin-account-id",
+          accountId: "admin",
+          providerId: "credential",
           password: await hashPassword("password"),
         },
       },
     },
   });
 
-  console.log("Seeding dummy Nasabah data...");
+  console.log("Seeding dummy Users...");
+  for (const u of UsersSeed) {
+    await prisma.user.upsert({
+      where: { username: u.username },
+      update: {},
+      create: {
+        name: u.name,
+        email: u.email,
+        username: u.username,
+        emailVerified: true,
+        role: u.role as Role,
+        status: u.status as StatusUser,
+        accounts: {
+          create: {
+            id: `acc-${u.username}`,
+            accountId: u.username,
+            providerId: "credential",
+            password: await hashPassword("password"),
+          },
+        },
+      },
+    });
+  }
 
+  console.log("Seeding dummy Nasabah data...");
   for (const n of NasabahsSeed) {
     await prisma.nasabah.upsert({
       where: { nik: n.nik },
@@ -48,9 +83,48 @@ async function main() {
     });
   }
 
-  console.log("Seeding complete!");
+  console.log("Seeding dummy Produk data...");
+  for (const p of ProdukSeed) {
+    await prisma.produk.upsert({
+      where: { kode: p.kode },
+      update: {},
+      create: {
+        kode: p.kode,
+        nama: p.nama,
+        jenis: p.jenis as JenisProduk,
+        berat: p.berat,
+        brand: p.brand,
+        harga: p.harga,
+        isi: p.isi,
+      },
+    });
+  }
 
-  console.log("✅ Admin berhasil dibuat: username=admin, password=password");
+  console.log("Seeding dummy Ekpedisi data...");
+  for (const e of EkpedisiSeed) {
+    await prisma.ekpedisi.create({
+      data: {
+        noTelp: e.noTelp,
+        alamat: e.alamat,
+        titikLokasi: e.titikLokasi,
+        status: e.status as StatusEkpedisi,
+      },
+    });
+  }
+
+  console.log("Seeding dummy Harga Sampah data...");
+  for (const h of HargaSampahSeed) {
+    await prisma.hargaSampah.create({
+      data: {
+        harga: h.harga,
+        bulan: h.bulan,
+        jenisSampah: h.jenisSampah as JenisSampah,
+        berat: h.berat,
+      },
+    });
+  }
+
+  console.log("✅ Seeding complete!");
 }
 
 main()

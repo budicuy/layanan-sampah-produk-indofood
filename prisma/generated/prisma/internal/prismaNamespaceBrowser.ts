@@ -55,7 +55,10 @@ export const ModelName = {
   Session: 'Session',
   Account: 'Account',
   Verification: 'Verification',
-  Nasabah: 'Nasabah'
+  Nasabah: 'Nasabah',
+  Produk: 'Produk',
+  Ekpedisi: 'Ekpedisi',
+  HargaSampah: 'HargaSampah'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -81,8 +84,10 @@ export const UserScalarFieldEnum = {
   emailVerified: 'emailVerified',
   username: 'username',
   role: 'role',
+  status: 'status',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  ekpedisiId: 'ekpedisiId'
 } as const
 
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
@@ -149,6 +154,49 @@ export const NasabahScalarFieldEnum = {
 } as const
 
 export type NasabahScalarFieldEnum = (typeof NasabahScalarFieldEnum)[keyof typeof NasabahScalarFieldEnum]
+
+
+export const ProdukScalarFieldEnum = {
+  id: 'id',
+  kode: 'kode',
+  nama: 'nama',
+  jenis: 'jenis',
+  berat: 'berat',
+  brand: 'brand',
+  harga: 'harga',
+  isi: 'isi',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ProdukScalarFieldEnum = (typeof ProdukScalarFieldEnum)[keyof typeof ProdukScalarFieldEnum]
+
+
+export const EkpedisiScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  noTelp: 'noTelp',
+  alamat: 'alamat',
+  titikLokasi: 'titikLokasi',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type EkpedisiScalarFieldEnum = (typeof EkpedisiScalarFieldEnum)[keyof typeof EkpedisiScalarFieldEnum]
+
+
+export const HargaSampahScalarFieldEnum = {
+  id: 'id',
+  harga: 'harga',
+  bulan: 'bulan',
+  jenisSampah: 'jenisSampah',
+  berat: 'berat',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type HargaSampahScalarFieldEnum = (typeof HargaSampahScalarFieldEnum)[keyof typeof HargaSampahScalarFieldEnum]
 
 
 export const SortOrder = {

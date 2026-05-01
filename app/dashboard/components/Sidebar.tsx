@@ -20,7 +20,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { logoutAction } from "@/app/actions/auth";
+import { logoutAction } from "@/app/login/actions";
 
 const MENU_GROUPS = [
   {
@@ -42,7 +42,7 @@ const MENU_GROUPS = [
     items: [
       {
         icon: FileText,
-        label: "Laporan",
+        label: "Laporan (Coming soon)",
         href: "/dashboard/laporan-pendataan",
       },
     ],
@@ -52,12 +52,12 @@ const MENU_GROUPS = [
     items: [
       {
         icon: BarChart3,
-        label: "History Omzet",
+        label: "History Omzet (Coming soon)",
         href: "/dashboard/history-omzet",
       },
       {
         icon: Landmark,
-        label: "Mutasi Bank Sampah",
+        label: "Mutasi Bank Sampah (Coming soon)",
         href: "/dashboard/mutasi",
       },
     ],
@@ -67,12 +67,12 @@ const MENU_GROUPS = [
     items: [
       {
         icon: ClipboardList,
-        label: "Laporan Vendor",
+        label: "Laporan Vendor (Coming soon)",
         href: "/dashboard/laporan-vendor",
       },
       {
         icon: Wallet,
-        label: "Total Tabungan Vendor",
+        label: "Total Tabungan Vendor (Coming soon)",
         href: "/dashboard/total-tabungan",
       },
     ],
