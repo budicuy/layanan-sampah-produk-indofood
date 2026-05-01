@@ -58,7 +58,8 @@ export const ModelName = {
   Nasabah: 'Nasabah',
   Produk: 'Produk',
   Ekpedisi: 'Ekpedisi',
-  HargaSampah: 'HargaSampah'
+  HargaSampah: 'HargaSampah',
+  LaporanPendataan: 'LaporanPendataan'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -197,6 +198,19 @@ export const HargaSampahScalarFieldEnum = {
 } as const
 
 export type HargaSampahScalarFieldEnum = (typeof HargaSampahScalarFieldEnum)[keyof typeof HargaSampahScalarFieldEnum]
+
+
+export const LaporanPendataanScalarFieldEnum = {
+  id: 'id',
+  nasabahId: 'nasabahId',
+  jenisSampah: 'jenisSampah',
+  berat: 'berat',
+  produkId: 'produkId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type LaporanPendataanScalarFieldEnum = (typeof LaporanPendataanScalarFieldEnum)[keyof typeof LaporanPendataanScalarFieldEnum]
 
 
 export const SortOrder = {

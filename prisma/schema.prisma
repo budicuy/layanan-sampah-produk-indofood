@@ -88,21 +88,22 @@ enum Role {
 }
 
 model Nasabah {
-  id          String          @id @default(cuid())
-  userId      String?         @unique // Relasi ke User
-  user        User?           @relation(fields: [userId], references: [id], onDelete: SetNull)
-  nama        String
-  alamat      String
-  noTelp      String
-  kategori    KategoriNasabah
-  nik         String          @unique // No Nasabah (NIK)
-  noRek       String
-  jenisBank   String
-  fotoLokasi  String?
-  titikLokasi String? // Koordinat
-  status      StatusNasabah   @default(AKTIF)
-  createdAt   DateTime        @default(now())
-  updatedAt   DateTime        @updatedAt
+  id                String             @id @default(cuid())
+  userId            String?            @unique // Relasi ke User
+  user              User?              @relation(fields: [userId], references: [id], onDelete: SetNull)
+  nama              String
+  alamat            String
+  noTelp            String
+  kategori          KategoriNasabah
+  nik               String             @unique // No Nasabah (NIK)
+  noRek             String
+  jenisBank         String
+  fotoLokasi        String?
+  titikLokasi       String? // Koordinat
+  status            StatusNasabah      @default(AKTIF)
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  laporanPendataans LaporanPendataan[]
 
   @@map("nasabah")
 }
@@ -119,16 +120,17 @@ enum StatusNasabah {
 }
 
 model Produk {
-  id        String      @id @default(cuid())
-  kode      String      @unique
-  nama      String
-  jenis     JenisProduk
-  berat     Float
-  brand     String
-  harga     Int
-  isi       Int
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt
+  id                String             @id @default(cuid())
+  kode              String             @unique
+  nama              String
+  jenis             JenisProduk
+  berat             Float
+  brand             String
+  harga             Int
+  isi               Int
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  laporanPendataans LaporanPendataan[]
 
   @@map("produk")
 }
@@ -179,4 +181,18 @@ model HargaSampah {
 enum JenisSampah {
   PLASTIK
   KARTON
+}
+
+model LaporanPendataan {
+  id          String      @id @default(cuid())
+  nasabahId   String
+  nasabah     Nasabah     @relation(fields: [nasabahId], references: [id])
+  jenisSampah JenisSampah
+  berat       Float
+  produkId    String?
+  produk      Produk?     @relation(fields: [produkId], references: [id])
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  @@map("laporan_pendataan")
 }

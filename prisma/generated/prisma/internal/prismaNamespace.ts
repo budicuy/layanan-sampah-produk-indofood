@@ -391,7 +391,8 @@ export const ModelName = {
   Nasabah: 'Nasabah',
   Produk: 'Produk',
   Ekpedisi: 'Ekpedisi',
-  HargaSampah: 'HargaSampah'
+  HargaSampah: 'HargaSampah',
+  LaporanPendataan: 'LaporanPendataan'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -407,7 +408,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "session" | "account" | "verification" | "nasabah" | "produk" | "ekpedisi" | "hargaSampah"
+    modelProps: "user" | "session" | "account" | "verification" | "nasabah" | "produk" | "ekpedisi" | "hargaSampah" | "laporanPendataan"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1003,6 +1004,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    LaporanPendataan: {
+      payload: Prisma.$LaporanPendataanPayload<ExtArgs>
+      fields: Prisma.LaporanPendataanFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.LaporanPendataanFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LaporanPendataanPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.LaporanPendataanFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LaporanPendataanPayload>
+        }
+        findFirst: {
+          args: Prisma.LaporanPendataanFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LaporanPendataanPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.LaporanPendataanFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LaporanPendataanPayload>
+        }
+        findMany: {
+          args: Prisma.LaporanPendataanFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LaporanPendataanPayload>[]
+        }
+        create: {
+          args: Prisma.LaporanPendataanCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LaporanPendataanPayload>
+        }
+        createMany: {
+          args: Prisma.LaporanPendataanCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.LaporanPendataanCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LaporanPendataanPayload>[]
+        }
+        delete: {
+          args: Prisma.LaporanPendataanDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LaporanPendataanPayload>
+        }
+        update: {
+          args: Prisma.LaporanPendataanUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LaporanPendataanPayload>
+        }
+        deleteMany: {
+          args: Prisma.LaporanPendataanDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.LaporanPendataanUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.LaporanPendataanUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LaporanPendataanPayload>[]
+        }
+        upsert: {
+          args: Prisma.LaporanPendataanUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LaporanPendataanPayload>
+        }
+        aggregate: {
+          args: Prisma.LaporanPendataanAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateLaporanPendataan>
+        }
+        groupBy: {
+          args: Prisma.LaporanPendataanGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LaporanPendataanGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.LaporanPendataanCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LaporanPendataanCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -1162,6 +1237,19 @@ export const HargaSampahScalarFieldEnum = {
 } as const
 
 export type HargaSampahScalarFieldEnum = (typeof HargaSampahScalarFieldEnum)[keyof typeof HargaSampahScalarFieldEnum]
+
+
+export const LaporanPendataanScalarFieldEnum = {
+  id: 'id',
+  nasabahId: 'nasabahId',
+  jenisSampah: 'jenisSampah',
+  berat: 'berat',
+  produkId: 'produkId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type LaporanPendataanScalarFieldEnum = (typeof LaporanPendataanScalarFieldEnum)[keyof typeof LaporanPendataanScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -1472,6 +1560,7 @@ export type GlobalOmitConfig = {
   produk?: Prisma.ProdukOmit
   ekpedisi?: Prisma.EkpedisiOmit
   hargaSampah?: Prisma.HargaSampahOmit
+  laporanPendataan?: Prisma.LaporanPendataanOmit
 }
 
 /* Types for Logging */

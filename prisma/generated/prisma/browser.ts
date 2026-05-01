@@ -57,3 +57,8 @@ export type Ekpedisi = Prisma.EkpedisiModel
  * 
  */
 export type HargaSampah = Prisma.HargaSampahModel
+/**
+ * Model LaporanPendataan
+ * 
+ */
+export type LaporanPendataan = Prisma.LaporanPendataanModel

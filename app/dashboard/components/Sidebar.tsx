@@ -42,7 +42,7 @@ const MENU_GROUPS = [
     items: [
       {
         icon: FileText,
-        label: "Laporan (Coming soon)",
+        label: "Laporan",
         href: "/dashboard/laporan-pendataan",
       },
     ],

@@ -255,6 +255,7 @@ export type NasabahWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"Nasabah"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Nasabah"> | Date | string
   user?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
+  laporanPendataans?: Prisma.LaporanPendataanListRelationFilter
 }
 
 export type NasabahOrderByWithRelationInput = {
@@ -273,6 +274,7 @@ export type NasabahOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   user?: Prisma.UserOrderByWithRelationInput
+  laporanPendataans?: Prisma.LaporanPendataanOrderByRelationAggregateInput
 }
 
 export type NasabahWhereUniqueInput = Prisma.AtLeast<{
@@ -294,6 +296,7 @@ export type NasabahWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"Nasabah"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Nasabah"> | Date | string
   user?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
+  laporanPendataans?: Prisma.LaporanPendataanListRelationFilter
 }, "id" | "userId" | "nik">
 
 export type NasabahOrderByWithAggregationInput = {
@@ -351,6 +354,7 @@ export type NasabahCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   user?: Prisma.UserCreateNestedOneWithoutNasabahInput
+  laporanPendataans?: Prisma.LaporanPendataanCreateNestedManyWithoutNasabahInput
 }
 
 export type NasabahUncheckedCreateInput = {
@@ -368,6 +372,7 @@ export type NasabahUncheckedCreateInput = {
   status?: $Enums.StatusNasabah
   createdAt?: Date | string
   updatedAt?: Date | string
+  laporanPendataans?: Prisma.LaporanPendataanUncheckedCreateNestedManyWithoutNasabahInput
 }
 
 export type NasabahUpdateInput = {
@@ -385,6 +390,7 @@ export type NasabahUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneWithoutNasabahNestedInput
+  laporanPendataans?: Prisma.LaporanPendataanUpdateManyWithoutNasabahNestedInput
 }
 
 export type NasabahUncheckedUpdateInput = {
@@ -402,6 +408,7 @@ export type NasabahUncheckedUpdateInput = {
   status?: Prisma.EnumStatusNasabahFieldUpdateOperationsInput | $Enums.StatusNasabah
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  laporanPendataans?: Prisma.LaporanPendataanUncheckedUpdateManyWithoutNasabahNestedInput
 }
 
 export type NasabahCreateManyInput = {
@@ -510,6 +517,11 @@ export type NasabahMinOrderByAggregateInput = {
   updatedAt?: Prisma.SortOrder
 }
 
+export type NasabahScalarRelationFilter = {
+  is?: Prisma.NasabahWhereInput
+  isNot?: Prisma.NasabahWhereInput
+}
+
 export type NasabahCreateNestedOneWithoutUserInput = {
   create?: Prisma.XOR<Prisma.NasabahCreateWithoutUserInput, Prisma.NasabahUncheckedCreateWithoutUserInput>
   connectOrCreate?: Prisma.NasabahCreateOrConnectWithoutUserInput
@@ -550,6 +562,20 @@ export type EnumStatusNasabahFieldUpdateOperationsInput = {
   set?: $Enums.StatusNasabah
 }
 
+export type NasabahCreateNestedOneWithoutLaporanPendataansInput = {
+  create?: Prisma.XOR<Prisma.NasabahCreateWithoutLaporanPendataansInput, Prisma.NasabahUncheckedCreateWithoutLaporanPendataansInput>
+  connectOrCreate?: Prisma.NasabahCreateOrConnectWithoutLaporanPendataansInput
+  connect?: Prisma.NasabahWhereUniqueInput
+}
+
+export type NasabahUpdateOneRequiredWithoutLaporanPendataansNestedInput = {
+  create?: Prisma.XOR<Prisma.NasabahCreateWithoutLaporanPendataansInput, Prisma.NasabahUncheckedCreateWithoutLaporanPendataansInput>
+  connectOrCreate?: Prisma.NasabahCreateOrConnectWithoutLaporanPendataansInput
+  upsert?: Prisma.NasabahUpsertWithoutLaporanPendataansInput
+  connect?: Prisma.NasabahWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.NasabahUpdateToOneWithWhereWithoutLaporanPendataansInput, Prisma.NasabahUpdateWithoutLaporanPendataansInput>, Prisma.NasabahUncheckedUpdateWithoutLaporanPendataansInput>
+}
+
 export type NasabahCreateWithoutUserInput = {
   id?: string
   nama: string
@@ -564,6 +590,7 @@ export type NasabahCreateWithoutUserInput = {
   status?: $Enums.StatusNasabah
   createdAt?: Date | string
   updatedAt?: Date | string
+  laporanPendataans?: Prisma.LaporanPendataanCreateNestedManyWithoutNasabahInput
 }
 
 export type NasabahUncheckedCreateWithoutUserInput = {
@@ -580,6 +607,7 @@ export type NasabahUncheckedCreateWithoutUserInput = {
   status?: $Enums.StatusNasabah
   createdAt?: Date | string
   updatedAt?: Date | string
+  laporanPendataans?: Prisma.LaporanPendataanUncheckedCreateNestedManyWithoutNasabahInput
 }
 
 export type NasabahCreateOrConnectWithoutUserInput = {
@@ -612,6 +640,7 @@ export type NasabahUpdateWithoutUserInput = {
   status?: Prisma.EnumStatusNasabahFieldUpdateOperationsInput | $Enums.StatusNasabah
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  laporanPendataans?: Prisma.LaporanPendataanUpdateManyWithoutNasabahNestedInput
 }
 
 export type NasabahUncheckedUpdateWithoutUserInput = {
@@ -628,8 +657,122 @@ export type NasabahUncheckedUpdateWithoutUserInput = {
   status?: Prisma.EnumStatusNasabahFieldUpdateOperationsInput | $Enums.StatusNasabah
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  laporanPendataans?: Prisma.LaporanPendataanUncheckedUpdateManyWithoutNasabahNestedInput
 }
 
+export type NasabahCreateWithoutLaporanPendataansInput = {
+  id?: string
+  nama: string
+  alamat: string
+  noTelp: string
+  kategori: $Enums.KategoriNasabah
+  nik: string
+  noRek: string
+  jenisBank: string
+  fotoLokasi?: string | null
+  titikLokasi?: string | null
+  status?: $Enums.StatusNasabah
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  user?: Prisma.UserCreateNestedOneWithoutNasabahInput
+}
+
+export type NasabahUncheckedCreateWithoutLaporanPendataansInput = {
+  id?: string
+  userId?: string | null
+  nama: string
+  alamat: string
+  noTelp: string
+  kategori: $Enums.KategoriNasabah
+  nik: string
+  noRek: string
+  jenisBank: string
+  fotoLokasi?: string | null
+  titikLokasi?: string | null
+  status?: $Enums.StatusNasabah
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type NasabahCreateOrConnectWithoutLaporanPendataansInput = {
+  where: Prisma.NasabahWhereUniqueInput
+  create: Prisma.XOR<Prisma.NasabahCreateWithoutLaporanPendataansInput, Prisma.NasabahUncheckedCreateWithoutLaporanPendataansInput>
+}
+
+export type NasabahUpsertWithoutLaporanPendataansInput = {
+  update: Prisma.XOR<Prisma.NasabahUpdateWithoutLaporanPendataansInput, Prisma.NasabahUncheckedUpdateWithoutLaporanPendataansInput>
+  create: Prisma.XOR<Prisma.NasabahCreateWithoutLaporanPendataansInput, Prisma.NasabahUncheckedCreateWithoutLaporanPendataansInput>
+  where?: Prisma.NasabahWhereInput
+}
+
+export type NasabahUpdateToOneWithWhereWithoutLaporanPendataansInput = {
+  where?: Prisma.NasabahWhereInput
+  data: Prisma.XOR<Prisma.NasabahUpdateWithoutLaporanPendataansInput, Prisma.NasabahUncheckedUpdateWithoutLaporanPendataansInput>
+}
+
+export type NasabahUpdateWithoutLaporanPendataansInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  nama?: Prisma.StringFieldUpdateOperationsInput | string
+  alamat?: Prisma.StringFieldUpdateOperationsInput | string
+  noTelp?: Prisma.StringFieldUpdateOperationsInput | string
+  kategori?: Prisma.EnumKategoriNasabahFieldUpdateOperationsInput | $Enums.KategoriNasabah
+  nik?: Prisma.StringFieldUpdateOperationsInput | string
+  noRek?: Prisma.StringFieldUpdateOperationsInput | string
+  jenisBank?: Prisma.StringFieldUpdateOperationsInput | string
+  fotoLokasi?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  titikLokasi?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumStatusNasabahFieldUpdateOperationsInput | $Enums.StatusNasabah
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  user?: Prisma.UserUpdateOneWithoutNasabahNestedInput
+}
+
+export type NasabahUncheckedUpdateWithoutLaporanPendataansInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nama?: Prisma.StringFieldUpdateOperationsInput | string
+  alamat?: Prisma.StringFieldUpdateOperationsInput | string
+  noTelp?: Prisma.StringFieldUpdateOperationsInput | string
+  kategori?: Prisma.EnumKategoriNasabahFieldUpdateOperationsInput | $Enums.KategoriNasabah
+  nik?: Prisma.StringFieldUpdateOperationsInput | string
+  noRek?: Prisma.StringFieldUpdateOperationsInput | string
+  jenisBank?: Prisma.StringFieldUpdateOperationsInput | string
+  fotoLokasi?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  titikLokasi?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumStatusNasabahFieldUpdateOperationsInput | $Enums.StatusNasabah
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+
+/**
+ * Count Type NasabahCountOutputType
+ */
+
+export type NasabahCountOutputType = {
+  laporanPendataans: number
+}
+
+export type NasabahCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  laporanPendataans?: boolean | NasabahCountOutputTypeCountLaporanPendataansArgs
+}
+
+/**
+ * NasabahCountOutputType without action
+ */
+export type NasabahCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the NasabahCountOutputType
+   */
+  select?: Prisma.NasabahCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * NasabahCountOutputType without action
+ */
+export type NasabahCountOutputTypeCountLaporanPendataansArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.LaporanPendataanWhereInput
+}
 
 
 export type NasabahSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -648,6 +791,8 @@ export type NasabahSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.Nasabah$userArgs<ExtArgs>
+  laporanPendataans?: boolean | Prisma.Nasabah$laporanPendataansArgs<ExtArgs>
+  _count?: boolean | Prisma.NasabahCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["nasabah"]>
 
 export type NasabahSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -706,6 +851,8 @@ export type NasabahSelectScalar = {
 export type NasabahOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "nama" | "alamat" | "noTelp" | "kategori" | "nik" | "noRek" | "jenisBank" | "fotoLokasi" | "titikLokasi" | "status" | "createdAt" | "updatedAt", ExtArgs["result"]["nasabah"]>
 export type NasabahInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.Nasabah$userArgs<ExtArgs>
+  laporanPendataans?: boolean | Prisma.Nasabah$laporanPendataansArgs<ExtArgs>
+  _count?: boolean | Prisma.NasabahCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type NasabahIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.Nasabah$userArgs<ExtArgs>
@@ -718,6 +865,7 @@ export type $NasabahPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
   name: "Nasabah"
   objects: {
     user: Prisma.$UserPayload<ExtArgs> | null
+    laporanPendataans: Prisma.$LaporanPendataanPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1129,6 +1277,7 @@ readonly fields: NasabahFieldRefs;
 export interface Prisma__NasabahClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   user<T extends Prisma.Nasabah$userArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Nasabah$userArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  laporanPendataans<T extends Prisma.Nasabah$laporanPendataansArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Nasabah$laporanPendataansArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LaporanPendataanPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1589,6 +1738,30 @@ export type Nasabah$userArgs<ExtArgs extends runtime.Types.Extensions.InternalAr
    */
   include?: Prisma.UserInclude<ExtArgs> | null
   where?: Prisma.UserWhereInput
+}
+
+/**
+ * Nasabah.laporanPendataans
+ */
+export type Nasabah$laporanPendataansArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the LaporanPendataan
+   */
+  select?: Prisma.LaporanPendataanSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the LaporanPendataan
+   */
+  omit?: Prisma.LaporanPendataanOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.LaporanPendataanInclude<ExtArgs> | null
+  where?: Prisma.LaporanPendataanWhereInput
+  orderBy?: Prisma.LaporanPendataanOrderByWithRelationInput | Prisma.LaporanPendataanOrderByWithRelationInput[]
+  cursor?: Prisma.LaporanPendataanWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.LaporanPendataanScalarFieldEnum | Prisma.LaporanPendataanScalarFieldEnum[]
 }
 
 /**

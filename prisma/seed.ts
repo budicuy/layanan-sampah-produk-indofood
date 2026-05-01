@@ -2,18 +2,19 @@ import "dotenv/config";
 import { hashPassword } from "better-auth/crypto";
 import type {
   JenisProduk,
-  JenisSampah,
   KategoriNasabah,
-  Role,
-  StatusEkpedisi,
   StatusNasabah,
+  Role,
   StatusUser,
+  StatusEkpedisi,
+  JenisSampah,
 } from "./generated/prisma/enums";
-import { EkpedisiSeed } from "./seed_ekspedisi";
-import { HargaSampahSeed } from "./seed_harga_sampah";
 import { NasabahsSeed } from "./seed_nasabah";
 import { ProdukSeed } from "./seed_produk";
 import { UsersSeed } from "./seed_user";
+import { EkpedisiSeed } from "./seed_ekspedisi";
+import { HargaSampahSeed } from "./seed_harga_sampah";
+import { LaporanSeed } from "./seed_laporan";
 
 async function main() {
   const { prisma } = await import("../lib/prisma");
@@ -102,26 +103,54 @@ async function main() {
 
   console.log("Seeding dummy Ekpedisi data...");
   for (const e of EkpedisiSeed) {
-    await prisma.ekpedisi.create({
-      data: {
-        noTelp: e.noTelp,
-        alamat: e.alamat,
-        titikLokasi: e.titikLokasi,
-        status: e.status as StatusEkpedisi,
-      },
-    });
+    const existing = await prisma.ekpedisi.findFirst({ where: { noTelp: e.noTelp } });
+    if (!existing) {
+      await prisma.ekpedisi.create({
+        data: {
+          noTelp: e.noTelp,
+          alamat: e.alamat,
+          titikLokasi: e.titikLokasi,
+          status: e.status as StatusEkpedisi,
+        },
+      });
+    }
   }
 
   console.log("Seeding dummy Harga Sampah data...");
   for (const h of HargaSampahSeed) {
-    await prisma.hargaSampah.create({
-      data: {
-        harga: h.harga,
+    const existing = await prisma.hargaSampah.findFirst({
+      where: {
         bulan: h.bulan,
         jenisSampah: h.jenisSampah as JenisSampah,
-        berat: h.berat,
       },
     });
+    if (!existing) {
+      await prisma.hargaSampah.create({
+        data: {
+          harga: h.harga,
+          bulan: h.bulan,
+          jenisSampah: h.jenisSampah as JenisSampah,
+          berat: h.berat,
+        },
+      });
+    }
+  }
+
+  console.log("Seeding dummy Laporan data...");
+  for (const l of LaporanSeed) {
+    const nasabah = await prisma.nasabah.findUnique({ where: { nik: l.nasabahNik } });
+    const produk = await prisma.produk.findUnique({ where: { kode: l.produkKode } });
+
+    if (nasabah && produk) {
+      await prisma.laporanPendataan.create({
+        data: {
+          nasabahId: nasabah.id,
+          jenisSampah: l.jenisSampah as JenisSampah,
+          berat: l.berat,
+          produkId: produk.id,
+        },
+      });
+    }
   }
 
   console.log("✅ Seeding complete!");
