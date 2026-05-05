@@ -282,11 +282,10 @@ export default function HargaSampahPage() {
                     </td>
                     <td className="px-4 md:px-8 py-4 md:py-6">
                       <span
-                        className={`inline-flex items-center gap-1.5 px-2 md:px-3 py-1 rounded-lg text-[10px] md:text-xs font-bold ${
-                          h.jenisSampah === "PLASTIK"
+                        className={`inline-flex items-center gap-1.5 px-2 md:px-3 py-1 rounded-lg text-[10px] md:text-xs font-bold ${h.jenisSampah === "PLASTIK"
                             ? "bg-sky-100 text-sky-700"
                             : "bg-amber-100 text-amber-700"
-                        }`}>
+                          }`}>
                         <Tag size={12} /> {h.jenisSampah}
                       </span>
                     </td>
