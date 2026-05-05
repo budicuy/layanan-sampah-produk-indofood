@@ -36,7 +36,7 @@ export function ConsumerLineChart({ data }: { data: MonthlyPoint[] }) {
 
   if (!hasData) {
     return (
-      <div className="h-[240px] flex items-center justify-center text-zinc-400 text-sm">
+      <div className="h-60 flex items-center justify-center text-zinc-400 text-sm">
         Belum ada data setoran
       </div>
     );
@@ -75,7 +75,7 @@ export function ConsumerLineChart({ data }: { data: MonthlyPoint[] }) {
   };
 
   return (
-    <div className="h-[240px] w-full">
+    <div className="h-60 w-full">
       <Line data={chartData} options={options} />
     </div>
   );
@@ -93,7 +93,7 @@ export function ConsumerDonutChart({ data }: { data: TypeData }) {
 
   if (total === 0) {
     return (
-      <div className="h-[240px] flex items-center justify-center text-zinc-400 text-sm">
+      <div className="h-60 flex items-center justify-center text-zinc-400 text-sm">
         Belum ada data komposisi
       </div>
     );
@@ -129,7 +129,7 @@ export function ConsumerDonutChart({ data }: { data: TypeData }) {
   };
 
   return (
-    <div className="h-[240px] w-full">
+    <div className="h-60 w-full">
       <Doughnut data={chartData} options={options} />
     </div>
   );

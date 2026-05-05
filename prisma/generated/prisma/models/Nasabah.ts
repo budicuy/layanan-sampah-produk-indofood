@@ -609,6 +609,10 @@ export type EnumKategoriNasabahFieldUpdateOperationsInput = {
   set?: $Enums.KategoriNasabah
 }
 
+export type NullableStringFieldUpdateOperationsInput = {
+  set?: string | null
+}
+
 export type EnumStatusNasabahFieldUpdateOperationsInput = {
   set?: $Enums.StatusNasabah
 }
@@ -1070,7 +1074,7 @@ export type $NasabahPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
 export type NasabahGetPayload<S extends boolean | null | undefined | NasabahDefaultArgs> = runtime.Types.Result.GetResult<Prisma.$NasabahPayload, S>
 
 export type NasabahCountArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> =
-  Omit<NasabahFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+  Omit<NasabahFindManyArgs, 'select' | 'include' | 'distinct' | 'omit' | 'relationLoadStrategy'> & {
     select?: NasabahCountAggregateInputType | true
   }
 
@@ -1527,6 +1531,7 @@ export type NasabahFindUniqueArgs<ExtArgs extends runtime.Types.Extensions.Inter
    * Filter, which Nasabah to fetch.
    */
   where: Prisma.NasabahWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1549,6 +1554,7 @@ export type NasabahFindUniqueOrThrowArgs<ExtArgs extends runtime.Types.Extension
    * Filter, which Nasabah to fetch.
    */
   where: Prisma.NasabahWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1601,6 +1607,7 @@ export type NasabahFindFirstArgs<ExtArgs extends runtime.Types.Extensions.Intern
    * Filter by unique combinations of Nasabahs.
    */
   distinct?: Prisma.NasabahScalarFieldEnum | Prisma.NasabahScalarFieldEnum[]
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1653,6 +1660,7 @@ export type NasabahFindFirstOrThrowArgs<ExtArgs extends runtime.Types.Extensions
    * Filter by unique combinations of Nasabahs.
    */
   distinct?: Prisma.NasabahScalarFieldEnum | Prisma.NasabahScalarFieldEnum[]
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1705,6 +1713,7 @@ export type NasabahFindManyArgs<ExtArgs extends runtime.Types.Extensions.Interna
    * Filter by unique combinations of Nasabahs.
    */
   distinct?: Prisma.NasabahScalarFieldEnum | Prisma.NasabahScalarFieldEnum[]
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1727,6 +1736,7 @@ export type NasabahCreateArgs<ExtArgs extends runtime.Types.Extensions.InternalA
    * The data needed to create a Nasabah.
    */
   data: Prisma.XOR<Prisma.NasabahCreateInput, Prisma.NasabahUncheckedCreateInput>
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1787,6 +1797,7 @@ export type NasabahUpdateArgs<ExtArgs extends runtime.Types.Extensions.InternalA
    * Choose, which Nasabah to update.
    */
   where: Prisma.NasabahWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1865,6 +1876,7 @@ export type NasabahUpsertArgs<ExtArgs extends runtime.Types.Extensions.InternalA
    * In case the Nasabah was found with the provided `where` argument, update it with this data.
    */
   update: Prisma.XOR<Prisma.NasabahUpdateInput, Prisma.NasabahUncheckedUpdateInput>
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1887,6 +1899,7 @@ export type NasabahDeleteArgs<ExtArgs extends runtime.Types.Extensions.InternalA
    * Filter which Nasabah to delete.
    */
   where: Prisma.NasabahWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**

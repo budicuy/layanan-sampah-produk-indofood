@@ -672,7 +672,7 @@ export type $EkpedisiPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
 export type EkpedisiGetPayload<S extends boolean | null | undefined | EkpedisiDefaultArgs> = runtime.Types.Result.GetResult<Prisma.$EkpedisiPayload, S>
 
 export type EkpedisiCountArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> =
-  Omit<EkpedisiFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+  Omit<EkpedisiFindManyArgs, 'select' | 'include' | 'distinct' | 'omit' | 'relationLoadStrategy'> & {
     select?: EkpedisiCountAggregateInputType | true
   }
 
@@ -1122,6 +1122,7 @@ export type EkpedisiFindUniqueArgs<ExtArgs extends runtime.Types.Extensions.Inte
    * Filter, which Ekpedisi to fetch.
    */
   where: Prisma.EkpedisiWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1144,6 +1145,7 @@ export type EkpedisiFindUniqueOrThrowArgs<ExtArgs extends runtime.Types.Extensio
    * Filter, which Ekpedisi to fetch.
    */
   where: Prisma.EkpedisiWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1196,6 +1198,7 @@ export type EkpedisiFindFirstArgs<ExtArgs extends runtime.Types.Extensions.Inter
    * Filter by unique combinations of Ekpedisis.
    */
   distinct?: Prisma.EkpedisiScalarFieldEnum | Prisma.EkpedisiScalarFieldEnum[]
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1248,6 +1251,7 @@ export type EkpedisiFindFirstOrThrowArgs<ExtArgs extends runtime.Types.Extension
    * Filter by unique combinations of Ekpedisis.
    */
   distinct?: Prisma.EkpedisiScalarFieldEnum | Prisma.EkpedisiScalarFieldEnum[]
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1300,6 +1304,7 @@ export type EkpedisiFindManyArgs<ExtArgs extends runtime.Types.Extensions.Intern
    * Filter by unique combinations of Ekpedisis.
    */
   distinct?: Prisma.EkpedisiScalarFieldEnum | Prisma.EkpedisiScalarFieldEnum[]
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1322,6 +1327,7 @@ export type EkpedisiCreateArgs<ExtArgs extends runtime.Types.Extensions.Internal
    * The data needed to create a Ekpedisi.
    */
   data: Prisma.XOR<Prisma.EkpedisiCreateInput, Prisma.EkpedisiUncheckedCreateInput>
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1382,6 +1388,7 @@ export type EkpedisiUpdateArgs<ExtArgs extends runtime.Types.Extensions.Internal
    * Choose, which Ekpedisi to update.
    */
   where: Prisma.EkpedisiWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1460,6 +1467,7 @@ export type EkpedisiUpsertArgs<ExtArgs extends runtime.Types.Extensions.Internal
    * In case the Ekpedisi was found with the provided `where` argument, update it with this data.
    */
   update: Prisma.XOR<Prisma.EkpedisiUpdateInput, Prisma.EkpedisiUncheckedUpdateInput>
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1482,6 +1490,7 @@ export type EkpedisiDeleteArgs<ExtArgs extends runtime.Types.Extensions.Internal
    * Filter which Ekpedisi to delete.
    */
   where: Prisma.EkpedisiWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**

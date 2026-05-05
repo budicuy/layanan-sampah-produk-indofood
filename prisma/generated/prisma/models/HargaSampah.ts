@@ -461,7 +461,7 @@ export type $HargaSampahPayload<ExtArgs extends runtime.Types.Extensions.Interna
 export type HargaSampahGetPayload<S extends boolean | null | undefined | HargaSampahDefaultArgs> = runtime.Types.Result.GetResult<Prisma.$HargaSampahPayload, S>
 
 export type HargaSampahCountArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> =
-  Omit<HargaSampahFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+  Omit<HargaSampahFindManyArgs, 'select' | 'include' | 'distinct' | 'omit' | 'relationLoadStrategy'> & {
     select?: HargaSampahCountAggregateInputType | true
   }
 
@@ -904,6 +904,7 @@ export type HargaSampahFindUniqueArgs<ExtArgs extends runtime.Types.Extensions.I
    * Filter, which HargaSampah to fetch.
    */
   where: Prisma.HargaSampahWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -922,6 +923,7 @@ export type HargaSampahFindUniqueOrThrowArgs<ExtArgs extends runtime.Types.Exten
    * Filter, which HargaSampah to fetch.
    */
   where: Prisma.HargaSampahWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -970,6 +972,7 @@ export type HargaSampahFindFirstArgs<ExtArgs extends runtime.Types.Extensions.In
    * Filter by unique combinations of HargaSampahs.
    */
   distinct?: Prisma.HargaSampahScalarFieldEnum | Prisma.HargaSampahScalarFieldEnum[]
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1018,6 +1021,7 @@ export type HargaSampahFindFirstOrThrowArgs<ExtArgs extends runtime.Types.Extens
    * Filter by unique combinations of HargaSampahs.
    */
   distinct?: Prisma.HargaSampahScalarFieldEnum | Prisma.HargaSampahScalarFieldEnum[]
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1066,6 +1070,7 @@ export type HargaSampahFindManyArgs<ExtArgs extends runtime.Types.Extensions.Int
    * Filter by unique combinations of HargaSampahs.
    */
   distinct?: Prisma.HargaSampahScalarFieldEnum | Prisma.HargaSampahScalarFieldEnum[]
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1084,6 +1089,7 @@ export type HargaSampahCreateArgs<ExtArgs extends runtime.Types.Extensions.Inter
    * The data needed to create a HargaSampah.
    */
   data: Prisma.XOR<Prisma.HargaSampahCreateInput, Prisma.HargaSampahUncheckedCreateInput>
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1136,6 +1142,7 @@ export type HargaSampahUpdateArgs<ExtArgs extends runtime.Types.Extensions.Inter
    * Choose, which HargaSampah to update.
    */
   where: Prisma.HargaSampahWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1206,6 +1213,7 @@ export type HargaSampahUpsertArgs<ExtArgs extends runtime.Types.Extensions.Inter
    * In case the HargaSampah was found with the provided `where` argument, update it with this data.
    */
   update: Prisma.XOR<Prisma.HargaSampahUpdateInput, Prisma.HargaSampahUncheckedUpdateInput>
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1224,6 +1232,7 @@ export type HargaSampahDeleteArgs<ExtArgs extends runtime.Types.Extensions.Inter
    * Filter which HargaSampah to delete.
    */
   where: Prisma.HargaSampahWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**

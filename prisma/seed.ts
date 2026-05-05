@@ -21,8 +21,6 @@ async function main() {
   await prisma.nasabah.deleteMany();
   await prisma.ekpedisi.deleteMany();
   await prisma.account.deleteMany();
-  await prisma.session.deleteMany();
-  await prisma.verification.deleteMany();
   await prisma.user.deleteMany();
   await prisma.produk.deleteMany();
   await prisma.hargaSampah.deleteMany();
@@ -30,29 +28,41 @@ async function main() {
 
   console.log("🌱 Seeding user admin...");
   const adminPassword = await hash("admin", 12);
-  await prisma.user.create({
+  const adminUser = await prisma.user.create({
     data: {
       name: "Admin",
       email: "admin@gmail.com",
       username: "admin",
-      emailVerified: true,
       role: "ADMIN",
-      accounts: {
-        create: {
-          id: "admin-account-id",
-          accountId: "admin",
-          providerId: "credential",
-          password: adminPassword,
-        },
-      },
+    },
+  });
+  await prisma.account.create({
+    data: {
+      userId: adminUser.id,
+      password: adminPassword,
     },
   });
 
   console.log("👥 Seeding Nasabah + User konsumen...");
   const defaultPassword = await hash("123456", 12);
   for (const n of NasabahsSeed) {
+    const user = await prisma.user.create({
+      data: {
+        name: n.nama,
+        email: n.email,
+        username: n.username,
+        role: "KONSUMEN",
+      },
+    });
+    await prisma.account.create({
+      data: {
+        userId: user.id,
+        password: defaultPassword,
+      },
+    });
     await prisma.nasabah.create({
       data: {
+        userId: user.id,
         nama: n.nama,
         alamat: n.alamat,
         noTelp: n.noTelp,
@@ -62,23 +72,6 @@ async function main() {
         jenisBank: n.jenisBank,
         titikLokasi: n.titikLokasi,
         status: n.status as StatusNasabah,
-        user: {
-          create: {
-            name: n.nama,
-            email: n.email,
-            username: n.username,
-            emailVerified: true,
-            role: "KONSUMEN",
-            accounts: {
-              create: {
-                id: `acc-${n.username}`,
-                accountId: n.username,
-                providerId: "credential",
-                password: defaultPassword,
-              },
-            },
-          },
-        },
       },
     });
   }

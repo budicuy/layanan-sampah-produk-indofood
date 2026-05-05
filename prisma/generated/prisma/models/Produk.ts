@@ -560,7 +560,7 @@ export type $ProdukPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
 export type ProdukGetPayload<S extends boolean | null | undefined | ProdukDefaultArgs> = runtime.Types.Result.GetResult<Prisma.$ProdukPayload, S>
 
 export type ProdukCountArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> =
-  Omit<ProdukFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+  Omit<ProdukFindManyArgs, 'select' | 'include' | 'distinct' | 'omit' | 'relationLoadStrategy'> & {
     select?: ProdukCountAggregateInputType | true
   }
 
@@ -1006,6 +1006,7 @@ export type ProdukFindUniqueArgs<ExtArgs extends runtime.Types.Extensions.Intern
    * Filter, which Produk to fetch.
    */
   where: Prisma.ProdukWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1024,6 +1025,7 @@ export type ProdukFindUniqueOrThrowArgs<ExtArgs extends runtime.Types.Extensions
    * Filter, which Produk to fetch.
    */
   where: Prisma.ProdukWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1072,6 +1074,7 @@ export type ProdukFindFirstArgs<ExtArgs extends runtime.Types.Extensions.Interna
    * Filter by unique combinations of Produks.
    */
   distinct?: Prisma.ProdukScalarFieldEnum | Prisma.ProdukScalarFieldEnum[]
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1120,6 +1123,7 @@ export type ProdukFindFirstOrThrowArgs<ExtArgs extends runtime.Types.Extensions.
    * Filter by unique combinations of Produks.
    */
   distinct?: Prisma.ProdukScalarFieldEnum | Prisma.ProdukScalarFieldEnum[]
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1168,6 +1172,7 @@ export type ProdukFindManyArgs<ExtArgs extends runtime.Types.Extensions.Internal
    * Filter by unique combinations of Produks.
    */
   distinct?: Prisma.ProdukScalarFieldEnum | Prisma.ProdukScalarFieldEnum[]
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1186,6 +1191,7 @@ export type ProdukCreateArgs<ExtArgs extends runtime.Types.Extensions.InternalAr
    * The data needed to create a Produk.
    */
   data: Prisma.XOR<Prisma.ProdukCreateInput, Prisma.ProdukUncheckedCreateInput>
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1238,6 +1244,7 @@ export type ProdukUpdateArgs<ExtArgs extends runtime.Types.Extensions.InternalAr
    * Choose, which Produk to update.
    */
   where: Prisma.ProdukWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1308,6 +1315,7 @@ export type ProdukUpsertArgs<ExtArgs extends runtime.Types.Extensions.InternalAr
    * In case the Produk was found with the provided `where` argument, update it with this data.
    */
   update: Prisma.XOR<Prisma.ProdukUpdateInput, Prisma.ProdukUncheckedUpdateInput>
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1326,6 +1334,7 @@ export type ProdukDeleteArgs<ExtArgs extends runtime.Types.Extensions.InternalAr
    * Filter which Produk to delete.
    */
   where: Prisma.ProdukWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**

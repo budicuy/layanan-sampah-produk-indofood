@@ -582,7 +582,7 @@ export type $MutasiSaldoPayload<ExtArgs extends runtime.Types.Extensions.Interna
 export type MutasiSaldoGetPayload<S extends boolean | null | undefined | MutasiSaldoDefaultArgs> = runtime.Types.Result.GetResult<Prisma.$MutasiSaldoPayload, S>
 
 export type MutasiSaldoCountArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> =
-  Omit<MutasiSaldoFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+  Omit<MutasiSaldoFindManyArgs, 'select' | 'include' | 'distinct' | 'omit' | 'relationLoadStrategy'> & {
     select?: MutasiSaldoCountAggregateInputType | true
   }
 
@@ -1029,6 +1029,7 @@ export type MutasiSaldoFindUniqueArgs<ExtArgs extends runtime.Types.Extensions.I
    * Filter, which MutasiSaldo to fetch.
    */
   where: Prisma.MutasiSaldoWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1051,6 +1052,7 @@ export type MutasiSaldoFindUniqueOrThrowArgs<ExtArgs extends runtime.Types.Exten
    * Filter, which MutasiSaldo to fetch.
    */
   where: Prisma.MutasiSaldoWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1103,6 +1105,7 @@ export type MutasiSaldoFindFirstArgs<ExtArgs extends runtime.Types.Extensions.In
    * Filter by unique combinations of MutasiSaldos.
    */
   distinct?: Prisma.MutasiSaldoScalarFieldEnum | Prisma.MutasiSaldoScalarFieldEnum[]
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1155,6 +1158,7 @@ export type MutasiSaldoFindFirstOrThrowArgs<ExtArgs extends runtime.Types.Extens
    * Filter by unique combinations of MutasiSaldos.
    */
   distinct?: Prisma.MutasiSaldoScalarFieldEnum | Prisma.MutasiSaldoScalarFieldEnum[]
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1207,6 +1211,7 @@ export type MutasiSaldoFindManyArgs<ExtArgs extends runtime.Types.Extensions.Int
    * Filter by unique combinations of MutasiSaldos.
    */
   distinct?: Prisma.MutasiSaldoScalarFieldEnum | Prisma.MutasiSaldoScalarFieldEnum[]
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1229,6 +1234,7 @@ export type MutasiSaldoCreateArgs<ExtArgs extends runtime.Types.Extensions.Inter
    * The data needed to create a MutasiSaldo.
    */
   data: Prisma.XOR<Prisma.MutasiSaldoCreateInput, Prisma.MutasiSaldoUncheckedCreateInput>
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1289,6 +1295,7 @@ export type MutasiSaldoUpdateArgs<ExtArgs extends runtime.Types.Extensions.Inter
    * Choose, which MutasiSaldo to update.
    */
   where: Prisma.MutasiSaldoWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1367,6 +1374,7 @@ export type MutasiSaldoUpsertArgs<ExtArgs extends runtime.Types.Extensions.Inter
    * In case the MutasiSaldo was found with the provided `where` argument, update it with this data.
    */
   update: Prisma.XOR<Prisma.MutasiSaldoUpdateInput, Prisma.MutasiSaldoUncheckedUpdateInput>
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1389,6 +1397,7 @@ export type MutasiSaldoDeleteArgs<ExtArgs extends runtime.Types.Extensions.Inter
    * Filter which MutasiSaldo to delete.
    */
   where: Prisma.MutasiSaldoWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**

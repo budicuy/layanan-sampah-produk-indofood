@@ -52,6 +52,7 @@ export async function loginAction(
     sub: user.id,
     username: user.username,
     name: user.name,
+    email: user.email,
     role: user.role,
   });
 

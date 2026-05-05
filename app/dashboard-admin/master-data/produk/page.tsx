@@ -147,7 +147,7 @@ export default function ProdukPage() {
       {/* Stats Summary Section */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Total */}
-        <div className="bg-sky-50/50 rounded-[24px] border border-sky-100 p-6 shadow-sm group hover:bg-sky-50 transition-colors">
+        <div className="bg-sky-50/50 rounded-3xl border border-sky-100 p-6 shadow-sm group hover:bg-sky-50 transition-colors">
           <div className="flex items-center justify-between mb-4">
             <div className="w-10 h-10 rounded-xl bg-sky-100 flex items-center justify-center text-sky-600">
               <Box size={20} />
@@ -163,7 +163,7 @@ export default function ProdukPage() {
         </div>
 
         {/* Plastik */}
-        <div className="bg-amber-50/50 rounded-[24px] border border-amber-100 p-6 shadow-sm group hover:bg-amber-50 transition-colors">
+        <div className="bg-amber-50/50 rounded-3xl border border-amber-100 p-6 shadow-sm group hover:bg-amber-50 transition-colors">
           <div className="flex items-center justify-between mb-4">
             <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center text-amber-600">
               <PackageOpen size={20} />
@@ -179,7 +179,7 @@ export default function ProdukPage() {
         </div>
 
         {/* Karton */}
-        <div className="bg-emerald-50/50 rounded-[24px] border border-emerald-100 p-6 shadow-sm group hover:bg-emerald-50 transition-colors">
+        <div className="bg-emerald-50/50 rounded-3xl border border-emerald-100 p-6 shadow-sm group hover:bg-emerald-50 transition-colors">
           <div className="flex items-center justify-between mb-4">
             <div className="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center text-emerald-600">
               <PackageOpen size={20} />
@@ -195,7 +195,7 @@ export default function ProdukPage() {
         </div>
       </div>
 
-      <div className="bg-white rounded-[24px] md:rounded-[32px] border border-zinc-100 shadow-sm overflow-hidden">
+      <div className="bg-white rounded-3xl md:rounded-4xl border border-zinc-100 shadow-sm overflow-hidden">
         <div className="p-5 md:p-8 border-b border-zinc-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <h3 className="text-xl font-bold text-zinc-900 font-heading">
             Daftar Produk
@@ -306,19 +306,13 @@ export default function ProdukPage() {
                           type="button"
                           onClick={() => openModal(p)}
                           className="p-1.5 md:p-2 text-zinc-400 hover:text-primary transition-colors hover:bg-blue-50 rounded-lg">
-                          <Edit2
-                            size={16}
-                            className="md:w-[18px] md:h-[18px]"
-                          />
+                          <Edit2 size={16} className="md:w-4.5 md:h-4.5" />
                         </button>
                         <button
                           type="button"
                           onClick={() => openDeleteModal(p)}
                           className="p-1.5 md:p-2 text-zinc-400 hover:text-red-600 transition-colors hover:bg-red-50 rounded-lg">
-                          <Trash2
-                            size={16}
-                            className="md:w-[18px] md:h-[18px]"
-                          />
+                          <Trash2 size={16} className="md:w-4.5 md:h-4.5" />
                         </button>
                       </div>
                     </td>
@@ -333,7 +327,7 @@ export default function ProdukPage() {
       {/* Form Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-zinc-900/60 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-white w-full max-w-2xl rounded-[32px] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+          <div className="bg-white w-full max-w-2xl rounded-4xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
             <div className="p-8 border-b border-zinc-100 flex items-center justify-between">
               <h3 className="text-2xl font-bold text-zinc-900 font-heading">
                 {selectedProduk ? "Edit Produk" : "Tambah Produk Baru"}
@@ -480,7 +474,7 @@ export default function ProdukPage() {
       {/* Delete Confirmation Modal */}
       {isDeleteModalOpen && (
         <div className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-zinc-900/60 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-white w-full max-w-md rounded-[32px] shadow-2xl overflow-hidden p-8 animate-in zoom-in-95 duration-200">
+          <div className="bg-white w-full max-w-md rounded-4xl shadow-2xl overflow-hidden p-8 animate-in zoom-in-95 duration-200">
             <div className="w-16 h-16 bg-red-100 text-red-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
               <Trash2 size={32} />
             </div>

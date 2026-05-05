@@ -763,6 +763,10 @@ export type EnumStatusSetorSampahFieldUpdateOperationsInput = {
   set?: $Enums.StatusSetorSampah
 }
 
+export type NullableDateTimeFieldUpdateOperationsInput = {
+  set?: Date | string | null
+}
+
 export type NullableIntFieldUpdateOperationsInput = {
   set?: number | null
   increment?: number
@@ -1225,7 +1229,7 @@ export type $SetorSampahPayload<ExtArgs extends runtime.Types.Extensions.Interna
 export type SetorSampahGetPayload<S extends boolean | null | undefined | SetorSampahDefaultArgs> = runtime.Types.Result.GetResult<Prisma.$SetorSampahPayload, S>
 
 export type SetorSampahCountArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> =
-  Omit<SetorSampahFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+  Omit<SetorSampahFindManyArgs, 'select' | 'include' | 'distinct' | 'omit' | 'relationLoadStrategy'> & {
     select?: SetorSampahCountAggregateInputType | true
   }
 
@@ -1685,6 +1689,7 @@ export type SetorSampahFindUniqueArgs<ExtArgs extends runtime.Types.Extensions.I
    * Filter, which SetorSampah to fetch.
    */
   where: Prisma.SetorSampahWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1707,6 +1712,7 @@ export type SetorSampahFindUniqueOrThrowArgs<ExtArgs extends runtime.Types.Exten
    * Filter, which SetorSampah to fetch.
    */
   where: Prisma.SetorSampahWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1759,6 +1765,7 @@ export type SetorSampahFindFirstArgs<ExtArgs extends runtime.Types.Extensions.In
    * Filter by unique combinations of SetorSampahs.
    */
   distinct?: Prisma.SetorSampahScalarFieldEnum | Prisma.SetorSampahScalarFieldEnum[]
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1811,6 +1818,7 @@ export type SetorSampahFindFirstOrThrowArgs<ExtArgs extends runtime.Types.Extens
    * Filter by unique combinations of SetorSampahs.
    */
   distinct?: Prisma.SetorSampahScalarFieldEnum | Prisma.SetorSampahScalarFieldEnum[]
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1863,6 +1871,7 @@ export type SetorSampahFindManyArgs<ExtArgs extends runtime.Types.Extensions.Int
    * Filter by unique combinations of SetorSampahs.
    */
   distinct?: Prisma.SetorSampahScalarFieldEnum | Prisma.SetorSampahScalarFieldEnum[]
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1885,6 +1894,7 @@ export type SetorSampahCreateArgs<ExtArgs extends runtime.Types.Extensions.Inter
    * The data needed to create a SetorSampah.
    */
   data: Prisma.XOR<Prisma.SetorSampahCreateInput, Prisma.SetorSampahUncheckedCreateInput>
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -1945,6 +1955,7 @@ export type SetorSampahUpdateArgs<ExtArgs extends runtime.Types.Extensions.Inter
    * Choose, which SetorSampah to update.
    */
   where: Prisma.SetorSampahWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -2023,6 +2034,7 @@ export type SetorSampahUpsertArgs<ExtArgs extends runtime.Types.Extensions.Inter
    * In case the SetorSampah was found with the provided `where` argument, update it with this data.
    */
   update: Prisma.XOR<Prisma.SetorSampahUpdateInput, Prisma.SetorSampahUncheckedUpdateInput>
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**
@@ -2045,6 +2057,7 @@ export type SetorSampahDeleteArgs<ExtArgs extends runtime.Types.Extensions.Inter
    * Filter which SetorSampah to delete.
    */
   where: Prisma.SetorSampahWhereUniqueInput
+  relationLoadStrategy?: Prisma.RelationLoadStrategy
 }
 
 /**

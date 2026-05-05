@@ -27,7 +27,7 @@ Platform digital pengelolaan sampah modern berbasis web, dibangun untuk membantu
 | Styling | Tailwind CSS 4 |
 | Database | Neon PostgreSQL |
 | ORM | Prisma |
-| Autentikasi | Better Auth |
+| Autentikasi | JWT (Custom) |
 | Linting | Biome |
 
 
@@ -45,37 +45,49 @@ bun install
 ## 🗄️ Setup Env
 
 ```bash
-# Buat file .env di root direktory dan copas konfigurasi berikut:
-DATABASE_URL="" # database neon bisa cek di https://neon.tech/ | Contoh: postgresql://neondb_owner:[EMAIL_ADDRESS]/neondb?sslmode=require&channel_binding=require
-BETTER_AUTH_SECRET="" # secret better auth teks random 32 karakter
-BETTER_AUTH_URL="http://localhost:3000" # url better auth untuk local development
+# Buat file .env.local di root direktory dan copas konfigurasi berikut:
+DATABASE_URL="" # database neon bisa cek di https://neon.tech/ | Contoh: postgresql://neondb_owner:[PASSWORD]/neondb?sslmode=require&channel_binding=require
+JWT_SECRET="" # secret jwt teks random 32 karakter (gunakan openssl rand -base64 32)
+NODE_ENV="development"
 ```
 
 ## 📁 Struktur Proyek
 
 ```text
 app/
-  actions/
-    auth.ts             # Server Actions (login, logout)
-  api/auth/[...all]/
-    route.ts            # Better Auth API handler
-  dashboard/
-    page.tsx            # Halaman Dashboard
+  dashboard-admin/
+    components/          # Components untuk admin dashboard
+    master-data/        # CRUD pages (nasabah, produk, ekspedisi, dll)
+    pendataan/          # Fitur setor sampah & laporan
+    tabungan-nasabah/   # Manajemen tabungan konsumen
+  dashboard-konsumen/
+    components/         # Components untuk konsumen dashboard
+    setor-sampah/       # Form setor sampah konsumen
   login/
+    auth/
+      index.ts          # JWT signing & verification
+      cookies.ts        # Cookie management
+      session.ts        # Session retrieval
+    actions.ts          # Server actions (login, logout)
     page.tsx            # Halaman Login
-  global.css            # Global CSS (Tailwind CSS)
+  api/                  # API routes
   layout.tsx            # Root layout
   page.tsx              # Halaman Landing page
+  globals.css           # Global CSS (Tailwind CSS)
 lib/
-  auth.ts               # Konfigurasi Better Auth
   prisma.ts             # Prisma Client
+  auth-cookies.ts       # [DEPRECATED] - Moved to app/login/auth/cookies.ts
+  session.ts            # [DEPRECATED] - Moved to app/login/auth/session.ts
+  auth.ts               # [DEPRECATED] - Moved to app/login/auth/index.ts
 prisma/
-  generated/            # Generated Prisma Client (biarkan saja default tidak boleh di edit)
-  schema.prisma         # Schema / Tabel Database
+  generated/            # Generated Prisma Client (auto-generated)
+  migrations/           # Database migration files
+  schema.prisma         # Database schema
   seed.ts               # Script seeder untuk generate data user dll
 public/                 # File statis (favicon, robots.txt, images dll)
 package.json            # Package yang di install
-prisma.config.ts        # Konfigurasi Config Prisma
+next.config.ts          # Next.js configuration
+tsconfig.json           # TypeScript configuration
 proxy.ts                # Middleware untuk proteksi route & session
 ```
 
