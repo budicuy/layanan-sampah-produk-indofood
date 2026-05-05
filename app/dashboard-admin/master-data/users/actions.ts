@@ -107,7 +107,7 @@ export async function resetPassword(id: string) {
 export async function getUserData() {
   await checkAdminAuth();
   const users = await prisma.user.findMany({
-    orderBy: { createdAt: "desc" },
+    orderBy: { updatedAt: "desc" },
   });
   return users;
 }

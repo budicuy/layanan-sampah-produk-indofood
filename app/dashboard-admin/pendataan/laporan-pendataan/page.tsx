@@ -15,8 +15,11 @@ import {
   Wallet,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { LaporanBarChart, LaporanDonutChart } from "../../components/Charts";
-import { getLaporanData } from "./actions";
+import {
+  LaporanBarChart,
+  LaporanDonutChart,
+} from "@/app/dashboard-admin/components/Charts";
+import { getLaporanData } from "@/app/dashboard-admin/pendataan/laporan-pendataan/actions";
 
 // ─── Data helpers ────────────────────────────────────────────────────────────
 

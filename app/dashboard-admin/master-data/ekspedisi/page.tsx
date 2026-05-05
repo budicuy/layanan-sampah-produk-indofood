@@ -112,6 +112,13 @@ export default function EkpedisiPage() {
         toast.error(res.error || "Gagal menambahkan ekpedisi");
       }
     }
+
+    // Refetch data after action completes
+    const updatedData = await getEkpedisiData();
+    setData({
+      ekpedisi: updatedData.ekpedisi as EkpedisiData[],
+      users: updatedData.users as UserItem[],
+    });
     closeModal();
   };
 
@@ -123,6 +130,13 @@ export default function EkpedisiPage() {
       } else {
         toast.error(res.error || "Gagal menghapus ekpedisi");
       }
+
+      // Refetch data after action completes
+      const updatedData = await getEkpedisiData();
+      setData({
+        ekpedisi: updatedData.ekpedisi as EkpedisiData[],
+        users: updatedData.users as UserItem[],
+      });
       closeDeleteModal();
     }
   };

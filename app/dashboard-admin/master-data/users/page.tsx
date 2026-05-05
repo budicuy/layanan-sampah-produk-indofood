@@ -84,6 +84,10 @@ export default function UsersPage() {
       await createUser(data);
       toast.success("User berhasil ditambahkan! Password default: password");
     }
+
+    // Refetch data after action completes
+    const updatedData = await getUserData();
+    setData(updatedData as UserData[]);
     closeModal();
   };
 
@@ -91,6 +95,10 @@ export default function UsersPage() {
     if (selectedUser) {
       await deleteUser(selectedUser.id);
       toast.success("User berhasil dihapus!");
+
+      // Refetch data after action completes
+      const updatedData = await getUserData();
+      setData(updatedData as UserData[]);
       closeDeleteModal();
     }
   };
@@ -100,6 +108,10 @@ export default function UsersPage() {
       const res = await resetPassword(user.id);
       if (res.success) {
         toast.success("Password berhasil direset!");
+
+        // Refetch data after action completes
+        const updatedData = await getUserData();
+        setData(updatedData as UserData[]);
       } else {
         toast.error("Gagal mereset password");
       }

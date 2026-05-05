@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Nunito_Sans, Outfit } from "next/font/google";
 import "./globals.css";
 
-import Providers from "./providers";
+import Providers from "@/app/providers";
 
 const outfit = Outfit({
   variable: "--font-outfit",

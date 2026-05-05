@@ -14,6 +14,7 @@ import {
   X,
 } from "lucide-react";
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import type { JenisSampah } from "@/prisma/generated/prisma/client";
 import {
   createProduk,
@@ -81,15 +82,26 @@ export default function ProdukPage() {
 
     if (selectedProduk) {
       await updateProduk(selectedProduk.id, data);
+      toast.success("Data produk berhasil diperbarui!");
     } else {
       await createProduk(data);
+      toast.success("Data produk berhasil ditambahkan!");
     }
+
+    // Refetch data after action completes
+    const updatedData = await getProdukData();
+    setData(updatedData as Produk[]);
     closeModal();
   };
 
   const handleDelete = async () => {
     if (selectedProduk) {
       await deleteProduk(selectedProduk.id);
+      toast.success("Data produk berhasil dihapus!");
+
+      // Refetch data after action completes
+      const updatedData = await getProdukData();
+      setData(updatedData as Produk[]);
       closeDeleteModal();
     }
   };

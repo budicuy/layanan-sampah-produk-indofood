@@ -1,4 +1,4 @@
-import type { JenisSampah } from "./generated/prisma/enums";
+import type { JenisSampah } from "@/prisma/generated/prisma/enums";
 
 export const ProdukSeed = [
   {

@@ -6,10 +6,11 @@ import type {
   StatusEkpedisi,
   StatusNasabah,
 } from "./generated/prisma/enums";
-import { EkpedisiSeed } from "./seed_ekspedisi";
-import { HargaSampahSeed } from "./seed_harga_sampah";
-import { NasabahsSeed } from "./seed_nasabah";
-import { ProdukSeed } from "./seed_produk";
+
+import { EkpedisiSeed } from "./seeder/seed_ekspedisi";
+import { HargaSampahSeed } from "./seeder/seed_harga_sampah";
+import { NasabahsSeed } from "./seeder/seed_nasabah";
+import { ProdukSeed } from "./seeder/seed_produk";
 
 async function main() {
   const { prisma } = await import("../lib/prisma");

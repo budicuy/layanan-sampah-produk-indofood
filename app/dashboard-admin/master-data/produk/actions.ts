@@ -77,7 +77,7 @@ export async function deleteProduk(id: string) {
 export async function getProdukData() {
   await checkAdminAuth();
   const produks = await prisma.produk.findMany({
-    orderBy: { createdAt: "desc" },
+    orderBy: { updatedAt: "desc" },
   });
   return produks;
 }

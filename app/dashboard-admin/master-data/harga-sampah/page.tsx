@@ -78,18 +78,38 @@ export default function HargaSampahPage() {
 
     if (selectedHarga) {
       const res = await updateHargaSampah(selectedHarga.id, data);
-      if (res.success) toast.success("Data harga berhasil diperbarui!");
+      if (res.success) {
+        toast.success("Data harga berhasil diperbarui!");
+      } else {
+        toast.error(res.error || "Gagal memperbarui harga");
+      }
     } else {
       const res = await createHargaSampah(data);
-      if (res.success) toast.success("Data harga berhasil ditambahkan!");
+      if (res.success) {
+        toast.success("Data harga berhasil ditambahkan!");
+      } else {
+        toast.error(res.error || "Gagal menambahkan harga");
+      }
     }
+
+    // Refetch data after action completes
+    const updatedData = await getHargaSampahData();
+    setData(updatedData as HargaSampahData[]);
     closeModal();
   };
 
   const handleDelete = async () => {
     if (selectedHarga) {
       const res = await deleteHargaSampah(selectedHarga.id);
-      if (res.success) toast.success("Data harga berhasil dihapus!");
+      if (res.success) {
+        toast.success("Data harga berhasil dihapus!");
+      } else {
+        toast.error(res.error || "Gagal menghapus harga");
+      }
+
+      // Refetch data after action completes
+      const updatedData = await getHargaSampahData();
+      setData(updatedData as HargaSampahData[]);
       closeDeleteModal();
     }
   };
@@ -419,7 +439,7 @@ export default function HargaSampahPage() {
       {/* Delete Confirmation */}
       {isDeleteModalOpen && (
         <div className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-zinc-900/60 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-white w-full max-md rounded-[32px] shadow-2xl overflow-hidden p-8 animate-in zoom-in-95 duration-200">
+          <div className="bg-white w-full max-w-md rounded-4xl shadow-2xl overflow-hidden p-8 animate-in zoom-in-95 duration-200">
             <div className="w-16 h-16 bg-red-100 text-red-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
               <Trash2 size={32} />
             </div>

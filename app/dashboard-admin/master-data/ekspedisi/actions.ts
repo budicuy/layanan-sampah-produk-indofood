@@ -73,7 +73,7 @@ export async function deleteEkpedisi(id: string) {
 export async function getEkpedisiData() {
   await checkAdminAuth();
   const ekpedisi = await prisma.ekpedisi.findMany({
-    orderBy: { createdAt: "desc" },
+    orderBy: { updatedAt: "desc" },
     include: {
       user: {
         select: { id: true, name: true, username: true },

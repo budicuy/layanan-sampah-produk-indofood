@@ -257,7 +257,7 @@ export default function Home() {
 
             <div className="relative">
               <div className="absolute -inset-4 bg-primary/5 rounded-[40px] blur-3xl" />
-              <div className="relative aspect-square rounded-[32px] overflow-hidden shadow-2xl border-8 border-white">
+              <div className="relative aspect-square rounded-4xl overflow-hidden shadow-2xl border-8 border-white">
                 <Image
                   src="/hero.png"
                   alt="Modern Waste Management"
@@ -289,7 +289,7 @@ export default function Home() {
             <div className="flex flex-col md:flex-row items-center gap-16">
               <div className="flex-1 relative flex items-center justify-center">
                 <div className="absolute -inset-10 bg-primary/5 rounded-full blur-3xl" />
-                <div className="relative w-full aspect-square max-w-[480px] group transition-all duration-500">
+                <div className="relative w-full aspect-square max-w-120 group transition-all duration-500">
                   <Image
                     src="/logo.png"
                     alt="Logo Bank Sampah"
@@ -362,7 +362,7 @@ export default function Home() {
               {SERVICES.map((service) => (
                 <div
                   key={service.title}
-                  className="bg-white p-10 rounded-[32px] border border-zinc-100 hover:border-primary/20 hover:shadow-2xl transition-all group">
+                  className="bg-white p-10 rounded-4xl border border-zinc-100 hover:border-primary/20 hover:shadow-2xl transition-all group">
                   <div className="w-16 h-16 bg-secondary text-primary rounded-2xl flex items-center justify-center mb-8 group-hover:scale-110 transition-transform">
                     {service.icon}
                   </div>
@@ -407,7 +407,7 @@ export default function Home() {
                     <p className="text-zinc-500">{item.desc}</p>
                   </div>
                   {i < 3 && (
-                    <div className="hidden md:block absolute top-10 left-[60%] w-full h-[2px] bg-zinc-100" />
+                    <div className="hidden md:block absolute top-10 left-[60%] w-full h-0.5 bg-zinc-100" />
                   )}
                 </div>
               ))}
@@ -482,7 +482,7 @@ export default function Home() {
               {FAQS.map((faq, i) => (
                 <div
                   key={faq.q}
-                  className="bg-white rounded-[24px] border border-zinc-100 overflow-hidden">
+                  className="bg-white rounded-3xl border border-zinc-100 overflow-hidden">
                   <button
                     type="button"
                     onClick={() => setActiveFaq(activeFaq === i ? null : i)}

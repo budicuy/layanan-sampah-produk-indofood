@@ -86,7 +86,7 @@ export function WasteLineChart({
   };
 
   return (
-    <div className="h-[280px] w-full">
+    <div className="h-70 w-full">
       <Line data={chartData} options={options} />
     </div>
   );
@@ -129,7 +129,7 @@ export function WasteTypeChart({
   };
 
   return (
-    <div className="h-[240px] w-full">
+    <div className="h-60 w-full">
       <Doughnut data={chartData} options={options} />
     </div>
   );
@@ -179,7 +179,7 @@ export function LaporanBarChart({ data }: { data: MonthlyData[] }) {
   };
 
   return (
-    <div className="h-[280px] w-full">
+    <div className="h-70 w-full">
       <Bar data={chartData} options={options} />
     </div>
   );
@@ -222,7 +222,7 @@ export function LaporanDonutChart({ data }: { data: TypeData }) {
   };
 
   return (
-    <div className="h-[280px] w-full">
+    <div className="h-70 w-full">
       <Doughnut data={chartData} options={options} />
     </div>
   );

@@ -135,7 +135,7 @@ export async function deleteNasabah(id: string) {
 export async function getNasabahData() {
   await checkAdminAuth();
   const nasabahs = await prisma.nasabah.findMany({
-    orderBy: { createdAt: "desc" },
+    orderBy: { updatedAt: "desc" },
     include: {
       user: {
         select: { id: true, username: true, email: true },

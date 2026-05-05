@@ -20,6 +20,7 @@ import {
   XCircle,
 } from "lucide-react";
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import type {
   KategoriNasabah,
   StatusNasabah,
@@ -98,6 +99,7 @@ export default function NasabahPage() {
         username: (formData.get("username") as string) || undefined,
         password: (formData.get("password") as string) || undefined,
       });
+      toast.success("Data nasabah berhasil diperbarui!");
     } else {
       await createNasabah({
         ...nasabahData,
@@ -105,13 +107,23 @@ export default function NasabahPage() {
         username: formData.get("username") as string,
         password: formData.get("password") as string,
       });
+      toast.success("Data nasabah berhasil ditambahkan!");
     }
+
+    // Refetch data after action completes
+    const updatedData = await getNasabahData();
+    setData(updatedData as Nasabah[]);
     closeModal();
   };
 
   const handleDelete = async () => {
     if (selectedNasabah) {
       await deleteNasabah(selectedNasabah.id);
+      toast.success("Data nasabah berhasil dihapus!");
+
+      // Refetch data after action completes
+      const updatedData = await getNasabahData();
+      setData(updatedData as Nasabah[]);
       closeDeleteModal();
     }
   };

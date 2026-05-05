@@ -18,7 +18,7 @@ import {
   X,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { getTabunganData } from "./actions";
+import { getTabunganData } from "@/app/dashboard-admin/tabungan-nasabah/tabungan/actions";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -175,7 +175,7 @@ export default function TabunganNasabahPage() {
         ].map(({ icon: Icon, label, value, sub, color }) => (
           <div
             key={label}
-            className="bg-white rounded-[24px] border border-zinc-100 p-6 shadow-sm">
+            className="bg-white rounded-3xl border border-zinc-100 p-6 shadow-sm">
             <div
               className={`w-10 h-10 rounded-xl flex items-center justify-center mb-4 ${color}`}>
               <Icon size={20} />
@@ -190,7 +190,7 @@ export default function TabunganNasabahPage() {
       </div>
 
       {/* Daftar Tabel via Client Component */}
-      <div className="bg-white rounded-[32px] border border-zinc-100 shadow-sm overflow-hidden">
+      <div className="bg-white rounded-4xlrder border-zinc-100 shadow-sm overflow-hidden">
         <div className="p-5 md:p-8 border-b border-zinc-100">
           <h2 className="text-xl font-heading font-bold text-zinc-900">
             Daftar Nasabah & Tabungan
@@ -201,7 +201,7 @@ export default function TabunganNasabahPage() {
         </div>
 
         <div className="overflow-x-auto w-full">
-          <table className="w-full text-left border-collapse min-w-[800px]">
+          <table className="w-full text-left border-collapse min-w-200">
             <thead>
               <tr className="bg-zinc-50/80">
                 {[
