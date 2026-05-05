@@ -23,7 +23,7 @@ export default function NotFound() {
           Kembali ke Beranda
         </Link>
         <Link
-          href="/dashboard"
+          href="/dashboard-admin"
           className="flex items-center justify-center gap-2 px-8 py-4 bg-white border-2 border-zinc-100 text-zinc-900 rounded-2xl font-bold text-lg hover:border-primary hover:text-primary transition-all shadow-sm">
           Ke Dashboard
         </Link>

@@ -5,7 +5,8 @@ export async function proxy(request: NextRequest) {
 
   // Paths that require authentication
   const isProtected =
-    pathname.startsWith("/dashboard") || pathname.startsWith("/konsumen");
+    pathname.startsWith("/dashboard-admin") ||
+    pathname.startsWith("/dashboard-konsumen");
   const isAuthPage = pathname === "/login";
 
   if (!isProtected && !isAuthPage) {
@@ -40,17 +41,25 @@ export async function proxy(request: NextRequest) {
     // If authenticated, prevent access to login page
     if (isAuthPage) {
       const target =
-        session.user.role === "KONSUMEN" ? "/konsumen" : "/dashboard";
+        session.user.role === "KONSUMEN"
+          ? "/dashboard-konsumen"
+          : "/dashboard-admin";
       return NextResponse.redirect(new URL(target, request.url));
     }
 
     // Role-based access control
-    if (pathname.startsWith("/dashboard") && session.user.role === "KONSUMEN") {
-      return NextResponse.redirect(new URL("/konsumen", request.url));
+    if (
+      pathname.startsWith("/dashboard-admin") &&
+      session.user.role === "KONSUMEN"
+    ) {
+      return NextResponse.redirect(new URL("/dashboard-konsumen", request.url));
     }
 
-    if (pathname.startsWith("/konsumen") && session.user.role !== "KONSUMEN") {
-      return NextResponse.redirect(new URL("/dashboard", request.url));
+    if (
+      pathname.startsWith("/dashboard-konsumen") &&
+      session.user.role !== "KONSUMEN"
+    ) {
+      return NextResponse.redirect(new URL("/dashboard-admin", request.url));
     }
 
     return NextResponse.next();
@@ -63,5 +72,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/konsumen/:path*", "/login"],
+  matcher: ["/dashboard-admin/:path*", "/dashboard-konsumen/:path*", "/login"],
 };
