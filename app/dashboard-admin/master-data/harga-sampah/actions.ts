@@ -1,13 +1,12 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { headers } from "next/headers";
-import { auth } from "@/lib/auth";
+import { getSession } from "@/app/login/auth/session";
 import { prisma } from "@/lib/prisma";
 import type { JenisSampah } from "@/prisma/generated/prisma/client";
 
 async function checkAdminAuth() {
-  const session = await auth.api.getSession({ headers: await headers() });
+  const session = await getSession();
   if (!session || session.user.role === "KONSUMEN") {
     throw new Error("Unauthorized: Admin or HRD access required");
   }

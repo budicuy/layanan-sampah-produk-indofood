@@ -1,9 +1,15 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { headers } from "next/headers";
-import { auth } from "@/lib/auth";
+import { getSession } from "@/app/login/auth/session";
 import { prisma } from "@/lib/prisma";
+
+async function checkAdminAuth() {
+  const session = await getSession();
+  if (!session || session.user.role === "KONSUMEN") {
+    throw new Error("Unauthorized: Admin or HRD access required");
+  }
+}
 
 // ─── Verifikasi awal (admin approve / tolak) ───────────────────────────────
 
@@ -12,7 +18,7 @@ export async function verifikasiSetorSampah(
   approve: boolean,
   catatan?: string,
 ) {
-  const session = await auth.api.getSession({ headers: await headers() });
+  const session = await getSession();
   if (!session || session.user.role === "KONSUMEN")
     throw new Error("Unauthorized");
 
@@ -34,7 +40,7 @@ export async function tugaskanEkpedisi(
   setorSampahId: string,
   ekpedisiId: string,
 ) {
-  const session = await auth.api.getSession({ headers: await headers() });
+  const session = await getSession();
   if (!session || session.user.role === "KONSUMEN")
     throw new Error("Unauthorized");
 
@@ -61,7 +67,7 @@ export async function tugaskanEkpedisi(
 // ─── Konfirmasi sampah diterima di pusat ──────────────────────────────────
 
 export async function konfirmasiSampahDiterima(setorSampahId: string) {
-  const session = await auth.api.getSession({ headers: await headers() });
+  const session = await getSession();
   if (!session || session.user.role === "KONSUMEN")
     throw new Error("Unauthorized");
 
@@ -88,7 +94,7 @@ export async function verifikasiAkhirDanKreditSaldo(
   beratAktual: number,
   hargaPerKg: number,
 ) {
-  const session = await auth.api.getSession({ headers: await headers() });
+  const session = await getSession();
   if (!session || session.user.role === "KONSUMEN")
     throw new Error("Unauthorized");
 
@@ -130,4 +136,33 @@ export async function verifikasiAkhirDanKreditSaldo(
   ]);
 
   revalidatePath("/dashboard-admin/pendataan/setor-sampah");
+}
+
+export async function getSetorSampahData() {
+  await checkAdminAuth();
+  return await prisma.setorSampah.findMany({
+    orderBy: { createdAt: "desc" },
+    include: {
+      nasabah: {
+        select: {
+          id: true,
+          nama: true,
+          noTelp: true,
+          alamat: true,
+          nik: true,
+        },
+      },
+      ekpedisi: {
+        select: { noTelp: true, alamat: true },
+      },
+    },
+  });
+}
+
+export async function getEkpedisiList() {
+  await checkAdminAuth();
+  return await prisma.ekpedisi.findMany({
+    select: { id: true, noTelp: true, alamat: true },
+    orderBy: { createdAt: "desc" },
+  });
 }

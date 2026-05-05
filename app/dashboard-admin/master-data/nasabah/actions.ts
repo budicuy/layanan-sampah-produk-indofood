@@ -1,9 +1,8 @@
 "use server";
 
-import { hashPassword } from "better-auth/crypto";
+import { hash } from "bcryptjs";
 import { revalidatePath } from "next/cache";
-import { headers } from "next/headers";
-import { auth } from "@/lib/auth";
+import { getSession } from "@/app/login/auth/session";
 import { prisma } from "@/lib/prisma";
 import type {
   KategoriNasabah,
@@ -11,7 +10,7 @@ import type {
 } from "@/prisma/generated/prisma/client";
 
 async function checkAdminAuth() {
-  const session = await auth.api.getSession({ headers: await headers() });
+  const session = await getSession();
   if (!session || session.user.role === "KONSUMEN") {
     throw new Error("Unauthorized: Admin or HRD access required");
   }
@@ -35,7 +34,7 @@ export async function createNasabah(data: {
   await checkAdminAuth();
   const { email, username, password, ...nasabahData } = data;
 
-  const hashed = await hashPassword(password);
+  const hashed = await hash(password, 12);
 
   await prisma.nasabah.create({
     data: {
@@ -105,7 +104,7 @@ export async function updateNasabah(
 
   // Update password if provided
   if (nasabah.userId && password && password.trim()) {
-    const hashed = await hashPassword(password);
+    const hashed = await hash(password, 12);
     await prisma.account.updateMany({
       where: { userId: nasabah.userId, providerId: "credential" },
       data: { password: hashed },

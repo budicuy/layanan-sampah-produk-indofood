@@ -1,8 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { headers } from "next/headers";
-import { auth } from "@/lib/auth";
+import { getSession } from "@/app/login/auth/session";
 import { prisma } from "@/lib/prisma";
 import type { JenisSampah } from "@/prisma/generated/prisma/client";
 
@@ -13,12 +12,12 @@ export async function submitSetorSampah(data: {
   keterangan?: string;
   alamatPenjemputan: string;
 }) {
-  const session = await auth.api.getSession({ headers: await headers() });
+  const session = await getSession();
   if (!session) throw new Error("Unauthorized");
 
   // Cari nasabah yang terhubung ke user ini
   const nasabah = await prisma.nasabah.findUnique({
-    where: { userId: session.user.id },
+    where: { userId: session.user.sub },
   });
 
   if (!nasabah) {
@@ -43,11 +42,11 @@ export async function submitSetorSampah(data: {
 
 // Konsumen konfirmasi sudah menyerahkan sampah ke kurir
 export async function konfirmasiSerahTerima(setorSampahId: string) {
-  const session = await auth.api.getSession({ headers: await headers() });
+  const session = await getSession();
   if (!session) throw new Error("Unauthorized");
 
   const nasabah = await prisma.nasabah.findUnique({
-    where: { userId: session.user.id },
+    where: { userId: session.user.sub },
   });
   if (!nasabah) throw new Error("Nasabah tidak ditemukan");
 
@@ -68,4 +67,23 @@ export async function konfirmasiSerahTerima(setorSampahId: string) {
   });
 
   revalidatePath("/konsumen/setor-sampah");
+}
+
+export async function getSetorSampahKonsumenData() {
+  const session = await getSession();
+  if (!session) throw new Error("Unauthorized");
+
+  const userId = session.user.sub;
+  const nasabah = await prisma.nasabah.findUnique({
+    where: { userId },
+    include: {
+      setorSampah: {
+        orderBy: { createdAt: "desc" },
+        include: { ekpedisi: { select: { noTelp: true, alamat: true } } },
+        take: 20,
+      },
+    },
+  });
+
+  return { nasabah };
 }

@@ -1,14 +1,13 @@
 "use server";
 
-import { hashPassword } from "better-auth/crypto";
+import { hash } from "bcryptjs";
 import { revalidatePath } from "next/cache";
-import { headers } from "next/headers";
-import { auth } from "@/lib/auth";
+import { getSession } from "@/app/login/auth/session";
 import { prisma } from "@/lib/prisma";
 import type { Role, StatusUser } from "@/prisma/generated/prisma/client";
 
 async function checkAdminAuth() {
-  const session = await auth.api.getSession({ headers: await headers() });
+  const session = await getSession();
   if (!session || session.user.role === "KONSUMEN") {
     throw new Error("Unauthorized: Admin or HRD access required");
   }
@@ -23,7 +22,7 @@ export async function createUser(data: {
 }) {
   await checkAdminAuth();
   try {
-    const hashedPassword = await hashPassword("password");
+    const hashedPassword = await hash("password", 12);
 
     await prisma.user.create({
       data: {
@@ -92,7 +91,7 @@ export async function deleteUser(id: string) {
 export async function resetPassword(id: string) {
   await checkAdminAuth();
   try {
-    const hashedPassword = await hashPassword("password");
+    const hashedPassword = await hash("password", 12);
 
     await prisma.account.updateMany({
       where: { userId: id, providerId: "credential" },

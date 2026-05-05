@@ -1,10 +1,11 @@
 "use server";
 
-import { APIError } from "better-auth/api";
-import { headers } from "next/headers";
+import { compare } from "bcryptjs";
 import { redirect } from "next/navigation";
 import * as v from "valibot";
-import { auth } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
+import { signJwt } from "./auth";
+import { deleteAuthCookie, setAuthCookie } from "./auth/cookies";
 
 type ActionState = { msg: string; ok?: boolean; role?: string };
 
@@ -24,24 +25,46 @@ export async function loginAction(
     return { msg: parsed.issues[0]?.message ?? "Input tidak valid" };
   }
 
-  try {
-    const { user } = await auth.api.signInUsername({
-      body: parsed.output,
-      headers: await headers(),
-    });
-    return {
-      msg: "Login berhasil! Mengalihkan...",
-      ok: true,
-      role: (user as unknown as { role: string }).role,
-    };
-  } catch (err) {
-    if (err instanceof APIError)
-      return { msg: "Username atau kata sandi salah." };
-    throw err;
+  const { username, password } = parsed.output;
+
+  // Cari user beserta password-nya di tabel account
+  const account = await prisma.account.findFirst({
+    where: { user: { username } },
+    include: { user: true },
+  });
+
+  if (!account) {
+    return { msg: "Username atau kata sandi salah." };
   }
+
+  const passwordMatch = await compare(password, account.password);
+  if (!passwordMatch) {
+    return { msg: "Username atau kata sandi salah." };
+  }
+
+  const { user } = account;
+
+  if (user.status === "NONAKTIF") {
+    return { msg: "Akun Anda dinonaktifkan. Hubungi administrator." };
+  }
+
+  const token = await signJwt({
+    sub: user.id,
+    username: user.username,
+    name: user.name,
+    role: user.role,
+  });
+
+  await setAuthCookie(token);
+
+  return {
+    msg: "Login berhasil! Mengalihkan...",
+    ok: true,
+    role: user.role,
+  };
 }
 
 export async function logoutAction() {
-  await auth.api.signOut({ headers: await headers() });
+  await deleteAuthCookie();
   redirect("/login");
 }

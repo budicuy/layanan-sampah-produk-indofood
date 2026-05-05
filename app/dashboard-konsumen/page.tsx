@@ -8,8 +8,7 @@ import {
   Tag,
   Wallet,
 } from "lucide-react";
-import { headers } from "next/headers";
-import { auth } from "@/lib/auth";
+import { getSession } from "@/app/login/auth/session";
 import { prisma } from "@/lib/prisma";
 import {
   ConsumerDonutChart,
@@ -56,14 +55,14 @@ const STATUS_MAP: Record<string, { label: string; cls: string }> = {
 // ─── Page ───────────────────────────────────────────────────────────────────
 
 export default async function ConsumerDashboardPage() {
-  const session = await auth.api.getSession({ headers: await headers() });
+  const session = await getSession();
   const user = session?.user;
-  const displayName = user?.name ?? user?.username ?? user?.email;
+  const displayName = user?.name ?? user?.username;
 
   // Fetch nasabah linked to this user
   const nasabah = user
     ? await prisma.nasabah.findUnique({
-        where: { userId: user.id },
+        where: { userId: user.sub },
         select: {
           saldo: true,
           noRek: true,

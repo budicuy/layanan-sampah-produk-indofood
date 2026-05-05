@@ -455,6 +455,7 @@ export default function NasabahPage() {
                     id="nik"
                     required
                     name="nik"
+                    maxLength={16}
                     defaultValue={selectedNasabah?.nik}
                     className="w-full px-4 py-3 bg-zinc-50 border-none rounded-xl focus:ring-2 focus:ring-primary/20"
                   />

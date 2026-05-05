@@ -1,5 +1,5 @@
 import "dotenv/config";
-import { hashPassword } from "better-auth/crypto";
+import { hash } from "bcryptjs";
 import type {
   JenisSampah,
   KategoriNasabah,
@@ -29,7 +29,7 @@ async function main() {
   console.log("✅ Cleanup complete.");
 
   console.log("🌱 Seeding user admin...");
-  const adminPassword = await hashPassword("admin");
+  const adminPassword = await hash("admin", 12);
   await prisma.user.create({
     data: {
       name: "Admin",
@@ -49,7 +49,7 @@ async function main() {
   });
 
   console.log("👥 Seeding Nasabah + User konsumen...");
-  const defaultPassword = await hashPassword("123456");
+  const defaultPassword = await hash("123456", 12);
   for (const n of NasabahsSeed) {
     await prisma.nasabah.create({
       data: {

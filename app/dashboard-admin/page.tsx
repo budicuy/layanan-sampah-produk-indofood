@@ -6,16 +6,15 @@ import {
   Users,
   Wallet,
 } from "lucide-react";
-import { headers } from "next/headers";
-import { auth } from "@/lib/auth";
+import { getSession } from "@/app/login/auth/session";
 import { prisma } from "@/lib/prisma";
 import { WasteLineChart, WasteTypeChart } from "./components/Charts";
 import LiveClock from "./components/Clock";
 
 export default async function DashboardPage() {
-  const session = await auth.api.getSession({ headers: await headers() });
+  const session = await getSession();
   const user = session?.user;
-  const displayName = user?.name ?? user?.username ?? user?.email;
+  const displayName = user?.name ?? user?.username;
 
   // ─── Fetch Dynamic Stats & Charts ──────────────────────────────────────────
   const now = new Date();
