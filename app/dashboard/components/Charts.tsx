@@ -30,17 +30,28 @@ ChartJS.register(
 
 // ─── Generic charts (masih dipakai di konsumen dashboard) ────────────────────
 
-export function WasteLineChart() {
-  const data = {
-    labels: ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun"],
+// ─── Generic charts (sekarang dinamis untuk admin & konsumen) ─────────────────
+
+export function WasteLineChart({
+  labels = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun"],
+  data = [0, 0, 0, 0, 0, 0],
+}: {
+  labels?: string[];
+  data?: number[];
+}) {
+  const chartData = {
+    labels,
     datasets: [
       {
         label: "Berat Sampah (kg)",
-        data: [12, 19, 15, 25, 22, 30],
-        borderColor: "rgb(220, 38, 38)",
-        backgroundColor: "rgba(220, 38, 38, 0.1)",
+        data,
+        borderColor: "#dc2626", // primary red
+        backgroundColor: "rgba(220, 38, 38, 0.05)",
         fill: true,
-        tension: 0.4,
+        tension: 0.3,
+        pointRadius: 0,
+        pointHitRadius: 20,
+        borderWidth: 3,
       },
     ],
   };
@@ -48,27 +59,52 @@ export function WasteLineChart() {
   const options = {
     responsive: true,
     maintainAspectRatio: false,
-    plugins: { legend: { display: false } },
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: "#fff",
+        titleColor: "#18181b",
+        bodyColor: "#18181b",
+        borderColor: "#f4f4f5",
+        borderWidth: 1,
+        padding: 12,
+        cornerRadius: 8,
+        displayColors: false,
+      },
+    },
     scales: {
-      y: { beginAtZero: true, grid: { display: false } },
-      x: { grid: { display: false } },
+      y: {
+        beginAtZero: true,
+        grid: { color: "rgba(0,0,0,0.03)" },
+        ticks: { color: "#a1a1aa", font: { size: 10 } },
+      },
+      x: {
+        grid: { display: false },
+        ticks: { color: "#a1a1aa", font: { size: 10 } },
+      },
     },
   };
 
   return (
-    <div className="h-[300px] w-full">
-      <Line data={data} options={options} />
+    <div className="h-[280px] w-full">
+      <Line data={chartData} options={options} />
     </div>
   );
 }
 
-export function WasteTypeChart() {
-  const data = {
+export function WasteTypeChart({
+  plastik = 0,
+  karton = 0,
+}: {
+  plastik?: number;
+  karton?: number;
+}) {
+  const chartData = {
     labels: ["Plastik", "Karton"],
     datasets: [
       {
-        data: [45, 55],
-        backgroundColor: ["rgba(220, 38, 38, 0.8)", "rgba(220, 38, 38, 0.3)"],
+        data: [plastik, karton],
+        backgroundColor: ["#dc2626", "#fecaca"], // Red and Light Red
         borderWidth: 0,
       },
     ],
@@ -77,13 +113,24 @@ export function WasteTypeChart() {
   const options = {
     responsive: true,
     maintainAspectRatio: false,
-    plugins: { legend: { position: "bottom" as const } },
-    cutout: "70%",
+    plugins: {
+      legend: {
+        position: "bottom" as const,
+        labels: {
+          padding: 20,
+          usePointStyle: true,
+          boxWidth: 8,
+          font: { size: 11, weight: "bold" as const },
+          color: "#71717a",
+        },
+      },
+    },
+    cutout: "80%",
   };
 
   return (
-    <div className="h-[300px] w-full">
-      <Doughnut data={data} options={options} />
+    <div className="h-[240px] w-full">
+      <Doughnut data={chartData} options={options} />
     </div>
   );
 }

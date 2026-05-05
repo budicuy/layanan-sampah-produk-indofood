@@ -7,7 +7,8 @@ import { prisma } from "@/lib/prisma";
 export const auth = betterAuth({
   database: prismaAdapter(prisma, { provider: "postgresql" }),
   session: {
-    expiresIn: 60 * 60 * 24, // 1 hari
+    expiresIn: 60 * 60 * 24 * 7, // 7 hari
+    updateAge: 60 * 60 * 24, // Update session setiap hari jika aktif
   },
   emailAndPassword: {
     enabled: true,

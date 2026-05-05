@@ -2,11 +2,20 @@
 
 import { hashPassword } from "better-auth/crypto";
 import { revalidatePath } from "next/cache";
+import { headers } from "next/headers";
+import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import type {
   KategoriNasabah,
   StatusNasabah,
 } from "@/prisma/generated/prisma/client";
+
+async function checkAdminAuth() {
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (!session || session.user.role === "KONSUMEN") {
+    throw new Error("Unauthorized: Admin or HRD access required");
+  }
+}
 
 export async function createNasabah(data: {
   nama: string;
@@ -23,6 +32,7 @@ export async function createNasabah(data: {
   username: string;
   password: string;
 }) {
+  await checkAdminAuth();
   const { email, username, password, ...nasabahData } = data;
 
   const hashed = await hashPassword(password);
@@ -71,6 +81,7 @@ export async function updateNasabah(
     password?: string;
   },
 ) {
+  await checkAdminAuth();
   const { email, username, password, ...nasabahData } = data;
 
   // Update nasabah data
@@ -105,6 +116,7 @@ export async function updateNasabah(
 }
 
 export async function deleteNasabah(id: string) {
+  await checkAdminAuth();
   // Cascade: delete user will cascade accounts/sessions via DB
   const nasabah = await prisma.nasabah.findUnique({
     where: { id },

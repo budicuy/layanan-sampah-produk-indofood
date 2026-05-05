@@ -170,13 +170,13 @@ export default function ProdukList({ initialData }: { initialData: Produk[] }) {
         </div>
       </div>
 
-      <div className="bg-white rounded-[32px] border border-zinc-100 shadow-sm overflow-hidden">
-        <div className="p-8 border-b border-zinc-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-white rounded-[24px] md:rounded-[32px] border border-zinc-100 shadow-sm overflow-hidden">
+        <div className="p-5 md:p-8 border-b border-zinc-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <h3 className="text-xl font-bold text-zinc-900 font-heading">
             Daftar Produk
           </h3>
           <div className="flex items-center gap-3">
-            <div className="relative">
+            <div className="relative w-full md:w-auto">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 w-4 h-4" />
               <input
                 type="text"
@@ -194,23 +194,23 @@ export default function ProdukList({ initialData }: { initialData: Produk[] }) {
           </div>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
+        <div className="overflow-x-auto w-full">
+          <table className="w-full text-left border-collapse whitespace-nowrap md:whitespace-normal">
             <thead>
               <tr className="bg-zinc-50/50">
-                <th className="px-8 py-4 text-xs font-bold text-zinc-400 uppercase tracking-widest">
+                <th className="px-4 md:px-8 py-4 text-xs font-bold text-zinc-400 uppercase tracking-widest">
                   Produk & Brand
                 </th>
-                <th className="px-8 py-4 text-xs font-bold text-zinc-400 uppercase tracking-widest">
+                <th className="px-4 md:px-8 py-4 text-xs font-bold text-zinc-400 uppercase tracking-widest">
                   Jenis
                 </th>
-                <th className="px-8 py-4 text-xs font-bold text-zinc-400 uppercase tracking-widest">
+                <th className="px-4 md:px-8 py-4 text-xs font-bold text-zinc-400 uppercase tracking-widest">
                   Berat & Isi
                 </th>
-                <th className="px-8 py-4 text-xs font-bold text-zinc-400 uppercase tracking-widest">
+                <th className="px-4 md:px-8 py-4 text-xs font-bold text-zinc-400 uppercase tracking-widest">
                   Harga
                 </th>
-                <th className="px-8 py-4 text-xs font-bold text-zinc-400 uppercase tracking-widest text-right">
+                <th className="px-4 md:px-8 py-4 text-xs font-bold text-zinc-400 uppercase tracking-widest text-right">
                   Aksi
                 </th>
               </tr>
@@ -220,7 +220,7 @@ export default function ProdukList({ initialData }: { initialData: Produk[] }) {
                 <tr>
                   <td
                     colSpan={5}
-                    className="px-8 py-12 text-center text-zinc-500">
+                    className="px-4 md:px-8 py-12 text-center text-zinc-500">
                     Tidak ada data produk ditemukan.
                   </td>
                 </tr>
@@ -229,21 +229,23 @@ export default function ProdukList({ initialData }: { initialData: Produk[] }) {
                   <tr
                     key={p.id}
                     className="hover:bg-zinc-50/50 transition-colors group">
-                    <td className="px-8 py-6">
-                      <p className="font-bold text-zinc-900">{p.nama}</p>
+                    <td className="px-4 md:px-8 py-4 md:py-6">
+                      <p className="font-bold text-zinc-900 text-sm md:text-base">
+                        {p.nama}
+                      </p>
                       <div className="flex items-center gap-2 mt-1">
-                        <p className="text-xs text-zinc-400 font-mono uppercase tracking-tighter">
+                        <p className="text-[10px] md:text-xs text-zinc-400 font-mono uppercase tracking-tighter">
                           KODE: {p.kode}
                         </p>
                         <span className="w-1 h-1 bg-zinc-300 rounded-full" />
-                        <p className="text-xs font-medium text-zinc-500">
+                        <p className="text-[10px] md:text-xs font-medium text-zinc-500">
                           {p.brand}
                         </p>
                       </div>
                     </td>
-                    <td className="px-8 py-6">
+                    <td className="px-4 md:px-8 py-4 md:py-6">
                       <span
-                        className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-bold ${
+                        className={`inline-flex items-center gap-1.5 px-2 md:px-3 py-1 rounded-lg text-[10px] md:text-xs font-bold ${
                           p.jenis === "PLASTIK"
                             ? "bg-amber-100 text-amber-700"
                             : "bg-emerald-100 text-emerald-700"
@@ -251,35 +253,47 @@ export default function ProdukList({ initialData }: { initialData: Produk[] }) {
                         <Tag size={12} /> {p.jenis}
                       </span>
                     </td>
-                    <td className="px-8 py-6 text-sm text-zinc-600">
+                    <td className="px-4 md:px-8 py-4 md:py-6 text-xs md:text-sm text-zinc-600">
                       <div className="flex items-center gap-2 mb-1">
-                        <Scale size={14} className="text-zinc-400" />
+                        <Scale size={14} className="text-zinc-400 shrink-0" />
                         {p.berat} Kg
                       </div>
                       <div className="flex items-center gap-2">
-                        <PackageOpen size={14} className="text-zinc-400" />
+                        <PackageOpen
+                          size={14}
+                          className="text-zinc-400 shrink-0"
+                        />
                         Isi: {p.isi}
                       </div>
                     </td>
-                    <td className="px-8 py-6">
-                      <div className="font-bold text-zinc-900 flex items-center gap-2">
-                        <DollarSign size={14} className="text-zinc-400" />
+                    <td className="px-4 md:px-8 py-4 md:py-6">
+                      <div className="font-bold text-zinc-900 flex items-center gap-2 text-sm md:text-base">
+                        <DollarSign
+                          size={14}
+                          className="text-zinc-400 shrink-0"
+                        />
                         {formatRupiah(p.harga)}
                       </div>
                     </td>
-                    <td className="px-8 py-6 text-right">
-                      <div className="flex items-center justify-end gap-2">
+                    <td className="px-4 md:px-8 py-4 md:py-6 text-right">
+                      <div className="flex items-center justify-end gap-1 md:gap-2">
                         <button
                           type="button"
                           onClick={() => openModal(p)}
-                          className="p-2 text-zinc-400 hover:text-primary transition-colors hover:bg-blue-50 rounded-lg">
-                          <Edit2 size={18} />
+                          className="p-1.5 md:p-2 text-zinc-400 hover:text-primary transition-colors hover:bg-blue-50 rounded-lg">
+                          <Edit2
+                            size={16}
+                            className="md:w-[18px] md:h-[18px]"
+                          />
                         </button>
                         <button
                           type="button"
                           onClick={() => openDeleteModal(p)}
-                          className="p-2 text-zinc-400 hover:text-red-600 transition-colors hover:bg-red-50 rounded-lg">
-                          <Trash2 size={18} />
+                          className="p-1.5 md:p-2 text-zinc-400 hover:text-red-600 transition-colors hover:bg-red-50 rounded-lg">
+                          <Trash2
+                            size={16}
+                            className="md:w-[18px] md:h-[18px]"
+                          />
                         </button>
                       </div>
                     </td>

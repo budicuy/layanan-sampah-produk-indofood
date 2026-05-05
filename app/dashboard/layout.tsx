@@ -19,10 +19,12 @@ export default async function DashboardLayout({
   }
 
   return (
-    <div className="flex min-h-screen bg-zinc-50">
+    <div className="flex min-h-screen bg-zinc-50 overflow-hidden">
       <Sidebar user={user} />
-      <div className="flex-1 lg:ml-72 flex flex-col min-h-screen">
-        <main className="flex-1 p-6 lg:p-10">{children}</main>
+      <div className="flex-1 lg:ml-72 flex flex-col min-h-screen w-full max-w-full overflow-x-hidden">
+        <main className="flex-1 p-4 md:p-6 lg:p-10 w-full max-w-full pt-16 lg:pt-10">
+          {children}
+        </main>
       </div>
     </div>
   );

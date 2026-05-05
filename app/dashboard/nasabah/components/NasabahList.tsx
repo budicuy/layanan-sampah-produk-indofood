@@ -220,13 +220,13 @@ export default function NasabahList({
         </div>
       </div>
 
-      <div className="bg-white rounded-[32px] border border-zinc-100 shadow-sm overflow-hidden">
-        <div className="p-8 border-b border-zinc-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-white rounded-[24px] md:rounded-[32px] border border-zinc-100 shadow-sm overflow-hidden">
+        <div className="p-5 md:p-8 border-b border-zinc-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <h3 className="text-xl font-bold text-zinc-900 font-heading">
             Daftar Nasabah
           </h3>
           <div className="flex items-center gap-3">
-            <div className="relative">
+            <div className="relative w-full md:w-auto">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 w-4 h-4" />
               <input
                 type="text"
@@ -244,29 +244,29 @@ export default function NasabahList({
           </div>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
+        <div className="overflow-x-auto w-full">
+          <table className="w-full text-left border-collapse whitespace-nowrap md:whitespace-normal">
             <thead>
               <tr className="bg-zinc-50/50">
-                <th className="px-8 py-4 text-xs font-bold text-zinc-400 uppercase tracking-widest">
+                <th className="px-4 md:px-8 py-4 text-xs font-bold text-zinc-400 uppercase tracking-widest">
                   Nasabah
                 </th>
-                <th className="px-8 py-4 text-xs font-bold text-zinc-400 uppercase tracking-widest">
+                <th className="px-4 md:px-8 py-4 text-xs font-bold text-zinc-400 uppercase tracking-widest">
                   Kontak & Alamat
                 </th>
-                <th className="px-8 py-4 text-xs font-bold text-zinc-400 uppercase tracking-widest">
+                <th className="px-4 md:px-8 py-4 text-xs font-bold text-zinc-400 uppercase tracking-widest">
                   Akun User
                 </th>
-                <th className="px-8 py-4 text-xs font-bold text-zinc-400 uppercase tracking-widest">
+                <th className="px-4 md:px-8 py-4 text-xs font-bold text-zinc-400 uppercase tracking-widest">
                   Kategori
                 </th>
-                <th className="px-8 py-4 text-xs font-bold text-zinc-400 uppercase tracking-widest">
+                <th className="px-4 md:px-8 py-4 text-xs font-bold text-zinc-400 uppercase tracking-widest">
                   Rekening
                 </th>
-                <th className="px-8 py-4 text-xs font-bold text-zinc-400 uppercase tracking-widest">
+                <th className="px-4 md:px-8 py-4 text-xs font-bold text-zinc-400 uppercase tracking-widest">
                   Status
                 </th>
-                <th className="px-8 py-4 text-xs font-bold text-zinc-400 uppercase tracking-widest text-right">
+                <th className="px-4 md:px-8 py-4 text-xs font-bold text-zinc-400 uppercase tracking-widest text-right">
                   Aksi
                 </th>
               </tr>
@@ -276,7 +276,7 @@ export default function NasabahList({
                 <tr>
                   <td
                     colSpan={7}
-                    className="px-8 py-12 text-center text-zinc-500">
+                    className="px-4 md:px-8 py-12 text-center text-zinc-500">
                     Tidak ada data nasabah ditemukan.
                   </td>
                 </tr>
@@ -285,32 +285,48 @@ export default function NasabahList({
                   <tr
                     key={n.id}
                     className="hover:bg-zinc-50/50 transition-colors group">
-                    <td className="px-8 py-6">
-                      <p className="font-bold text-zinc-900">{n.nama}</p>
+                    <td className="px-4 md:px-8 py-4 md:py-6">
+                      <p className="font-bold text-zinc-900 text-sm md:text-base">
+                        {n.nama}
+                      </p>
                       <p className="text-xs text-zinc-400 mt-1 font-mono uppercase tracking-tighter">
                         NIK: {n.nik}
                       </p>
                     </td>
-                    <td className="px-8 py-6 text-sm text-zinc-600">
+                    <td className="px-4 md:px-8 py-4 md:py-6 text-xs md:text-sm text-zinc-600">
                       <div className="flex items-center gap-2 mb-1">
-                        <Phone size={14} className="text-zinc-400" />
-                        {n.noTelp}
+                        <Phone size={14} className="text-zinc-400 shrink-0" />
+                        <span className="truncate max-w-[120px] md:max-w-[200px]">
+                          {n.noTelp}
+                        </span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <MapPin size={14} className="text-zinc-400" />
-                        {n.alamat}
+                        <MapPin size={14} className="text-zinc-400 shrink-0" />
+                        <span className="truncate max-w-[120px] md:max-w-[200px]">
+                          {n.alamat}
+                        </span>
                       </div>
                     </td>
-                    <td className="px-8 py-6">
+                    <td className="px-4 md:px-8 py-4 md:py-6">
                       {n.user ? (
                         <div className="space-y-1">
-                          <div className="flex items-center gap-2 text-sm font-bold text-zinc-800">
-                            <User2 size={13} className="text-zinc-400" />
-                            {n.user.username}
+                          <div className="flex items-center gap-2 text-xs md:text-sm font-bold text-zinc-800">
+                            <User2
+                              size={13}
+                              className="text-zinc-400 shrink-0"
+                            />
+                            <span className="truncate max-w-[100px] md:max-w-[150px]">
+                              {n.user.username}
+                            </span>
                           </div>
-                          <div className="flex items-center gap-2 text-xs text-zinc-400">
-                            <AtSign size={11} className="text-zinc-400" />
-                            {n.user.email}
+                          <div className="flex items-center gap-2 text-[10px] md:text-xs text-zinc-400">
+                            <AtSign
+                              size={11}
+                              className="text-zinc-400 shrink-0"
+                            />
+                            <span className="truncate max-w-[100px] md:max-w-[150px]">
+                              {n.user.email}
+                            </span>
                           </div>
                         </div>
                       ) : (
@@ -319,44 +335,53 @@ export default function NasabahList({
                         </span>
                       )}
                     </td>
-                    <td className="px-8 py-6">
-                      <span className="inline-flex items-center gap-2 px-3 py-1 bg-zinc-100 text-zinc-600 rounded-lg text-xs font-bold">
+                    <td className="px-4 md:px-8 py-4 md:py-6">
+                      <span className="inline-flex items-center gap-1.5 md:gap-2 px-2 md:px-3 py-1 bg-zinc-100 text-zinc-600 rounded-lg text-[10px] md:text-xs font-bold">
                         <Tag size={12} /> {n.kategori.replace("_", " ")}
                       </span>
                     </td>
-                    <td className="px-8 py-6 text-sm">
+                    <td className="px-4 md:px-8 py-4 md:py-6 text-xs md:text-sm">
                       <div className="font-bold text-zinc-900 mb-1 flex items-center gap-2">
-                        <CreditCard size={14} className="text-zinc-400" />
+                        <CreditCard
+                          size={14}
+                          className="text-zinc-400 shrink-0"
+                        />
                         {n.noRek}
                       </div>
-                      <p className="text-xs text-zinc-400 uppercase">
+                      <p className="text-[10px] md:text-xs text-zinc-400 uppercase">
                         {n.jenisBank}
                       </p>
                     </td>
-                    <td className="px-8 py-6">
+                    <td className="px-4 md:px-8 py-4 md:py-6">
                       {n.status === "AKTIF" ? (
-                        <div className="inline-flex items-center gap-1.5 text-green-600 font-bold text-xs">
+                        <div className="inline-flex items-center gap-1.5 text-green-600 font-bold text-[10px] md:text-xs">
                           <CheckCircle2 size={14} /> AKTIF
                         </div>
                       ) : (
-                        <div className="inline-flex items-center gap-1.5 text-zinc-400 font-bold text-xs">
+                        <div className="inline-flex items-center gap-1.5 text-zinc-400 font-bold text-[10px] md:text-xs">
                           <XCircle size={14} /> NONAKTIF
                         </div>
                       )}
                     </td>
-                    <td className="px-8 py-6 text-right">
-                      <div className="flex items-center justify-end gap-2">
+                    <td className="px-4 md:px-8 py-4 md:py-6 text-right">
+                      <div className="flex items-center justify-end gap-1 md:gap-2">
                         <button
                           type="button"
                           onClick={() => openModal(n)}
-                          className="p-2 text-zinc-400 hover:text-primary transition-colors hover:bg-red-50 rounded-lg">
-                          <Edit2 size={18} />
+                          className="p-1.5 md:p-2 text-zinc-400 hover:text-primary transition-colors hover:bg-red-50 rounded-lg">
+                          <Edit2
+                            size={16}
+                            className="md:w-[18px] md:h-[18px]"
+                          />
                         </button>
                         <button
                           type="button"
                           onClick={() => openDeleteModal(n)}
-                          className="p-2 text-zinc-400 hover:text-red-600 transition-colors hover:bg-red-50 rounded-lg">
-                          <Trash2 size={18} />
+                          className="p-1.5 md:p-2 text-zinc-400 hover:text-red-600 transition-colors hover:bg-red-50 rounded-lg">
+                          <Trash2
+                            size={16}
+                            className="md:w-[18px] md:h-[18px]"
+                          />
                         </button>
                       </div>
                     </td>

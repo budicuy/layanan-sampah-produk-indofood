@@ -1,8 +1,17 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { headers } from "next/headers";
+import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import type { JenisSampah } from "@/prisma/generated/prisma/client";
+
+async function checkAdminAuth() {
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (!session || session.user.role === "KONSUMEN") {
+    throw new Error("Unauthorized: Admin or HRD access required");
+  }
+}
 
 export async function createHargaSampah(data: {
   harga: number;
@@ -10,6 +19,7 @@ export async function createHargaSampah(data: {
   jenisSampah: JenisSampah;
   berat: number;
 }) {
+  await checkAdminAuth();
   try {
     await prisma.hargaSampah.create({
       data,
@@ -31,6 +41,7 @@ export async function updateHargaSampah(
     berat: number;
   },
 ) {
+  await checkAdminAuth();
   try {
     await prisma.hargaSampah.update({
       where: { id },
@@ -45,6 +56,7 @@ export async function updateHargaSampah(
 }
 
 export async function deleteHargaSampah(id: string) {
+  await checkAdminAuth();
   try {
     await prisma.hargaSampah.delete({
       where: { id },

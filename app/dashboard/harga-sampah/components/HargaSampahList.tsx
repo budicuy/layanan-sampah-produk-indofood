@@ -181,13 +181,13 @@ export default function HargaSampahList({
         </div>
       </div>
 
-      <div className="bg-white rounded-[32px] border border-zinc-100 shadow-sm overflow-hidden">
-        <div className="p-8 border-b border-zinc-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-white rounded-[24px] md:rounded-[32px] border border-zinc-100 shadow-sm overflow-hidden">
+        <div className="p-5 md:p-8 border-b border-zinc-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <h3 className="text-xl font-bold text-zinc-900 font-heading">
             Daftar Harga Acuan
           </h3>
           <div className="flex items-center gap-3">
-            <div className="relative">
+            <div className="relative w-full md:w-auto">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 w-4 h-4" />
               <input
                 type="text"
@@ -200,23 +200,23 @@ export default function HargaSampahList({
           </div>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
+        <div className="overflow-x-auto w-full">
+          <table className="w-full text-left border-collapse whitespace-nowrap md:whitespace-normal">
             <thead>
               <tr className="bg-zinc-50/50">
-                <th className="px-8 py-4 text-xs font-bold text-zinc-400 uppercase tracking-widest">
+                <th className="px-4 md:px-8 py-4 text-xs font-bold text-zinc-400 uppercase tracking-widest">
                   Periode Bulan
                 </th>
-                <th className="px-8 py-4 text-xs font-bold text-zinc-400 uppercase tracking-widest">
+                <th className="px-4 md:px-8 py-4 text-xs font-bold text-zinc-400 uppercase tracking-widest">
                   Jenis Sampah
                 </th>
-                <th className="px-8 py-4 text-xs font-bold text-zinc-400 uppercase tracking-widest">
+                <th className="px-4 md:px-8 py-4 text-xs font-bold text-zinc-400 uppercase tracking-widest">
                   Harga (Rp)
                 </th>
-                <th className="px-8 py-4 text-xs font-bold text-zinc-400 uppercase tracking-widest">
+                <th className="px-4 md:px-8 py-4 text-xs font-bold text-zinc-400 uppercase tracking-widest">
                   Berat (Kg)
                 </th>
-                <th className="px-8 py-4 text-xs font-bold text-zinc-400 uppercase tracking-widest text-right">
+                <th className="px-4 md:px-8 py-4 text-xs font-bold text-zinc-400 uppercase tracking-widest text-right">
                   Aksi
                 </th>
               </tr>
@@ -226,7 +226,7 @@ export default function HargaSampahList({
                 <tr>
                   <td
                     colSpan={5}
-                    className="px-8 py-12 text-center text-zinc-500">
+                    className="px-4 md:px-8 py-12 text-center text-zinc-500">
                     Belum ada data harga sampah.
                   </td>
                 </tr>
@@ -235,8 +235,8 @@ export default function HargaSampahList({
                   <tr
                     key={h.id}
                     className="hover:bg-zinc-50/50 transition-colors">
-                    <td className="px-8 py-6">
-                      <div className="flex items-center gap-2 text-zinc-900 font-bold">
+                    <td className="px-4 md:px-8 py-4 md:py-6">
+                      <div className="flex items-center gap-2 text-zinc-900 font-bold text-sm md:text-base">
                         <Calendar size={14} className="text-zinc-400" />
                         {new Date(h.bulan).toLocaleDateString("id-ID", {
                           month: "long",
@@ -244,9 +244,9 @@ export default function HargaSampahList({
                         })}
                       </div>
                     </td>
-                    <td className="px-8 py-6">
+                    <td className="px-4 md:px-8 py-4 md:py-6">
                       <span
-                        className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-bold ${
+                        className={`inline-flex items-center gap-1.5 px-2 md:px-3 py-1 rounded-lg text-[10px] md:text-xs font-bold ${
                           h.jenisSampah === "PLASTIK"
                             ? "bg-sky-100 text-sky-700"
                             : "bg-amber-100 text-amber-700"
@@ -254,28 +254,34 @@ export default function HargaSampahList({
                         <Tag size={12} /> {h.jenisSampah}
                       </span>
                     </td>
-                    <td className="px-8 py-6 font-bold text-zinc-900">
+                    <td className="px-4 md:px-8 py-4 md:py-6 font-bold text-zinc-900 text-sm md:text-base">
                       {formatRupiah(h.harga)}
                     </td>
-                    <td className="px-8 py-6 text-sm text-zinc-600">
+                    <td className="px-4 md:px-8 py-4 md:py-6 text-xs md:text-sm text-zinc-600">
                       <div className="flex items-center gap-2">
                         <Scale size={14} className="text-zinc-400" />
                         {h.berat} Kg
                       </div>
                     </td>
-                    <td className="px-8 py-6 text-right">
-                      <div className="flex items-center justify-end gap-2">
+                    <td className="px-4 md:px-8 py-4 md:py-6 text-right">
+                      <div className="flex items-center justify-end gap-1 md:gap-2">
                         <button
                           type="button"
                           onClick={() => openModal(h)}
-                          className="p-2 text-zinc-400 hover:text-primary transition-colors hover:bg-blue-50 rounded-lg">
-                          <Edit2 size={18} />
+                          className="p-1.5 md:p-2 text-zinc-400 hover:text-primary transition-colors hover:bg-blue-50 rounded-lg">
+                          <Edit2
+                            size={16}
+                            className="md:w-[18px] md:h-[18px]"
+                          />
                         </button>
                         <button
                           type="button"
                           onClick={() => openDeleteModal(h)}
-                          className="p-2 text-zinc-400 hover:text-red-600 transition-colors hover:bg-red-50 rounded-lg">
-                          <Trash2 size={18} />
+                          className="p-1.5 md:p-2 text-zinc-400 hover:text-red-600 transition-colors hover:bg-red-50 rounded-lg">
+                          <Trash2
+                            size={16}
+                            className="md:w-[18px] md:h-[18px]"
+                          />
                         </button>
                       </div>
                     </td>

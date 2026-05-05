@@ -205,13 +205,13 @@ export default function EkpedisiList({
         </div>
       </div>
 
-      <div className="bg-white rounded-[32px] border border-zinc-100 shadow-sm overflow-hidden">
-        <div className="p-8 border-b border-zinc-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-white rounded-[24px] md:rounded-[32px] border border-zinc-100 shadow-sm overflow-hidden">
+        <div className="p-5 md:p-8 border-b border-zinc-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <h3 className="text-xl font-bold text-zinc-900 font-heading">
             Daftar Ekspedisi
           </h3>
           <div className="flex items-center gap-3">
-            <div className="relative">
+            <div className="relative w-full md:w-auto">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 w-4 h-4" />
               <input
                 type="text"
@@ -229,23 +229,23 @@ export default function EkpedisiList({
           </div>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
+        <div className="overflow-x-auto w-full">
+          <table className="w-full text-left border-collapse whitespace-nowrap md:whitespace-normal">
             <thead>
               <tr className="bg-zinc-50/50">
-                <th className="px-8 py-4 text-xs font-bold text-zinc-400 uppercase tracking-widest">
+                <th className="px-4 md:px-8 py-4 text-xs font-bold text-zinc-400 uppercase tracking-widest">
                   Pengemudi / User
                 </th>
-                <th className="px-8 py-4 text-xs font-bold text-zinc-400 uppercase tracking-widest">
+                <th className="px-4 md:px-8 py-4 text-xs font-bold text-zinc-400 uppercase tracking-widest">
                   Kontak
                 </th>
-                <th className="px-8 py-4 text-xs font-bold text-zinc-400 uppercase tracking-widest">
+                <th className="px-4 md:px-8 py-4 text-xs font-bold text-zinc-400 uppercase tracking-widest">
                   Lokasi / Alamat
                 </th>
-                <th className="px-8 py-4 text-xs font-bold text-zinc-400 uppercase tracking-widest">
+                <th className="px-4 md:px-8 py-4 text-xs font-bold text-zinc-400 uppercase tracking-widest">
                   Status
                 </th>
-                <th className="px-8 py-4 text-xs font-bold text-zinc-400 uppercase tracking-widest text-right">
+                <th className="px-4 md:px-8 py-4 text-xs font-bold text-zinc-400 uppercase tracking-widest text-right">
                   Aksi
                 </th>
               </tr>
@@ -255,7 +255,7 @@ export default function EkpedisiList({
                 <tr>
                   <td
                     colSpan={5}
-                    className="px-8 py-12 text-center text-zinc-500">
+                    className="px-4 md:px-8 py-12 text-center text-zinc-500">
                     Tidak ada data ekspedisi ditemukan.
                   </td>
                 </tr>
@@ -264,37 +264,42 @@ export default function EkpedisiList({
                   <tr
                     key={e.id}
                     className="hover:bg-zinc-50/50 transition-colors group">
-                    <td className="px-8 py-6">
+                    <td className="px-4 md:px-8 py-4 md:py-6">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-zinc-100 flex items-center justify-center font-bold text-zinc-600">
-                          <User size={18} />
+                        <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-zinc-100 flex items-center justify-center font-bold text-zinc-600 shrink-0">
+                          <User
+                            size={18}
+                            className="w-4 h-4 md:w-[18px] md:h-[18px]"
+                          />
                         </div>
                         <div>
                           {e.user ? (
                             <>
-                              <p className="font-bold text-zinc-900">
+                              <p className="font-bold text-zinc-900 text-sm md:text-base">
                                 {e.user.name}
                               </p>
-                              <p className="text-xs text-zinc-400 mt-0.5">
+                              <p className="text-[10px] md:text-xs text-zinc-400 mt-0.5">
                                 @{e.user.username}
                               </p>
                             </>
                           ) : (
-                            <p className="text-sm font-medium text-zinc-500 italic">
+                            <p className="text-xs md:text-sm font-medium text-zinc-500 italic">
                               Tanpa User
                             </p>
                           )}
                         </div>
                       </div>
                     </td>
-                    <td className="px-8 py-6 text-sm text-zinc-600">
+                    <td className="px-4 md:px-8 py-4 md:py-6 text-xs md:text-sm text-zinc-600">
                       <div className="flex items-center gap-2">
-                        <Phone size={14} className="text-zinc-400" />
-                        {e.noTelp}
+                        <Phone size={14} className="text-zinc-400 shrink-0" />
+                        <span className="truncate max-w-[120px] md:max-w-none">
+                          {e.noTelp}
+                        </span>
                       </div>
                     </td>
-                    <td className="px-8 py-6 text-sm text-zinc-600">
-                      <div className="flex items-start gap-2 max-w-xs">
+                    <td className="px-4 md:px-8 py-4 md:py-6 text-xs md:text-sm text-zinc-600">
+                      <div className="flex items-start gap-2 max-w-[200px] md:max-w-xs">
                         <MapPin
                           size={14}
                           className="text-zinc-400 mt-0.5 shrink-0"
@@ -302,16 +307,16 @@ export default function EkpedisiList({
                         <div>
                           <p className="line-clamp-2">{e.alamat}</p>
                           {e.titikLokasi && (
-                            <p className="text-xs text-zinc-400 mt-1 font-mono">
+                            <p className="text-[10px] md:text-xs text-zinc-400 mt-1 font-mono">
                               {e.titikLokasi}
                             </p>
                           )}
                         </div>
                       </div>
                     </td>
-                    <td className="px-8 py-6">
+                    <td className="px-4 md:px-8 py-4 md:py-6">
                       <span
-                        className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-bold ${
+                        className={`inline-flex items-center gap-1.5 px-2 md:px-3 py-1 rounded-lg text-[10px] md:text-xs font-bold ${
                           e.status === "DONE"
                             ? "bg-emerald-100 text-emerald-700"
                             : e.status === "PROSES"
@@ -324,19 +329,25 @@ export default function EkpedisiList({
                         {e.status.replace(/_/g, " ")}
                       </span>
                     </td>
-                    <td className="px-8 py-6 text-right">
-                      <div className="flex items-center justify-end gap-2">
+                    <td className="px-4 md:px-8 py-4 md:py-6 text-right">
+                      <div className="flex items-center justify-end gap-1 md:gap-2">
                         <button
                           type="button"
                           onClick={() => openModal(e)}
-                          className="p-2 text-zinc-400 hover:text-primary transition-colors hover:bg-blue-50 rounded-lg">
-                          <Edit2 size={18} />
+                          className="p-1.5 md:p-2 text-zinc-400 hover:text-primary transition-colors hover:bg-blue-50 rounded-lg">
+                          <Edit2
+                            size={16}
+                            className="md:w-[18px] md:h-[18px]"
+                          />
                         </button>
                         <button
                           type="button"
                           onClick={() => openDeleteModal(e)}
-                          className="p-2 text-zinc-400 hover:text-red-600 transition-colors hover:bg-red-50 rounded-lg">
-                          <Trash2 size={18} />
+                          className="p-1.5 md:p-2 text-zinc-400 hover:text-red-600 transition-colors hover:bg-red-50 rounded-lg">
+                          <Trash2
+                            size={16}
+                            className="md:w-[18px] md:h-[18px]"
+                          />
                         </button>
                       </div>
                     </td>

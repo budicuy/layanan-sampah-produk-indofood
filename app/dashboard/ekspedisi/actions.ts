@@ -1,8 +1,17 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { headers } from "next/headers";
+import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import type { StatusEkpedisi } from "@/prisma/generated/prisma/client";
+
+async function checkAdminAuth() {
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (!session || session.user.role === "KONSUMEN") {
+    throw new Error("Unauthorized: Admin or HRD access required");
+  }
+}
 
 export async function createEkpedisi(data: {
   userId?: string | null;
@@ -11,6 +20,7 @@ export async function createEkpedisi(data: {
   titikLokasi?: string | null;
   status: StatusEkpedisi;
 }) {
+  await checkAdminAuth();
   try {
     await prisma.ekpedisi.create({
       data,
@@ -33,6 +43,7 @@ export async function updateEkpedisi(
     status: StatusEkpedisi;
   },
 ) {
+  await checkAdminAuth();
   try {
     await prisma.ekpedisi.update({
       where: { id },
@@ -47,6 +58,7 @@ export async function updateEkpedisi(
 }
 
 export async function deleteEkpedisi(id: string) {
+  await checkAdminAuth();
   try {
     await prisma.ekpedisi.delete({
       where: { id },

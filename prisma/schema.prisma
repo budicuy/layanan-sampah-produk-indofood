@@ -1,6 +1,7 @@
 generator client {
-  provider = "prisma-client"
-  output   = "./generated/prisma"
+  provider        = "prisma-client"
+  output          = "./generated/prisma"
+  previewFeatures = ["relationJoins"]
 }
 
 datasource db {
@@ -110,7 +111,6 @@ enum StatusEkpedisi {
   DONE
 }
 
-
 /// Status alur setor sampah:
 /// MENUNGGU_VERIFIKASI → Konsumen baru submit
 /// TERVERIFIKASI       → Admin konfirmasi data valid
@@ -202,9 +202,9 @@ model HargaSampah {
 // ─── Fitur Setor Sampah ───────────────────────────────────────────────────────
 
 model SetorSampah {
-  id                String            @id @default(cuid())
+  id                String      @id @default(cuid())
   nasabahId         String
-  nasabah           Nasabah           @relation(fields: [nasabahId], references: [id])
+  nasabah           Nasabah     @relation(fields: [nasabahId], references: [id])
   jenisSampah       JenisSampah
   beratEstimasi     Float // Estimasi berat (kg) diisi konsumen
   beratAktual       Float? // Berat aktual setelah ditimbang
@@ -219,7 +219,7 @@ model SetorSampah {
 
   // Penjemputan
   ekpedisiId    String?
-  ekpedisi      Ekpedisi?  @relation(fields: [ekpedisiId], references: [id])
+  ekpedisi      Ekpedisi? @relation(fields: [ekpedisiId], references: [id])
   penjemputanAt DateTime?
 
   // Serah terima konsumen → kurir
