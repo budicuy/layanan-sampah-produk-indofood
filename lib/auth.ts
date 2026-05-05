@@ -12,6 +12,16 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
   },
+  user: {
+    additionalFields: {
+      role: {
+        type: "string",
+      },
+      username: {
+        type: "string",
+      },
+    },
+  },
   plugins: [
     username(),
     nextCookies(), // wajib terakhir — agar server action bisa set cookie

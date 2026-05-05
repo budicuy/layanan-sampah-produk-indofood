@@ -14,7 +14,7 @@ import type * as Prisma from "../internal/prismaNamespace"
 
 /**
  * Model HargaSampah
- * 
+ * Referensi harga sampah per bulan
  */
 export type HargaSampahModel = runtime.Types.Result.DefaultSelection<Prisma.$HargaSampahPayload>
 

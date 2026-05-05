@@ -20,8 +20,18 @@ export type NasabahModel = runtime.Types.Result.DefaultSelection<Prisma.$Nasabah
 
 export type AggregateNasabah = {
   _count: NasabahCountAggregateOutputType | null
+  _avg: NasabahAvgAggregateOutputType | null
+  _sum: NasabahSumAggregateOutputType | null
   _min: NasabahMinAggregateOutputType | null
   _max: NasabahMaxAggregateOutputType | null
+}
+
+export type NasabahAvgAggregateOutputType = {
+  saldo: number | null
+}
+
+export type NasabahSumAggregateOutputType = {
+  saldo: number | null
 }
 
 export type NasabahMinAggregateOutputType = {
@@ -37,6 +47,7 @@ export type NasabahMinAggregateOutputType = {
   fotoLokasi: string | null
   titikLokasi: string | null
   status: $Enums.StatusNasabah | null
+  saldo: number | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -54,6 +65,7 @@ export type NasabahMaxAggregateOutputType = {
   fotoLokasi: string | null
   titikLokasi: string | null
   status: $Enums.StatusNasabah | null
+  saldo: number | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -71,11 +83,20 @@ export type NasabahCountAggregateOutputType = {
   fotoLokasi: number
   titikLokasi: number
   status: number
+  saldo: number
   createdAt: number
   updatedAt: number
   _all: number
 }
 
+
+export type NasabahAvgAggregateInputType = {
+  saldo?: true
+}
+
+export type NasabahSumAggregateInputType = {
+  saldo?: true
+}
 
 export type NasabahMinAggregateInputType = {
   id?: true
@@ -90,6 +111,7 @@ export type NasabahMinAggregateInputType = {
   fotoLokasi?: true
   titikLokasi?: true
   status?: true
+  saldo?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -107,6 +129,7 @@ export type NasabahMaxAggregateInputType = {
   fotoLokasi?: true
   titikLokasi?: true
   status?: true
+  saldo?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -124,6 +147,7 @@ export type NasabahCountAggregateInputType = {
   fotoLokasi?: true
   titikLokasi?: true
   status?: true
+  saldo?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -167,6 +191,18 @@ export type NasabahAggregateArgs<ExtArgs extends runtime.Types.Extensions.Intern
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: NasabahAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: NasabahSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: NasabahMinAggregateInputType
@@ -197,6 +233,8 @@ export type NasabahGroupByArgs<ExtArgs extends runtime.Types.Extensions.Internal
   take?: number
   skip?: number
   _count?: NasabahCountAggregateInputType | true
+  _avg?: NasabahAvgAggregateInputType
+  _sum?: NasabahSumAggregateInputType
   _min?: NasabahMinAggregateInputType
   _max?: NasabahMaxAggregateInputType
 }
@@ -214,9 +252,12 @@ export type NasabahGroupByOutputType = {
   fotoLokasi: string | null
   titikLokasi: string | null
   status: $Enums.StatusNasabah
+  saldo: number
   createdAt: Date
   updatedAt: Date
   _count: NasabahCountAggregateOutputType | null
+  _avg: NasabahAvgAggregateOutputType | null
+  _sum: NasabahSumAggregateOutputType | null
   _min: NasabahMinAggregateOutputType | null
   _max: NasabahMaxAggregateOutputType | null
 }
@@ -252,10 +293,12 @@ export type NasabahWhereInput = {
   fotoLokasi?: Prisma.StringNullableFilter<"Nasabah"> | string | null
   titikLokasi?: Prisma.StringNullableFilter<"Nasabah"> | string | null
   status?: Prisma.EnumStatusNasabahFilter<"Nasabah"> | $Enums.StatusNasabah
+  saldo?: Prisma.IntFilter<"Nasabah"> | number
   createdAt?: Prisma.DateTimeFilter<"Nasabah"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Nasabah"> | Date | string
   user?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
-  laporanPendataans?: Prisma.LaporanPendataanListRelationFilter
+  setorSampah?: Prisma.SetorSampahListRelationFilter
+  mutasiSaldo?: Prisma.MutasiSaldoListRelationFilter
 }
 
 export type NasabahOrderByWithRelationInput = {
@@ -271,10 +314,12 @@ export type NasabahOrderByWithRelationInput = {
   fotoLokasi?: Prisma.SortOrderInput | Prisma.SortOrder
   titikLokasi?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
+  saldo?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   user?: Prisma.UserOrderByWithRelationInput
-  laporanPendataans?: Prisma.LaporanPendataanOrderByRelationAggregateInput
+  setorSampah?: Prisma.SetorSampahOrderByRelationAggregateInput
+  mutasiSaldo?: Prisma.MutasiSaldoOrderByRelationAggregateInput
 }
 
 export type NasabahWhereUniqueInput = Prisma.AtLeast<{
@@ -293,10 +338,12 @@ export type NasabahWhereUniqueInput = Prisma.AtLeast<{
   fotoLokasi?: Prisma.StringNullableFilter<"Nasabah"> | string | null
   titikLokasi?: Prisma.StringNullableFilter<"Nasabah"> | string | null
   status?: Prisma.EnumStatusNasabahFilter<"Nasabah"> | $Enums.StatusNasabah
+  saldo?: Prisma.IntFilter<"Nasabah"> | number
   createdAt?: Prisma.DateTimeFilter<"Nasabah"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Nasabah"> | Date | string
   user?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
-  laporanPendataans?: Prisma.LaporanPendataanListRelationFilter
+  setorSampah?: Prisma.SetorSampahListRelationFilter
+  mutasiSaldo?: Prisma.MutasiSaldoListRelationFilter
 }, "id" | "userId" | "nik">
 
 export type NasabahOrderByWithAggregationInput = {
@@ -312,11 +359,14 @@ export type NasabahOrderByWithAggregationInput = {
   fotoLokasi?: Prisma.SortOrderInput | Prisma.SortOrder
   titikLokasi?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
+  saldo?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.NasabahCountOrderByAggregateInput
+  _avg?: Prisma.NasabahAvgOrderByAggregateInput
   _max?: Prisma.NasabahMaxOrderByAggregateInput
   _min?: Prisma.NasabahMinOrderByAggregateInput
+  _sum?: Prisma.NasabahSumOrderByAggregateInput
 }
 
 export type NasabahScalarWhereWithAggregatesInput = {
@@ -335,6 +385,7 @@ export type NasabahScalarWhereWithAggregatesInput = {
   fotoLokasi?: Prisma.StringNullableWithAggregatesFilter<"Nasabah"> | string | null
   titikLokasi?: Prisma.StringNullableWithAggregatesFilter<"Nasabah"> | string | null
   status?: Prisma.EnumStatusNasabahWithAggregatesFilter<"Nasabah"> | $Enums.StatusNasabah
+  saldo?: Prisma.IntWithAggregatesFilter<"Nasabah"> | number
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Nasabah"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Nasabah"> | Date | string
 }
@@ -351,10 +402,12 @@ export type NasabahCreateInput = {
   fotoLokasi?: string | null
   titikLokasi?: string | null
   status?: $Enums.StatusNasabah
+  saldo?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   user?: Prisma.UserCreateNestedOneWithoutNasabahInput
-  laporanPendataans?: Prisma.LaporanPendataanCreateNestedManyWithoutNasabahInput
+  setorSampah?: Prisma.SetorSampahCreateNestedManyWithoutNasabahInput
+  mutasiSaldo?: Prisma.MutasiSaldoCreateNestedManyWithoutNasabahInput
 }
 
 export type NasabahUncheckedCreateInput = {
@@ -370,9 +423,11 @@ export type NasabahUncheckedCreateInput = {
   fotoLokasi?: string | null
   titikLokasi?: string | null
   status?: $Enums.StatusNasabah
+  saldo?: number
   createdAt?: Date | string
   updatedAt?: Date | string
-  laporanPendataans?: Prisma.LaporanPendataanUncheckedCreateNestedManyWithoutNasabahInput
+  setorSampah?: Prisma.SetorSampahUncheckedCreateNestedManyWithoutNasabahInput
+  mutasiSaldo?: Prisma.MutasiSaldoUncheckedCreateNestedManyWithoutNasabahInput
 }
 
 export type NasabahUpdateInput = {
@@ -387,10 +442,12 @@ export type NasabahUpdateInput = {
   fotoLokasi?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   titikLokasi?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumStatusNasabahFieldUpdateOperationsInput | $Enums.StatusNasabah
+  saldo?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneWithoutNasabahNestedInput
-  laporanPendataans?: Prisma.LaporanPendataanUpdateManyWithoutNasabahNestedInput
+  setorSampah?: Prisma.SetorSampahUpdateManyWithoutNasabahNestedInput
+  mutasiSaldo?: Prisma.MutasiSaldoUpdateManyWithoutNasabahNestedInput
 }
 
 export type NasabahUncheckedUpdateInput = {
@@ -406,9 +463,11 @@ export type NasabahUncheckedUpdateInput = {
   fotoLokasi?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   titikLokasi?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumStatusNasabahFieldUpdateOperationsInput | $Enums.StatusNasabah
+  saldo?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  laporanPendataans?: Prisma.LaporanPendataanUncheckedUpdateManyWithoutNasabahNestedInput
+  setorSampah?: Prisma.SetorSampahUncheckedUpdateManyWithoutNasabahNestedInput
+  mutasiSaldo?: Prisma.MutasiSaldoUncheckedUpdateManyWithoutNasabahNestedInput
 }
 
 export type NasabahCreateManyInput = {
@@ -424,6 +483,7 @@ export type NasabahCreateManyInput = {
   fotoLokasi?: string | null
   titikLokasi?: string | null
   status?: $Enums.StatusNasabah
+  saldo?: number
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -440,6 +500,7 @@ export type NasabahUpdateManyMutationInput = {
   fotoLokasi?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   titikLokasi?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumStatusNasabahFieldUpdateOperationsInput | $Enums.StatusNasabah
+  saldo?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -457,6 +518,7 @@ export type NasabahUncheckedUpdateManyInput = {
   fotoLokasi?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   titikLokasi?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumStatusNasabahFieldUpdateOperationsInput | $Enums.StatusNasabah
+  saldo?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -479,8 +541,13 @@ export type NasabahCountOrderByAggregateInput = {
   fotoLokasi?: Prisma.SortOrder
   titikLokasi?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  saldo?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type NasabahAvgOrderByAggregateInput = {
+  saldo?: Prisma.SortOrder
 }
 
 export type NasabahMaxOrderByAggregateInput = {
@@ -496,6 +563,7 @@ export type NasabahMaxOrderByAggregateInput = {
   fotoLokasi?: Prisma.SortOrder
   titikLokasi?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  saldo?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -513,8 +581,13 @@ export type NasabahMinOrderByAggregateInput = {
   fotoLokasi?: Prisma.SortOrder
   titikLokasi?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  saldo?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type NasabahSumOrderByAggregateInput = {
+  saldo?: Prisma.SortOrder
 }
 
 export type NasabahScalarRelationFilter = {
@@ -562,18 +635,40 @@ export type EnumStatusNasabahFieldUpdateOperationsInput = {
   set?: $Enums.StatusNasabah
 }
 
-export type NasabahCreateNestedOneWithoutLaporanPendataansInput = {
-  create?: Prisma.XOR<Prisma.NasabahCreateWithoutLaporanPendataansInput, Prisma.NasabahUncheckedCreateWithoutLaporanPendataansInput>
-  connectOrCreate?: Prisma.NasabahCreateOrConnectWithoutLaporanPendataansInput
+export type IntFieldUpdateOperationsInput = {
+  set?: number
+  increment?: number
+  decrement?: number
+  multiply?: number
+  divide?: number
+}
+
+export type NasabahCreateNestedOneWithoutSetorSampahInput = {
+  create?: Prisma.XOR<Prisma.NasabahCreateWithoutSetorSampahInput, Prisma.NasabahUncheckedCreateWithoutSetorSampahInput>
+  connectOrCreate?: Prisma.NasabahCreateOrConnectWithoutSetorSampahInput
   connect?: Prisma.NasabahWhereUniqueInput
 }
 
-export type NasabahUpdateOneRequiredWithoutLaporanPendataansNestedInput = {
-  create?: Prisma.XOR<Prisma.NasabahCreateWithoutLaporanPendataansInput, Prisma.NasabahUncheckedCreateWithoutLaporanPendataansInput>
-  connectOrCreate?: Prisma.NasabahCreateOrConnectWithoutLaporanPendataansInput
-  upsert?: Prisma.NasabahUpsertWithoutLaporanPendataansInput
+export type NasabahUpdateOneRequiredWithoutSetorSampahNestedInput = {
+  create?: Prisma.XOR<Prisma.NasabahCreateWithoutSetorSampahInput, Prisma.NasabahUncheckedCreateWithoutSetorSampahInput>
+  connectOrCreate?: Prisma.NasabahCreateOrConnectWithoutSetorSampahInput
+  upsert?: Prisma.NasabahUpsertWithoutSetorSampahInput
   connect?: Prisma.NasabahWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.NasabahUpdateToOneWithWhereWithoutLaporanPendataansInput, Prisma.NasabahUpdateWithoutLaporanPendataansInput>, Prisma.NasabahUncheckedUpdateWithoutLaporanPendataansInput>
+  update?: Prisma.XOR<Prisma.XOR<Prisma.NasabahUpdateToOneWithWhereWithoutSetorSampahInput, Prisma.NasabahUpdateWithoutSetorSampahInput>, Prisma.NasabahUncheckedUpdateWithoutSetorSampahInput>
+}
+
+export type NasabahCreateNestedOneWithoutMutasiSaldoInput = {
+  create?: Prisma.XOR<Prisma.NasabahCreateWithoutMutasiSaldoInput, Prisma.NasabahUncheckedCreateWithoutMutasiSaldoInput>
+  connectOrCreate?: Prisma.NasabahCreateOrConnectWithoutMutasiSaldoInput
+  connect?: Prisma.NasabahWhereUniqueInput
+}
+
+export type NasabahUpdateOneRequiredWithoutMutasiSaldoNestedInput = {
+  create?: Prisma.XOR<Prisma.NasabahCreateWithoutMutasiSaldoInput, Prisma.NasabahUncheckedCreateWithoutMutasiSaldoInput>
+  connectOrCreate?: Prisma.NasabahCreateOrConnectWithoutMutasiSaldoInput
+  upsert?: Prisma.NasabahUpsertWithoutMutasiSaldoInput
+  connect?: Prisma.NasabahWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.NasabahUpdateToOneWithWhereWithoutMutasiSaldoInput, Prisma.NasabahUpdateWithoutMutasiSaldoInput>, Prisma.NasabahUncheckedUpdateWithoutMutasiSaldoInput>
 }
 
 export type NasabahCreateWithoutUserInput = {
@@ -588,9 +683,11 @@ export type NasabahCreateWithoutUserInput = {
   fotoLokasi?: string | null
   titikLokasi?: string | null
   status?: $Enums.StatusNasabah
+  saldo?: number
   createdAt?: Date | string
   updatedAt?: Date | string
-  laporanPendataans?: Prisma.LaporanPendataanCreateNestedManyWithoutNasabahInput
+  setorSampah?: Prisma.SetorSampahCreateNestedManyWithoutNasabahInput
+  mutasiSaldo?: Prisma.MutasiSaldoCreateNestedManyWithoutNasabahInput
 }
 
 export type NasabahUncheckedCreateWithoutUserInput = {
@@ -605,9 +702,11 @@ export type NasabahUncheckedCreateWithoutUserInput = {
   fotoLokasi?: string | null
   titikLokasi?: string | null
   status?: $Enums.StatusNasabah
+  saldo?: number
   createdAt?: Date | string
   updatedAt?: Date | string
-  laporanPendataans?: Prisma.LaporanPendataanUncheckedCreateNestedManyWithoutNasabahInput
+  setorSampah?: Prisma.SetorSampahUncheckedCreateNestedManyWithoutNasabahInput
+  mutasiSaldo?: Prisma.MutasiSaldoUncheckedCreateNestedManyWithoutNasabahInput
 }
 
 export type NasabahCreateOrConnectWithoutUserInput = {
@@ -638,9 +737,11 @@ export type NasabahUpdateWithoutUserInput = {
   fotoLokasi?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   titikLokasi?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumStatusNasabahFieldUpdateOperationsInput | $Enums.StatusNasabah
+  saldo?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  laporanPendataans?: Prisma.LaporanPendataanUpdateManyWithoutNasabahNestedInput
+  setorSampah?: Prisma.SetorSampahUpdateManyWithoutNasabahNestedInput
+  mutasiSaldo?: Prisma.MutasiSaldoUpdateManyWithoutNasabahNestedInput
 }
 
 export type NasabahUncheckedUpdateWithoutUserInput = {
@@ -655,12 +756,14 @@ export type NasabahUncheckedUpdateWithoutUserInput = {
   fotoLokasi?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   titikLokasi?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumStatusNasabahFieldUpdateOperationsInput | $Enums.StatusNasabah
+  saldo?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  laporanPendataans?: Prisma.LaporanPendataanUncheckedUpdateManyWithoutNasabahNestedInput
+  setorSampah?: Prisma.SetorSampahUncheckedUpdateManyWithoutNasabahNestedInput
+  mutasiSaldo?: Prisma.MutasiSaldoUncheckedUpdateManyWithoutNasabahNestedInput
 }
 
-export type NasabahCreateWithoutLaporanPendataansInput = {
+export type NasabahCreateWithoutSetorSampahInput = {
   id?: string
   nama: string
   alamat: string
@@ -672,12 +775,14 @@ export type NasabahCreateWithoutLaporanPendataansInput = {
   fotoLokasi?: string | null
   titikLokasi?: string | null
   status?: $Enums.StatusNasabah
+  saldo?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   user?: Prisma.UserCreateNestedOneWithoutNasabahInput
+  mutasiSaldo?: Prisma.MutasiSaldoCreateNestedManyWithoutNasabahInput
 }
 
-export type NasabahUncheckedCreateWithoutLaporanPendataansInput = {
+export type NasabahUncheckedCreateWithoutSetorSampahInput = {
   id?: string
   userId?: string | null
   nama: string
@@ -690,27 +795,29 @@ export type NasabahUncheckedCreateWithoutLaporanPendataansInput = {
   fotoLokasi?: string | null
   titikLokasi?: string | null
   status?: $Enums.StatusNasabah
+  saldo?: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  mutasiSaldo?: Prisma.MutasiSaldoUncheckedCreateNestedManyWithoutNasabahInput
 }
 
-export type NasabahCreateOrConnectWithoutLaporanPendataansInput = {
+export type NasabahCreateOrConnectWithoutSetorSampahInput = {
   where: Prisma.NasabahWhereUniqueInput
-  create: Prisma.XOR<Prisma.NasabahCreateWithoutLaporanPendataansInput, Prisma.NasabahUncheckedCreateWithoutLaporanPendataansInput>
+  create: Prisma.XOR<Prisma.NasabahCreateWithoutSetorSampahInput, Prisma.NasabahUncheckedCreateWithoutSetorSampahInput>
 }
 
-export type NasabahUpsertWithoutLaporanPendataansInput = {
-  update: Prisma.XOR<Prisma.NasabahUpdateWithoutLaporanPendataansInput, Prisma.NasabahUncheckedUpdateWithoutLaporanPendataansInput>
-  create: Prisma.XOR<Prisma.NasabahCreateWithoutLaporanPendataansInput, Prisma.NasabahUncheckedCreateWithoutLaporanPendataansInput>
+export type NasabahUpsertWithoutSetorSampahInput = {
+  update: Prisma.XOR<Prisma.NasabahUpdateWithoutSetorSampahInput, Prisma.NasabahUncheckedUpdateWithoutSetorSampahInput>
+  create: Prisma.XOR<Prisma.NasabahCreateWithoutSetorSampahInput, Prisma.NasabahUncheckedCreateWithoutSetorSampahInput>
   where?: Prisma.NasabahWhereInput
 }
 
-export type NasabahUpdateToOneWithWhereWithoutLaporanPendataansInput = {
+export type NasabahUpdateToOneWithWhereWithoutSetorSampahInput = {
   where?: Prisma.NasabahWhereInput
-  data: Prisma.XOR<Prisma.NasabahUpdateWithoutLaporanPendataansInput, Prisma.NasabahUncheckedUpdateWithoutLaporanPendataansInput>
+  data: Prisma.XOR<Prisma.NasabahUpdateWithoutSetorSampahInput, Prisma.NasabahUncheckedUpdateWithoutSetorSampahInput>
 }
 
-export type NasabahUpdateWithoutLaporanPendataansInput = {
+export type NasabahUpdateWithoutSetorSampahInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   nama?: Prisma.StringFieldUpdateOperationsInput | string
   alamat?: Prisma.StringFieldUpdateOperationsInput | string
@@ -722,12 +829,14 @@ export type NasabahUpdateWithoutLaporanPendataansInput = {
   fotoLokasi?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   titikLokasi?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumStatusNasabahFieldUpdateOperationsInput | $Enums.StatusNasabah
+  saldo?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneWithoutNasabahNestedInput
+  mutasiSaldo?: Prisma.MutasiSaldoUpdateManyWithoutNasabahNestedInput
 }
 
-export type NasabahUncheckedUpdateWithoutLaporanPendataansInput = {
+export type NasabahUncheckedUpdateWithoutSetorSampahInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nama?: Prisma.StringFieldUpdateOperationsInput | string
@@ -740,8 +849,102 @@ export type NasabahUncheckedUpdateWithoutLaporanPendataansInput = {
   fotoLokasi?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   titikLokasi?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumStatusNasabahFieldUpdateOperationsInput | $Enums.StatusNasabah
+  saldo?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  mutasiSaldo?: Prisma.MutasiSaldoUncheckedUpdateManyWithoutNasabahNestedInput
+}
+
+export type NasabahCreateWithoutMutasiSaldoInput = {
+  id?: string
+  nama: string
+  alamat: string
+  noTelp: string
+  kategori: $Enums.KategoriNasabah
+  nik: string
+  noRek: string
+  jenisBank: string
+  fotoLokasi?: string | null
+  titikLokasi?: string | null
+  status?: $Enums.StatusNasabah
+  saldo?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  user?: Prisma.UserCreateNestedOneWithoutNasabahInput
+  setorSampah?: Prisma.SetorSampahCreateNestedManyWithoutNasabahInput
+}
+
+export type NasabahUncheckedCreateWithoutMutasiSaldoInput = {
+  id?: string
+  userId?: string | null
+  nama: string
+  alamat: string
+  noTelp: string
+  kategori: $Enums.KategoriNasabah
+  nik: string
+  noRek: string
+  jenisBank: string
+  fotoLokasi?: string | null
+  titikLokasi?: string | null
+  status?: $Enums.StatusNasabah
+  saldo?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  setorSampah?: Prisma.SetorSampahUncheckedCreateNestedManyWithoutNasabahInput
+}
+
+export type NasabahCreateOrConnectWithoutMutasiSaldoInput = {
+  where: Prisma.NasabahWhereUniqueInput
+  create: Prisma.XOR<Prisma.NasabahCreateWithoutMutasiSaldoInput, Prisma.NasabahUncheckedCreateWithoutMutasiSaldoInput>
+}
+
+export type NasabahUpsertWithoutMutasiSaldoInput = {
+  update: Prisma.XOR<Prisma.NasabahUpdateWithoutMutasiSaldoInput, Prisma.NasabahUncheckedUpdateWithoutMutasiSaldoInput>
+  create: Prisma.XOR<Prisma.NasabahCreateWithoutMutasiSaldoInput, Prisma.NasabahUncheckedCreateWithoutMutasiSaldoInput>
+  where?: Prisma.NasabahWhereInput
+}
+
+export type NasabahUpdateToOneWithWhereWithoutMutasiSaldoInput = {
+  where?: Prisma.NasabahWhereInput
+  data: Prisma.XOR<Prisma.NasabahUpdateWithoutMutasiSaldoInput, Prisma.NasabahUncheckedUpdateWithoutMutasiSaldoInput>
+}
+
+export type NasabahUpdateWithoutMutasiSaldoInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  nama?: Prisma.StringFieldUpdateOperationsInput | string
+  alamat?: Prisma.StringFieldUpdateOperationsInput | string
+  noTelp?: Prisma.StringFieldUpdateOperationsInput | string
+  kategori?: Prisma.EnumKategoriNasabahFieldUpdateOperationsInput | $Enums.KategoriNasabah
+  nik?: Prisma.StringFieldUpdateOperationsInput | string
+  noRek?: Prisma.StringFieldUpdateOperationsInput | string
+  jenisBank?: Prisma.StringFieldUpdateOperationsInput | string
+  fotoLokasi?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  titikLokasi?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumStatusNasabahFieldUpdateOperationsInput | $Enums.StatusNasabah
+  saldo?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  user?: Prisma.UserUpdateOneWithoutNasabahNestedInput
+  setorSampah?: Prisma.SetorSampahUpdateManyWithoutNasabahNestedInput
+}
+
+export type NasabahUncheckedUpdateWithoutMutasiSaldoInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nama?: Prisma.StringFieldUpdateOperationsInput | string
+  alamat?: Prisma.StringFieldUpdateOperationsInput | string
+  noTelp?: Prisma.StringFieldUpdateOperationsInput | string
+  kategori?: Prisma.EnumKategoriNasabahFieldUpdateOperationsInput | $Enums.KategoriNasabah
+  nik?: Prisma.StringFieldUpdateOperationsInput | string
+  noRek?: Prisma.StringFieldUpdateOperationsInput | string
+  jenisBank?: Prisma.StringFieldUpdateOperationsInput | string
+  fotoLokasi?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  titikLokasi?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumStatusNasabahFieldUpdateOperationsInput | $Enums.StatusNasabah
+  saldo?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  setorSampah?: Prisma.SetorSampahUncheckedUpdateManyWithoutNasabahNestedInput
 }
 
 
@@ -750,11 +953,13 @@ export type NasabahUncheckedUpdateWithoutLaporanPendataansInput = {
  */
 
 export type NasabahCountOutputType = {
-  laporanPendataans: number
+  setorSampah: number
+  mutasiSaldo: number
 }
 
 export type NasabahCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  laporanPendataans?: boolean | NasabahCountOutputTypeCountLaporanPendataansArgs
+  setorSampah?: boolean | NasabahCountOutputTypeCountSetorSampahArgs
+  mutasiSaldo?: boolean | NasabahCountOutputTypeCountMutasiSaldoArgs
 }
 
 /**
@@ -770,8 +975,15 @@ export type NasabahCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Exte
 /**
  * NasabahCountOutputType without action
  */
-export type NasabahCountOutputTypeCountLaporanPendataansArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.LaporanPendataanWhereInput
+export type NasabahCountOutputTypeCountSetorSampahArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.SetorSampahWhereInput
+}
+
+/**
+ * NasabahCountOutputType without action
+ */
+export type NasabahCountOutputTypeCountMutasiSaldoArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.MutasiSaldoWhereInput
 }
 
 
@@ -788,10 +1000,12 @@ export type NasabahSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   fotoLokasi?: boolean
   titikLokasi?: boolean
   status?: boolean
+  saldo?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.Nasabah$userArgs<ExtArgs>
-  laporanPendataans?: boolean | Prisma.Nasabah$laporanPendataansArgs<ExtArgs>
+  setorSampah?: boolean | Prisma.Nasabah$setorSampahArgs<ExtArgs>
+  mutasiSaldo?: boolean | Prisma.Nasabah$mutasiSaldoArgs<ExtArgs>
   _count?: boolean | Prisma.NasabahCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["nasabah"]>
 
@@ -808,6 +1022,7 @@ export type NasabahSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   fotoLokasi?: boolean
   titikLokasi?: boolean
   status?: boolean
+  saldo?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.Nasabah$userArgs<ExtArgs>
@@ -826,6 +1041,7 @@ export type NasabahSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   fotoLokasi?: boolean
   titikLokasi?: boolean
   status?: boolean
+  saldo?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.Nasabah$userArgs<ExtArgs>
@@ -844,14 +1060,16 @@ export type NasabahSelectScalar = {
   fotoLokasi?: boolean
   titikLokasi?: boolean
   status?: boolean
+  saldo?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type NasabahOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "nama" | "alamat" | "noTelp" | "kategori" | "nik" | "noRek" | "jenisBank" | "fotoLokasi" | "titikLokasi" | "status" | "createdAt" | "updatedAt", ExtArgs["result"]["nasabah"]>
+export type NasabahOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "nama" | "alamat" | "noTelp" | "kategori" | "nik" | "noRek" | "jenisBank" | "fotoLokasi" | "titikLokasi" | "status" | "saldo" | "createdAt" | "updatedAt", ExtArgs["result"]["nasabah"]>
 export type NasabahInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.Nasabah$userArgs<ExtArgs>
-  laporanPendataans?: boolean | Prisma.Nasabah$laporanPendataansArgs<ExtArgs>
+  setorSampah?: boolean | Prisma.Nasabah$setorSampahArgs<ExtArgs>
+  mutasiSaldo?: boolean | Prisma.Nasabah$mutasiSaldoArgs<ExtArgs>
   _count?: boolean | Prisma.NasabahCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type NasabahIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -865,7 +1083,8 @@ export type $NasabahPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
   name: "Nasabah"
   objects: {
     user: Prisma.$UserPayload<ExtArgs> | null
-    laporanPendataans: Prisma.$LaporanPendataanPayload<ExtArgs>[]
+    setorSampah: Prisma.$SetorSampahPayload<ExtArgs>[]
+    mutasiSaldo: Prisma.$MutasiSaldoPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -880,6 +1099,7 @@ export type $NasabahPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     fotoLokasi: string | null
     titikLokasi: string | null
     status: $Enums.StatusNasabah
+    saldo: number
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["nasabah"]>
@@ -1277,7 +1497,8 @@ readonly fields: NasabahFieldRefs;
 export interface Prisma__NasabahClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   user<T extends Prisma.Nasabah$userArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Nasabah$userArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-  laporanPendataans<T extends Prisma.Nasabah$laporanPendataansArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Nasabah$laporanPendataansArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LaporanPendataanPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  setorSampah<T extends Prisma.Nasabah$setorSampahArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Nasabah$setorSampahArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SetorSampahPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  mutasiSaldo<T extends Prisma.Nasabah$mutasiSaldoArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Nasabah$mutasiSaldoArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MutasiSaldoPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1319,6 +1540,7 @@ export interface NasabahFieldRefs {
   readonly fotoLokasi: Prisma.FieldRef<"Nasabah", 'String'>
   readonly titikLokasi: Prisma.FieldRef<"Nasabah", 'String'>
   readonly status: Prisma.FieldRef<"Nasabah", 'StatusNasabah'>
+  readonly saldo: Prisma.FieldRef<"Nasabah", 'Int'>
   readonly createdAt: Prisma.FieldRef<"Nasabah", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Nasabah", 'DateTime'>
 }
@@ -1741,27 +1963,51 @@ export type Nasabah$userArgs<ExtArgs extends runtime.Types.Extensions.InternalAr
 }
 
 /**
- * Nasabah.laporanPendataans
+ * Nasabah.setorSampah
  */
-export type Nasabah$laporanPendataansArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type Nasabah$setorSampahArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the LaporanPendataan
+   * Select specific fields to fetch from the SetorSampah
    */
-  select?: Prisma.LaporanPendataanSelect<ExtArgs> | null
+  select?: Prisma.SetorSampahSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the LaporanPendataan
+   * Omit specific fields from the SetorSampah
    */
-  omit?: Prisma.LaporanPendataanOmit<ExtArgs> | null
+  omit?: Prisma.SetorSampahOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.LaporanPendataanInclude<ExtArgs> | null
-  where?: Prisma.LaporanPendataanWhereInput
-  orderBy?: Prisma.LaporanPendataanOrderByWithRelationInput | Prisma.LaporanPendataanOrderByWithRelationInput[]
-  cursor?: Prisma.LaporanPendataanWhereUniqueInput
+  include?: Prisma.SetorSampahInclude<ExtArgs> | null
+  where?: Prisma.SetorSampahWhereInput
+  orderBy?: Prisma.SetorSampahOrderByWithRelationInput | Prisma.SetorSampahOrderByWithRelationInput[]
+  cursor?: Prisma.SetorSampahWhereUniqueInput
   take?: number
   skip?: number
-  distinct?: Prisma.LaporanPendataanScalarFieldEnum | Prisma.LaporanPendataanScalarFieldEnum[]
+  distinct?: Prisma.SetorSampahScalarFieldEnum | Prisma.SetorSampahScalarFieldEnum[]
+}
+
+/**
+ * Nasabah.mutasiSaldo
+ */
+export type Nasabah$mutasiSaldoArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the MutasiSaldo
+   */
+  select?: Prisma.MutasiSaldoSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the MutasiSaldo
+   */
+  omit?: Prisma.MutasiSaldoOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.MutasiSaldoInclude<ExtArgs> | null
+  where?: Prisma.MutasiSaldoWhereInput
+  orderBy?: Prisma.MutasiSaldoOrderByWithRelationInput | Prisma.MutasiSaldoOrderByWithRelationInput[]
+  cursor?: Prisma.MutasiSaldoWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.MutasiSaldoScalarFieldEnum | Prisma.MutasiSaldoScalarFieldEnum[]
 }
 
 /**

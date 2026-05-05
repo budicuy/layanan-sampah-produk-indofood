@@ -1,19 +1,6 @@
 "use client";
 
-import {
-  Box,
-  Coins,
-  FileText,
-  LayoutDashboard,
-  LogOut,
-  Menu,
-  Recycle,
-  Truck,
-  UserCircle,
-  Users,
-  Wallet,
-  X,
-} from "lucide-react";
+import { LayoutDashboard, LogOut, Menu, Recycle, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -23,73 +10,14 @@ import { logoutAction } from "@/app/login/actions";
 const MENU_GROUPS = [
   {
     group: null,
-    items: [{ icon: LayoutDashboard, label: "Dashboard", href: "/dashboard" }],
+    items: [{ icon: LayoutDashboard, label: "Dashboard", href: "/konsumen" }],
   },
   {
-    group: "Master data",
+    group: "Transaksi",
     items: [
-      { icon: Users, label: "Nasabah Bank", href: "/dashboard/nasabah" },
-      { icon: Box, label: "Produk", href: "/dashboard/produk" },
-      { icon: Truck, label: "Ekpedisi", href: "/dashboard/ekspedisi" },
-      { icon: UserCircle, label: "User", href: "/dashboard/users" },
-      { icon: Coins, label: "Harga Sampah", href: "/dashboard/harga-sampah" },
+      { icon: Recycle, label: "Setor Sampah", href: "/konsumen/setor-sampah" },
     ],
   },
-  {
-    group: "Tabungan Nasabah",
-    items: [
-      {
-        icon: Wallet,
-        label: "Tabungan Nasabah Konsumen",
-        href: "/dashboard/nasabah/tabungan",
-      },
-    ],
-  },
-  {
-    group: "Pendataan Bank Sampah",
-    items: [
-      {
-        icon: Recycle,
-        label: "Setor Sampah",
-        href: "/dashboard/setor-sampah",
-      },
-      {
-        icon: FileText,
-        label: "Laporan Setoran",
-        href: "/dashboard/laporan-pendataan",
-      },
-    ],
-  },
-  // {
-  //   group: "Omzet",
-  //   items: [
-  //     {
-  //       icon: BarChart3,
-  //       label: "History Omzet (Coming soon)",
-  //       href: "/dashboard/history-omzet",
-  //     },
-  //     {
-  //       icon: Landmark,
-  //       label: "Mutasi Bank Sampah (Coming soon)",
-  //       href: "/dashboard/mutasi",
-  //     },
-  //   ],
-  // },
-  // {
-  //   group: "Buku Tabungan Sampah",
-  //   items: [
-  //     {
-  //       icon: ClipboardList,
-  //       label: "Laporan Vendor (Coming soon)",
-  //       href: "/dashboard/laporan-vendor",
-  //     },
-  //     {
-  //       icon: Wallet,
-  //       label: "Total Tabungan Vendor (Coming soon)",
-  //       href: "/dashboard/total-tabungan",
-  //     },
-  //   ],
-  // },
 ];
 
 interface UserProps {

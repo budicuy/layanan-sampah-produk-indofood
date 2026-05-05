@@ -2,28 +2,40 @@ import "dotenv/config";
 import { hashPassword } from "better-auth/crypto";
 import type {
   JenisProduk,
-  KategoriNasabah,
-  StatusNasabah,
-  Role,
-  StatusUser,
-  StatusEkpedisi,
   JenisSampah,
+  KategoriNasabah,
+  Role,
+  StatusEkpedisi,
+  StatusNasabah,
+  StatusUser,
 } from "./generated/prisma/enums";
+import { EkpedisiSeed } from "./seed_ekspedisi";
+import { HargaSampahSeed } from "./seed_harga_sampah";
 import { NasabahsSeed } from "./seed_nasabah";
 import { ProdukSeed } from "./seed_produk";
 import { UsersSeed } from "./seed_user";
-import { EkpedisiSeed } from "./seed_ekspedisi";
-import { HargaSampahSeed } from "./seed_harga_sampah";
-import { LaporanSeed } from "./seed_laporan";
 
 async function main() {
   const { prisma } = await import("../lib/prisma");
 
+  console.log("🧹 Cleaning up database...");
+  // Order matters for deletion due to foreign key constraints
+  await prisma.mutasiSaldo.deleteMany();
+  await prisma.setorSampah.deleteMany();
+  await prisma.nasabah.deleteMany();
+  await prisma.ekpedisi.deleteMany();
+  await prisma.account.deleteMany();
+  await prisma.session.deleteMany();
+  await prisma.verification.deleteMany();
+  await prisma.user.deleteMany();
+  await prisma.produk.deleteMany();
+  await prisma.hargaSampah.deleteMany();
+  console.log("✅ Cleanup complete.");
+
   console.log("🌱 Seeding user admin...");
-  await prisma.user.upsert({
-    where: { username: "admin" },
-    update: {},
-    create: {
+  const adminPassword = await hashPassword("admin");
+  await prisma.user.create({
+    data: {
       name: "Admin",
       email: "admin@gmail.com",
       username: "admin",
@@ -34,131 +46,230 @@ async function main() {
           id: "admin-account-id",
           accountId: "admin",
           providerId: "credential",
-          password: await hashPassword("password"),
+          password: adminPassword,
         },
       },
     },
   });
 
-  console.log("Seeding dummy Users...");
-  for (const u of UsersSeed) {
-    await prisma.user.upsert({
-      where: { username: u.username },
-      update: {},
-      create: {
-        name: u.name,
-        email: u.email,
-        username: u.username,
-        emailVerified: true,
-        role: u.role as Role,
-        status: u.status as StatusUser,
-        accounts: {
-          create: {
-            id: `acc-${u.username}`,
-            accountId: u.username,
-            providerId: "credential",
-            password: await hashPassword("password"),
+  console.log("👤 Seeding dummy Users...");
+  const defaultPassword = await hashPassword("123456");
+  await Promise.all(
+    UsersSeed.map((u) =>
+      prisma.user.create({
+        data: {
+          name: u.name,
+          email: u.email,
+          username: u.username,
+          emailVerified: true,
+          role: u.role as Role,
+          status: u.status as StatusUser,
+          accounts: {
+            create: {
+              id: `acc-${u.username}`,
+              accountId: u.username,
+              providerId: "credential",
+              password: defaultPassword,
+            },
           },
         },
+      }),
+    ),
+  );
+
+  console.log("👥 Seeding dummy Nasabah data...");
+  await prisma.nasabah.createMany({
+    data: NasabahsSeed.map((n) => ({
+      nama: n.nama,
+      alamat: n.alamat,
+      noTelp: n.noTelp,
+      kategori: n.kategori as KategoriNasabah,
+      nik: n.nik,
+      noRek: n.noRek,
+      jenisBank: n.jenisBank,
+      fotoLokasi: n.fotoLokasi,
+      titikLokasi: n.titikLokasi,
+      status: n.status as StatusNasabah,
+    })),
+  });
+
+  // Link user konsumen "budi" ke nasabah pribadi
+  console.log("🔗 Linking konsumen user to nasabah...");
+  const userBudi = await prisma.user.findUnique({
+    where: { username: "budi" },
+  });
+  if (userBudi) {
+    await prisma.nasabah.create({
+      data: {
+        userId: userBudi.id,
+        nama: "Budi Santoso",
+        alamat: "Jl. Merdeka No. 10, Jakarta Selatan",
+        noTelp: "081234567890",
+        kategori: "PERORANGAN",
+        nik: "konsumen-budi-001",
+        noRek: "1234567890",
+        jenisBank: "BCA",
+        status: "AKTIF",
+        saldo: 0,
       },
     });
+    console.log("✅ Nasabah untuk budi berhasil dibuat.");
   }
 
-  console.log("Seeding dummy Nasabah data...");
-  for (const n of NasabahsSeed) {
-    await prisma.nasabah.upsert({
-      where: { nik: n.nik },
-      update: {},
-      create: {
-        nama: n.nama,
-        alamat: n.alamat,
-        noTelp: n.noTelp,
-        kategori: n.kategori as KategoriNasabah,
-        nik: n.nik,
-        noRek: n.noRek,
-        jenisBank: n.jenisBank,
-        fotoLokasi: n.fotoLokasi,
-        titikLokasi: n.titikLokasi,
-        status: n.status as StatusNasabah,
+  console.log("📦 Seeding dummy Produk data...");
+  await prisma.produk.createMany({
+    data: ProdukSeed.map((p) => ({
+      kode: p.kode,
+      nama: p.nama,
+      jenis: p.jenis as JenisProduk,
+      berat: p.berat,
+      brand: p.brand,
+      harga: p.harga,
+      isi: p.isi,
+    })),
+  });
+
+  console.log("🚚 Seeding dummy Ekpedisi data...");
+  await prisma.ekpedisi.createMany({
+    data: EkpedisiSeed.map((e) => ({
+      noTelp: e.noTelp,
+      alamat: e.alamat,
+      titikLokasi: e.titikLokasi,
+      status: e.status as StatusEkpedisi,
+    })),
+  });
+
+  console.log("💰 Seeding dummy Harga Sampah data...");
+  await prisma.hargaSampah.createMany({
+    data: HargaSampahSeed.map((h) => ({
+      harga: h.harga,
+      bulan: new Date(h.bulan),
+      jenisSampah: h.jenisSampah as JenisSampah,
+      berat: h.berat,
+    })),
+  });
+
+  // Seed dummy SetorSampah yang sudah SELESAI (untuk laporan)
+  console.log("📊 Seeding dummy SetorSampah (SELESAI) data...");
+  const nasabahs = await prisma.nasabah.findMany();
+  if (nasabahs.length > 0) {
+    const demoData: {
+      nasabahId: string;
+      jenisSampah: JenisSampah;
+      beratEstimasi: number;
+      beratAktual: number;
+      alamatPenjemputan: string;
+      status: "SELESAI";
+      hargaPerKg: number;
+      totalSaldo: number;
+      selesaiAt: Date;
+      verifikasiAt: Date;
+      penjemputanAt: Date;
+      diserahkanAt: Date;
+    }[] = [
+      {
+        nasabahId: nasabahs[0].id,
+        jenisSampah: "PLASTIK",
+        beratEstimasi: 3.0,
+        beratAktual: 2.8,
+        alamatPenjemputan: nasabahs[0].alamat,
+        status: "SELESAI",
+        hargaPerKg: 3000,
+        totalSaldo: 8400,
+        selesaiAt: new Date("2026-04-05"),
+        verifikasiAt: new Date("2026-04-03"),
+        penjemputanAt: new Date("2026-04-04"),
+        diserahkanAt: new Date("2026-04-04"),
       },
-    });
-  }
-
-  console.log("Seeding dummy Produk data...");
-  for (const p of ProdukSeed) {
-    await prisma.produk.upsert({
-      where: { kode: p.kode },
-      update: {},
-      create: {
-        kode: p.kode,
-        nama: p.nama,
-        jenis: p.jenis as JenisProduk,
-        berat: p.berat,
-        brand: p.brand,
-        harga: p.harga,
-        isi: p.isi,
+      {
+        nasabahId: nasabahs[0].id,
+        jenisSampah: "KARTON",
+        beratEstimasi: 5.0,
+        beratAktual: 4.5,
+        alamatPenjemputan: nasabahs[0].alamat,
+        status: "SELESAI",
+        hargaPerKg: 2000,
+        totalSaldo: 9000,
+        selesaiAt: new Date("2026-04-15"),
+        verifikasiAt: new Date("2026-04-13"),
+        penjemputanAt: new Date("2026-04-14"),
+        diserahkanAt: new Date("2026-04-14"),
       },
-    });
-  }
+      {
+        nasabahId: nasabahs[1]?.id ?? nasabahs[0].id,
+        jenisSampah: "PLASTIK",
+        beratEstimasi: 2.0,
+        beratAktual: 1.8,
+        alamatPenjemputan: nasabahs[1]?.alamat ?? nasabahs[0].alamat,
+        status: "SELESAI",
+        hargaPerKg: 3000,
+        totalSaldo: 5400,
+        selesaiAt: new Date("2026-04-20"),
+        verifikasiAt: new Date("2026-04-18"),
+        penjemputanAt: new Date("2026-04-19"),
+        diserahkanAt: new Date("2026-04-19"),
+      },
+      {
+        nasabahId: nasabahs[0].id,
+        jenisSampah: "PLASTIK",
+        beratEstimasi: 4.0,
+        beratAktual: 3.9,
+        alamatPenjemputan: nasabahs[0].alamat,
+        status: "SELESAI",
+        hargaPerKg: 3000,
+        totalSaldo: 11700,
+        selesaiAt: new Date("2026-05-02"),
+        verifikasiAt: new Date("2026-04-30"),
+        penjemputanAt: new Date("2026-05-01"),
+        diserahkanAt: new Date("2026-05-01"),
+      },
+      {
+        nasabahId: nasabahs[2]?.id ?? nasabahs[0].id,
+        jenisSampah: "KARTON",
+        beratEstimasi: 8.0,
+        beratAktual: 7.5,
+        alamatPenjemputan: nasabahs[2]?.alamat ?? nasabahs[0].alamat,
+        status: "SELESAI",
+        hargaPerKg: 2000,
+        totalSaldo: 15000,
+        selesaiAt: new Date("2026-05-03"),
+        verifikasiAt: new Date("2026-05-01"),
+        penjemputanAt: new Date("2026-05-02"),
+        diserahkanAt: new Date("2026-05-02"),
+      },
+    ];
 
-  console.log("Seeding dummy Ekpedisi data...");
-  for (const e of EkpedisiSeed) {
-    const existing = await prisma.ekpedisi.findFirst({ where: { noTelp: e.noTelp } });
-    if (!existing) {
-      await prisma.ekpedisi.create({
-        data: {
-          noTelp: e.noTelp,
-          alamat: e.alamat,
-          titikLokasi: e.titikLokasi,
-          status: e.status as StatusEkpedisi,
-        },
+    await prisma.setorSampah.createMany({ data: demoData });
+
+    // Buat mutasi saldo untuk setiap setoran selesai
+    const selesaiList = await prisma.setorSampah.findMany({
+      where: { status: "SELESAI" },
+    });
+    await prisma.mutasiSaldo.createMany({
+      data: selesaiList.map((s) => ({
+        nasabahId: s.nasabahId,
+        jumlah: s.totalSaldo ?? 0,
+        keterangan: `Setor sampah ${s.jenisSampah} ${s.beratAktual} kg`,
+        referensiId: s.id,
+      })),
+    });
+
+    // Update saldo nasabah
+    for (const s of selesaiList) {
+      await prisma.nasabah.update({
+        where: { id: s.nasabahId },
+        data: { saldo: { increment: s.totalSaldo ?? 0 } },
       });
     }
+    console.log("✅ Dummy SetorSampah (SELESAI) berhasil dibuat.");
   }
 
-  console.log("Seeding dummy Harga Sampah data...");
-  for (const h of HargaSampahSeed) {
-    const existing = await prisma.hargaSampah.findFirst({
-      where: {
-        bulan: h.bulan,
-        jenisSampah: h.jenisSampah as JenisSampah,
-      },
-    });
-    if (!existing) {
-      await prisma.hargaSampah.create({
-        data: {
-          harga: h.harga,
-          bulan: h.bulan,
-          jenisSampah: h.jenisSampah as JenisSampah,
-          berat: h.berat,
-        },
-      });
-    }
-  }
-
-  console.log("Seeding dummy Laporan data...");
-  for (const l of LaporanSeed) {
-    const nasabah = await prisma.nasabah.findUnique({ where: { nik: l.nasabahNik } });
-    const produk = await prisma.produk.findUnique({ where: { kode: l.produkKode } });
-
-    if (nasabah && produk) {
-      await prisma.laporanPendataan.create({
-        data: {
-          nasabahId: nasabah.id,
-          jenisSampah: l.jenisSampah as JenisSampah,
-          berat: l.berat,
-          produkId: produk.id,
-        },
-      });
-    }
-  }
-
-  console.log("✅ Seeding complete!");
+  console.log("✨ Seeding complete!");
 }
 
 main()
   .catch((err) => {
-    console.error("❌ Error:", err);
+    console.error("❌ Error during seeding:", err);
     process.exit(1);
   })
   .finally(async () => {

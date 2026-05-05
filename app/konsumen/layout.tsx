@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import Sidebar from "./components/Sidebar";
 
-export default async function DashboardLayout({
+export default async function ConsumerLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -14,8 +14,9 @@ export default async function DashboardLayout({
 
   const { user } = session;
 
-  if (user.role === "KONSUMEN") {
-    redirect("/konsumen");
+  // Protect route - only allow KONSUMEN
+  if (user.role !== "KONSUMEN") {
+    redirect("/dashboard");
   }
 
   return (

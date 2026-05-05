@@ -7,9 +7,7 @@ datasource db {
   provider = "postgresql"
 }
 
-// Tabel User — satu-satunya tabel entitas bisnis.
-// Better Auth membutuhkan: id (String), name, email, emailVerified, image, createdAt, updatedAt.
-// Field tambahan proyek: username (unik), role.
+// ─── Auth tables (managed by Better Auth) ────────────────────────────────────
 
 model User {
   id            String     @id @default(cuid())
@@ -22,16 +20,14 @@ model User {
   createdAt     DateTime   @default(now())
   updatedAt     DateTime   @updatedAt
 
-  sessions   Session[]
-  accounts   Account[]
-  nasabah    Nasabah?
-  ekpedisiId String[]
-  ekpedisi   Ekpedisi?
+  sessions Session[]
+  accounts Account[]
+  nasabah  Nasabah?
+  ekpedisi Ekpedisi?
 
   @@map("user")
 }
 
-// Tabel Session — dikelola Better Auth.
 model Session {
   id        String   @id
   expiresAt DateTime
@@ -48,7 +44,6 @@ model Session {
   @@map("session")
 }
 
-// Tabel Account — dikelola Better Auth (menyimpan hash password).
 model Account {
   id           String    @id
   accountId    String
@@ -68,7 +63,6 @@ model Account {
   @@map("account")
 }
 
-// Tabel Verification — dikelola Better Auth (email verify, dll).
 model Verification {
   id         String   @id
   identifier String
@@ -81,31 +75,17 @@ model Verification {
   @@map("verification")
 }
 
+// ─── Enums ───────────────────────────────────────────────────────────────────
+
 enum Role {
   KONSUMEN
   ADMIN
   HRD
 }
 
-model Nasabah {
-  id                String             @id @default(cuid())
-  userId            String?            @unique // Relasi ke User
-  user              User?              @relation(fields: [userId], references: [id], onDelete: SetNull)
-  nama              String
-  alamat            String
-  noTelp            String
-  kategori          KategoriNasabah
-  nik               String             @unique // No Nasabah (NIK)
-  noRek             String
-  jenisBank         String
-  fotoLokasi        String?
-  titikLokasi       String? // Koordinat
-  status            StatusNasabah      @default(AKTIF)
-  createdAt         DateTime           @default(now())
-  updatedAt         DateTime           @updatedAt
-  laporanPendataans LaporanPendataan[]
-
-  @@map("nasabah")
+enum StatusUser {
+  AKTIF
+  NONAKTIF
 }
 
 enum KategoriNasabah {
@@ -119,45 +99,9 @@ enum StatusNasabah {
   NONAKTIF
 }
 
-model Produk {
-  id                String             @id @default(cuid())
-  kode              String             @unique
-  nama              String
-  jenis             JenisProduk
-  berat             Float
-  brand             String
-  harga             Int
-  isi               Int
-  createdAt         DateTime           @default(now())
-  updatedAt         DateTime           @updatedAt
-  laporanPendataans LaporanPendataan[]
-
-  @@map("produk")
-}
-
 enum JenisProduk {
   PLASTIK
   KARTON
-}
-
-enum StatusUser {
-  AKTIF
-  NONAKTIF
-}
-
-model Ekpedisi {
-  id          String         @id @default(cuid())
-  userId      String?        @unique // Relasi ke User
-  noTelp      String
-  alamat      String
-  titikLokasi String?
-  status      StatusEkpedisi @default(BELUM_DI_PROSES)
-  createdAt   DateTime       @default(now())
-  updatedAt   DateTime       @updatedAt
-
-  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
-
-  @@map("ekpedisi")
 }
 
 enum StatusEkpedisi {
@@ -166,6 +110,89 @@ enum StatusEkpedisi {
   DONE
 }
 
+enum JenisSampah {
+  PLASTIK
+  KARTON
+}
+
+/// Status alur setor sampah:
+/// MENUNGGU_VERIFIKASI → Konsumen baru submit
+/// TERVERIFIKASI       → Admin konfirmasi data valid
+/// DITOLAK             → Admin tolak (data tidak valid)
+/// DALAM_PENJEMPUTAN   → Ekpedisi ditugaskan, sedang menuju konsumen
+/// SUDAH_DISERAHKAN    → Konsumen konfirmasi sudah menyerahkan ke kurir
+/// SAMPAH_DITERIMA     → Admin konfirmasi sampah sudah tiba di pusat
+/// SELESAI             → Saldo sudah dikreditkan ke nasabah
+enum StatusSetorSampah {
+  MENUNGGU_VERIFIKASI
+  TERVERIFIKASI
+  DITOLAK
+  DALAM_PENJEMPUTAN
+  SUDAH_DISERAHKAN
+  SAMPAH_DITERIMA
+  SELESAI
+}
+
+// ─── Business models ─────────────────────────────────────────────────────────
+
+model Nasabah {
+  id          String          @id @default(cuid())
+  userId      String?         @unique // Relasi opsional ke User (konsumen)
+  user        User?           @relation(fields: [userId], references: [id], onDelete: SetNull)
+  nama        String
+  alamat      String
+  noTelp      String
+  kategori    KategoriNasabah
+  nik         String          @unique
+  noRek       String
+  jenisBank   String
+  fotoLokasi  String?
+  titikLokasi String?
+  status      StatusNasabah   @default(AKTIF)
+  saldo       Int             @default(0) // Saldo tabungan dalam rupiah
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  setorSampah SetorSampah[]
+  mutasiSaldo MutasiSaldo[]
+
+  @@map("nasabah")
+}
+
+/// Master data produk kemasan Indofood
+model Produk {
+  id        String      @id @default(cuid())
+  kode      String      @unique
+  nama      String
+  jenis     JenisProduk
+  berat     Float
+  brand     String
+  harga     Int
+  isi       Int
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  @@map("produk")
+}
+
+/// Data kurir / ekspedisi penjemputan
+model Ekpedisi {
+  id          String         @id @default(cuid())
+  userId      String?        @unique
+  noTelp      String
+  alamat      String
+  titikLokasi String?
+  status      StatusEkpedisi @default(BELUM_DI_PROSES)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  user        User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
+  setorSampah SetorSampah[]
+
+  @@map("ekpedisi")
+}
+
+/// Referensi harga sampah per bulan
 model HargaSampah {
   id          String      @id @default(cuid())
   harga       Int
@@ -178,21 +205,56 @@ model HargaSampah {
   @@map("harga_sampah")
 }
 
-enum JenisSampah {
-  PLASTIK
-  KARTON
+// ─── Fitur Setor Sampah ───────────────────────────────────────────────────────
+
+model SetorSampah {
+  id                String            @id @default(cuid())
+  nasabahId         String
+  nasabah           Nasabah           @relation(fields: [nasabahId], references: [id])
+  jenisSampah       JenisSampah
+  beratEstimasi     Float // Estimasi berat (kg) diisi konsumen
+  beratAktual       Float? // Berat aktual setelah ditimbang
+  keterangan        String? // Catatan dari konsumen
+  alamatPenjemputan String
+
+  status StatusSetorSampah @default(MENUNGGU_VERIFIKASI)
+
+  // Verifikasi awal
+  catatanAdmin String?
+  verifikasiAt DateTime?
+
+  // Penjemputan
+  ekpedisiId    String?
+  ekpedisi      Ekpedisi?  @relation(fields: [ekpedisiId], references: [id])
+  penjemputanAt DateTime?
+
+  // Serah terima konsumen → kurir
+  diserahkanAt DateTime?
+
+  // Verifikasi akhir & pencairan
+  hargaPerKg Int? // Rp per kg
+  totalSaldo Int? // Total dikreditkan ke nasabah
+  selesaiAt  DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([nasabahId])
+  @@index([status])
+  @@index([selesaiAt])
+  @@map("setor_sampah")
 }
 
-model LaporanPendataan {
-  id          String      @id @default(cuid())
+/// Riwayat mutasi saldo nasabah
+model MutasiSaldo {
+  id          String   @id @default(cuid())
   nasabahId   String
-  nasabah     Nasabah     @relation(fields: [nasabahId], references: [id])
-  jenisSampah JenisSampah
-  berat       Float
-  produkId    String?
-  produk      Produk?     @relation(fields: [produkId], references: [id])
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
+  nasabah     Nasabah  @relation(fields: [nasabahId], references: [id])
+  jumlah      Int // Positif = kredit, negatif = debit
+  keterangan  String
+  referensiId String? // ID SetorSampah atau transaksi lain
+  createdAt   DateTime @default(now())
 
-  @@map("laporan_pendataan")
+  @@index([nasabahId])
+  @@map("mutasi_saldo")
 }

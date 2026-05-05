@@ -16,7 +16,8 @@ export default function LoginPage() {
     if (!state.msg) return;
     if (state.ok) {
       toast.success(state.msg);
-      setTimeout(() => router.push("/dashboard"), 1000);
+      const targetPath = state.role === "KONSUMEN" ? "/konsumen" : "/dashboard";
+      setTimeout(() => router.push(targetPath), 1000);
     } else {
       toast.error(state.msg);
     }

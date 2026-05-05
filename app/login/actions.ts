@@ -6,7 +6,7 @@ import { redirect } from "next/navigation";
 import * as v from "valibot";
 import { auth } from "@/lib/auth";
 
-type ActionState = { msg: string; ok?: boolean };
+type ActionState = { msg: string; ok?: boolean; role?: string };
 
 export async function loginAction(
   _prevState: ActionState,
@@ -25,18 +25,20 @@ export async function loginAction(
   }
 
   try {
-    await auth.api.signInUsername({
+    const { user } = await auth.api.signInUsername({
       body: parsed.output,
       headers: await headers(),
     });
+    return {
+      msg: "Login berhasil! Mengalihkan...",
+      ok: true,
+      role: (user as unknown as { role: string }).role,
+    };
   } catch (err) {
     if (err instanceof APIError)
       return { msg: "Username atau kata sandi salah." };
     throw err;
   }
-
-  // Kembalikan ok:true — redirect dilakukan di client setelah toast tampil
-  return { msg: "Login berhasil! Mengalihkan...", ok: true };
 }
 
 export async function logoutAction() {

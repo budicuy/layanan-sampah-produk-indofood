@@ -18,6 +18,14 @@ export const Role = {
 export type Role = (typeof Role)[keyof typeof Role]
 
 
+export const StatusUser = {
+  AKTIF: 'AKTIF',
+  NONAKTIF: 'NONAKTIF'
+} as const
+
+export type StatusUser = (typeof StatusUser)[keyof typeof StatusUser]
+
+
 export const KategoriNasabah = {
   BANK_SAMPAH: 'BANK_SAMPAH',
   WARMIENDO: 'WARMIENDO',
@@ -43,14 +51,6 @@ export const JenisProduk = {
 export type JenisProduk = (typeof JenisProduk)[keyof typeof JenisProduk]
 
 
-export const StatusUser = {
-  AKTIF: 'AKTIF',
-  NONAKTIF: 'NONAKTIF'
-} as const
-
-export type StatusUser = (typeof StatusUser)[keyof typeof StatusUser]
-
-
 export const StatusEkpedisi = {
   BELUM_DI_PROSES: 'BELUM_DI_PROSES',
   PROSES: 'PROSES',
@@ -66,3 +66,16 @@ export const JenisSampah = {
 } as const
 
 export type JenisSampah = (typeof JenisSampah)[keyof typeof JenisSampah]
+
+
+export const StatusSetorSampah = {
+  MENUNGGU_VERIFIKASI: 'MENUNGGU_VERIFIKASI',
+  TERVERIFIKASI: 'TERVERIFIKASI',
+  DITOLAK: 'DITOLAK',
+  DALAM_PENJEMPUTAN: 'DALAM_PENJEMPUTAN',
+  SUDAH_DISERAHKAN: 'SUDAH_DISERAHKAN',
+  SAMPAH_DITERIMA: 'SAMPAH_DITERIMA',
+  SELESAI: 'SELESAI'
+} as const
+
+export type StatusSetorSampah = (typeof StatusSetorSampah)[keyof typeof StatusSetorSampah]

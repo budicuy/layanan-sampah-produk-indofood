@@ -14,7 +14,7 @@ import type * as Prisma from "../internal/prismaNamespace"
 
 /**
  * Model Produk
- * 
+ * Master data produk kemasan Indofood
  */
 export type ProdukModel = runtime.Types.Result.DefaultSelection<Prisma.$ProdukPayload>
 
@@ -264,7 +264,6 @@ export type ProdukWhereInput = {
   isi?: Prisma.IntFilter<"Produk"> | number
   createdAt?: Prisma.DateTimeFilter<"Produk"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Produk"> | Date | string
-  laporanPendataans?: Prisma.LaporanPendataanListRelationFilter
 }
 
 export type ProdukOrderByWithRelationInput = {
@@ -278,7 +277,6 @@ export type ProdukOrderByWithRelationInput = {
   isi?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-  laporanPendataans?: Prisma.LaporanPendataanOrderByRelationAggregateInput
 }
 
 export type ProdukWhereUniqueInput = Prisma.AtLeast<{
@@ -295,7 +293,6 @@ export type ProdukWhereUniqueInput = Prisma.AtLeast<{
   isi?: Prisma.IntFilter<"Produk"> | number
   createdAt?: Prisma.DateTimeFilter<"Produk"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Produk"> | Date | string
-  laporanPendataans?: Prisma.LaporanPendataanListRelationFilter
 }, "id" | "kode">
 
 export type ProdukOrderByWithAggregationInput = {
@@ -343,7 +340,6 @@ export type ProdukCreateInput = {
   isi: number
   createdAt?: Date | string
   updatedAt?: Date | string
-  laporanPendataans?: Prisma.LaporanPendataanCreateNestedManyWithoutProdukInput
 }
 
 export type ProdukUncheckedCreateInput = {
@@ -357,7 +353,6 @@ export type ProdukUncheckedCreateInput = {
   isi: number
   createdAt?: Date | string
   updatedAt?: Date | string
-  laporanPendataans?: Prisma.LaporanPendataanUncheckedCreateNestedManyWithoutProdukInput
 }
 
 export type ProdukUpdateInput = {
@@ -371,7 +366,6 @@ export type ProdukUpdateInput = {
   isi?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  laporanPendataans?: Prisma.LaporanPendataanUpdateManyWithoutProdukNestedInput
 }
 
 export type ProdukUncheckedUpdateInput = {
@@ -385,7 +379,6 @@ export type ProdukUncheckedUpdateInput = {
   isi?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  laporanPendataans?: Prisma.LaporanPendataanUncheckedUpdateManyWithoutProdukNestedInput
 }
 
 export type ProdukCreateManyInput = {
@@ -478,11 +471,6 @@ export type ProdukSumOrderByAggregateInput = {
   isi?: Prisma.SortOrder
 }
 
-export type ProdukNullableScalarRelationFilter = {
-  is?: Prisma.ProdukWhereInput | null
-  isNot?: Prisma.ProdukWhereInput | null
-}
-
 export type EnumJenisProdukFieldUpdateOperationsInput = {
   set?: $Enums.JenisProduk
 }
@@ -495,127 +483,6 @@ export type FloatFieldUpdateOperationsInput = {
   divide?: number
 }
 
-export type IntFieldUpdateOperationsInput = {
-  set?: number
-  increment?: number
-  decrement?: number
-  multiply?: number
-  divide?: number
-}
-
-export type ProdukCreateNestedOneWithoutLaporanPendataansInput = {
-  create?: Prisma.XOR<Prisma.ProdukCreateWithoutLaporanPendataansInput, Prisma.ProdukUncheckedCreateWithoutLaporanPendataansInput>
-  connectOrCreate?: Prisma.ProdukCreateOrConnectWithoutLaporanPendataansInput
-  connect?: Prisma.ProdukWhereUniqueInput
-}
-
-export type ProdukUpdateOneWithoutLaporanPendataansNestedInput = {
-  create?: Prisma.XOR<Prisma.ProdukCreateWithoutLaporanPendataansInput, Prisma.ProdukUncheckedCreateWithoutLaporanPendataansInput>
-  connectOrCreate?: Prisma.ProdukCreateOrConnectWithoutLaporanPendataansInput
-  upsert?: Prisma.ProdukUpsertWithoutLaporanPendataansInput
-  disconnect?: Prisma.ProdukWhereInput | boolean
-  delete?: Prisma.ProdukWhereInput | boolean
-  connect?: Prisma.ProdukWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.ProdukUpdateToOneWithWhereWithoutLaporanPendataansInput, Prisma.ProdukUpdateWithoutLaporanPendataansInput>, Prisma.ProdukUncheckedUpdateWithoutLaporanPendataansInput>
-}
-
-export type ProdukCreateWithoutLaporanPendataansInput = {
-  id?: string
-  kode: string
-  nama: string
-  jenis: $Enums.JenisProduk
-  berat: number
-  brand: string
-  harga: number
-  isi: number
-  createdAt?: Date | string
-  updatedAt?: Date | string
-}
-
-export type ProdukUncheckedCreateWithoutLaporanPendataansInput = {
-  id?: string
-  kode: string
-  nama: string
-  jenis: $Enums.JenisProduk
-  berat: number
-  brand: string
-  harga: number
-  isi: number
-  createdAt?: Date | string
-  updatedAt?: Date | string
-}
-
-export type ProdukCreateOrConnectWithoutLaporanPendataansInput = {
-  where: Prisma.ProdukWhereUniqueInput
-  create: Prisma.XOR<Prisma.ProdukCreateWithoutLaporanPendataansInput, Prisma.ProdukUncheckedCreateWithoutLaporanPendataansInput>
-}
-
-export type ProdukUpsertWithoutLaporanPendataansInput = {
-  update: Prisma.XOR<Prisma.ProdukUpdateWithoutLaporanPendataansInput, Prisma.ProdukUncheckedUpdateWithoutLaporanPendataansInput>
-  create: Prisma.XOR<Prisma.ProdukCreateWithoutLaporanPendataansInput, Prisma.ProdukUncheckedCreateWithoutLaporanPendataansInput>
-  where?: Prisma.ProdukWhereInput
-}
-
-export type ProdukUpdateToOneWithWhereWithoutLaporanPendataansInput = {
-  where?: Prisma.ProdukWhereInput
-  data: Prisma.XOR<Prisma.ProdukUpdateWithoutLaporanPendataansInput, Prisma.ProdukUncheckedUpdateWithoutLaporanPendataansInput>
-}
-
-export type ProdukUpdateWithoutLaporanPendataansInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  kode?: Prisma.StringFieldUpdateOperationsInput | string
-  nama?: Prisma.StringFieldUpdateOperationsInput | string
-  jenis?: Prisma.EnumJenisProdukFieldUpdateOperationsInput | $Enums.JenisProduk
-  berat?: Prisma.FloatFieldUpdateOperationsInput | number
-  brand?: Prisma.StringFieldUpdateOperationsInput | string
-  harga?: Prisma.IntFieldUpdateOperationsInput | number
-  isi?: Prisma.IntFieldUpdateOperationsInput | number
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-}
-
-export type ProdukUncheckedUpdateWithoutLaporanPendataansInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  kode?: Prisma.StringFieldUpdateOperationsInput | string
-  nama?: Prisma.StringFieldUpdateOperationsInput | string
-  jenis?: Prisma.EnumJenisProdukFieldUpdateOperationsInput | $Enums.JenisProduk
-  berat?: Prisma.FloatFieldUpdateOperationsInput | number
-  brand?: Prisma.StringFieldUpdateOperationsInput | string
-  harga?: Prisma.IntFieldUpdateOperationsInput | number
-  isi?: Prisma.IntFieldUpdateOperationsInput | number
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-}
-
-
-/**
- * Count Type ProdukCountOutputType
- */
-
-export type ProdukCountOutputType = {
-  laporanPendataans: number
-}
-
-export type ProdukCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  laporanPendataans?: boolean | ProdukCountOutputTypeCountLaporanPendataansArgs
-}
-
-/**
- * ProdukCountOutputType without action
- */
-export type ProdukCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the ProdukCountOutputType
-   */
-  select?: Prisma.ProdukCountOutputTypeSelect<ExtArgs> | null
-}
-
-/**
- * ProdukCountOutputType without action
- */
-export type ProdukCountOutputTypeCountLaporanPendataansArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.LaporanPendataanWhereInput
-}
 
 
 export type ProdukSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -629,8 +496,6 @@ export type ProdukSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   isi?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  laporanPendataans?: boolean | Prisma.Produk$laporanPendataansArgs<ExtArgs>
-  _count?: boolean | Prisma.ProdukCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["produk"]>
 
 export type ProdukSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -673,18 +538,10 @@ export type ProdukSelectScalar = {
 }
 
 export type ProdukOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "kode" | "nama" | "jenis" | "berat" | "brand" | "harga" | "isi" | "createdAt" | "updatedAt", ExtArgs["result"]["produk"]>
-export type ProdukInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  laporanPendataans?: boolean | Prisma.Produk$laporanPendataansArgs<ExtArgs>
-  _count?: boolean | Prisma.ProdukCountOutputTypeDefaultArgs<ExtArgs>
-}
-export type ProdukIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
-export type ProdukIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
 
 export type $ProdukPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Produk"
-  objects: {
-    laporanPendataans: Prisma.$LaporanPendataanPayload<ExtArgs>[]
-  }
+  objects: {}
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     kode: string
@@ -1090,7 +947,6 @@ readonly fields: ProdukFieldRefs;
  */
 export interface Prisma__ProdukClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  laporanPendataans<T extends Prisma.Produk$laporanPendataansArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Produk$laporanPendataansArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LaporanPendataanPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1147,10 +1003,6 @@ export type ProdukFindUniqueArgs<ExtArgs extends runtime.Types.Extensions.Intern
    */
   omit?: Prisma.ProdukOmit<ExtArgs> | null
   /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.ProdukInclude<ExtArgs> | null
-  /**
    * Filter, which Produk to fetch.
    */
   where: Prisma.ProdukWhereUniqueInput
@@ -1169,10 +1021,6 @@ export type ProdukFindUniqueOrThrowArgs<ExtArgs extends runtime.Types.Extensions
    */
   omit?: Prisma.ProdukOmit<ExtArgs> | null
   /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.ProdukInclude<ExtArgs> | null
-  /**
    * Filter, which Produk to fetch.
    */
   where: Prisma.ProdukWhereUniqueInput
@@ -1190,10 +1038,6 @@ export type ProdukFindFirstArgs<ExtArgs extends runtime.Types.Extensions.Interna
    * Omit specific fields from the Produk
    */
   omit?: Prisma.ProdukOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.ProdukInclude<ExtArgs> | null
   /**
    * Filter, which Produk to fetch.
    */
@@ -1243,10 +1087,6 @@ export type ProdukFindFirstOrThrowArgs<ExtArgs extends runtime.Types.Extensions.
    */
   omit?: Prisma.ProdukOmit<ExtArgs> | null
   /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.ProdukInclude<ExtArgs> | null
-  /**
    * Filter, which Produk to fetch.
    */
   where?: Prisma.ProdukWhereInput
@@ -1294,10 +1134,6 @@ export type ProdukFindManyArgs<ExtArgs extends runtime.Types.Extensions.Internal
    * Omit specific fields from the Produk
    */
   omit?: Prisma.ProdukOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.ProdukInclude<ExtArgs> | null
   /**
    * Filter, which Produks to fetch.
    */
@@ -1347,10 +1183,6 @@ export type ProdukCreateArgs<ExtArgs extends runtime.Types.Extensions.InternalAr
    */
   omit?: Prisma.ProdukOmit<ExtArgs> | null
   /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.ProdukInclude<ExtArgs> | null
-  /**
    * The data needed to create a Produk.
    */
   data: Prisma.XOR<Prisma.ProdukCreateInput, Prisma.ProdukUncheckedCreateInput>
@@ -1398,10 +1230,6 @@ export type ProdukUpdateArgs<ExtArgs extends runtime.Types.Extensions.InternalAr
    * Omit specific fields from the Produk
    */
   omit?: Prisma.ProdukOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.ProdukInclude<ExtArgs> | null
   /**
    * The data needed to update a Produk.
    */
@@ -1469,10 +1297,6 @@ export type ProdukUpsertArgs<ExtArgs extends runtime.Types.Extensions.InternalAr
    */
   omit?: Prisma.ProdukOmit<ExtArgs> | null
   /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.ProdukInclude<ExtArgs> | null
-  /**
    * The filter to search for the Produk to update in case it exists.
    */
   where: Prisma.ProdukWhereUniqueInput
@@ -1499,10 +1323,6 @@ export type ProdukDeleteArgs<ExtArgs extends runtime.Types.Extensions.InternalAr
    */
   omit?: Prisma.ProdukOmit<ExtArgs> | null
   /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.ProdukInclude<ExtArgs> | null
-  /**
    * Filter which Produk to delete.
    */
   where: Prisma.ProdukWhereUniqueInput
@@ -1523,30 +1343,6 @@ export type ProdukDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Intern
 }
 
 /**
- * Produk.laporanPendataans
- */
-export type Produk$laporanPendataansArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the LaporanPendataan
-   */
-  select?: Prisma.LaporanPendataanSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the LaporanPendataan
-   */
-  omit?: Prisma.LaporanPendataanOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.LaporanPendataanInclude<ExtArgs> | null
-  where?: Prisma.LaporanPendataanWhereInput
-  orderBy?: Prisma.LaporanPendataanOrderByWithRelationInput | Prisma.LaporanPendataanOrderByWithRelationInput[]
-  cursor?: Prisma.LaporanPendataanWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.LaporanPendataanScalarFieldEnum | Prisma.LaporanPendataanScalarFieldEnum[]
-}
-
-/**
  * Produk without action
  */
 export type ProdukDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1558,8 +1354,4 @@ export type ProdukDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalA
    * Omit specific fields from the Produk
    */
   omit?: Prisma.ProdukOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.ProdukInclude<ExtArgs> | null
 }

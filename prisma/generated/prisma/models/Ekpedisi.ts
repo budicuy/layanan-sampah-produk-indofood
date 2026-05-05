@@ -14,7 +14,7 @@ import type * as Prisma from "../internal/prismaNamespace"
 
 /**
  * Model Ekpedisi
- * 
+ * Data kurir / ekspedisi penjemputan
  */
 export type EkpedisiModel = runtime.Types.Result.DefaultSelection<Prisma.$EkpedisiPayload>
 
@@ -207,6 +207,7 @@ export type EkpedisiWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"Ekpedisi"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Ekpedisi"> | Date | string
   user?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
+  setorSampah?: Prisma.SetorSampahListRelationFilter
 }
 
 export type EkpedisiOrderByWithRelationInput = {
@@ -219,6 +220,7 @@ export type EkpedisiOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   user?: Prisma.UserOrderByWithRelationInput
+  setorSampah?: Prisma.SetorSampahOrderByRelationAggregateInput
 }
 
 export type EkpedisiWhereUniqueInput = Prisma.AtLeast<{
@@ -234,6 +236,7 @@ export type EkpedisiWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"Ekpedisi"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Ekpedisi"> | Date | string
   user?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
+  setorSampah?: Prisma.SetorSampahListRelationFilter
 }, "id" | "userId">
 
 export type EkpedisiOrderByWithAggregationInput = {
@@ -273,6 +276,7 @@ export type EkpedisiCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   user?: Prisma.UserCreateNestedOneWithoutEkpedisiInput
+  setorSampah?: Prisma.SetorSampahCreateNestedManyWithoutEkpedisiInput
 }
 
 export type EkpedisiUncheckedCreateInput = {
@@ -284,6 +288,7 @@ export type EkpedisiUncheckedCreateInput = {
   status?: $Enums.StatusEkpedisi
   createdAt?: Date | string
   updatedAt?: Date | string
+  setorSampah?: Prisma.SetorSampahUncheckedCreateNestedManyWithoutEkpedisiInput
 }
 
 export type EkpedisiUpdateInput = {
@@ -295,6 +300,7 @@ export type EkpedisiUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneWithoutEkpedisiNestedInput
+  setorSampah?: Prisma.SetorSampahUpdateManyWithoutEkpedisiNestedInput
 }
 
 export type EkpedisiUncheckedUpdateInput = {
@@ -306,6 +312,7 @@ export type EkpedisiUncheckedUpdateInput = {
   status?: Prisma.EnumStatusEkpedisiFieldUpdateOperationsInput | $Enums.StatusEkpedisi
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  setorSampah?: Prisma.SetorSampahUncheckedUpdateManyWithoutEkpedisiNestedInput
 }
 
 export type EkpedisiCreateManyInput = {
@@ -414,6 +421,22 @@ export type EnumStatusEkpedisiFieldUpdateOperationsInput = {
   set?: $Enums.StatusEkpedisi
 }
 
+export type EkpedisiCreateNestedOneWithoutSetorSampahInput = {
+  create?: Prisma.XOR<Prisma.EkpedisiCreateWithoutSetorSampahInput, Prisma.EkpedisiUncheckedCreateWithoutSetorSampahInput>
+  connectOrCreate?: Prisma.EkpedisiCreateOrConnectWithoutSetorSampahInput
+  connect?: Prisma.EkpedisiWhereUniqueInput
+}
+
+export type EkpedisiUpdateOneWithoutSetorSampahNestedInput = {
+  create?: Prisma.XOR<Prisma.EkpedisiCreateWithoutSetorSampahInput, Prisma.EkpedisiUncheckedCreateWithoutSetorSampahInput>
+  connectOrCreate?: Prisma.EkpedisiCreateOrConnectWithoutSetorSampahInput
+  upsert?: Prisma.EkpedisiUpsertWithoutSetorSampahInput
+  disconnect?: Prisma.EkpedisiWhereInput | boolean
+  delete?: Prisma.EkpedisiWhereInput | boolean
+  connect?: Prisma.EkpedisiWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.EkpedisiUpdateToOneWithWhereWithoutSetorSampahInput, Prisma.EkpedisiUpdateWithoutSetorSampahInput>, Prisma.EkpedisiUncheckedUpdateWithoutSetorSampahInput>
+}
+
 export type EkpedisiCreateWithoutUserInput = {
   id?: string
   noTelp: string
@@ -422,6 +445,7 @@ export type EkpedisiCreateWithoutUserInput = {
   status?: $Enums.StatusEkpedisi
   createdAt?: Date | string
   updatedAt?: Date | string
+  setorSampah?: Prisma.SetorSampahCreateNestedManyWithoutEkpedisiInput
 }
 
 export type EkpedisiUncheckedCreateWithoutUserInput = {
@@ -432,6 +456,7 @@ export type EkpedisiUncheckedCreateWithoutUserInput = {
   status?: $Enums.StatusEkpedisi
   createdAt?: Date | string
   updatedAt?: Date | string
+  setorSampah?: Prisma.SetorSampahUncheckedCreateNestedManyWithoutEkpedisiInput
 }
 
 export type EkpedisiCreateOrConnectWithoutUserInput = {
@@ -458,6 +483,7 @@ export type EkpedisiUpdateWithoutUserInput = {
   status?: Prisma.EnumStatusEkpedisiFieldUpdateOperationsInput | $Enums.StatusEkpedisi
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  setorSampah?: Prisma.SetorSampahUpdateManyWithoutEkpedisiNestedInput
 }
 
 export type EkpedisiUncheckedUpdateWithoutUserInput = {
@@ -468,8 +494,98 @@ export type EkpedisiUncheckedUpdateWithoutUserInput = {
   status?: Prisma.EnumStatusEkpedisiFieldUpdateOperationsInput | $Enums.StatusEkpedisi
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  setorSampah?: Prisma.SetorSampahUncheckedUpdateManyWithoutEkpedisiNestedInput
 }
 
+export type EkpedisiCreateWithoutSetorSampahInput = {
+  id?: string
+  noTelp: string
+  alamat: string
+  titikLokasi?: string | null
+  status?: $Enums.StatusEkpedisi
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  user?: Prisma.UserCreateNestedOneWithoutEkpedisiInput
+}
+
+export type EkpedisiUncheckedCreateWithoutSetorSampahInput = {
+  id?: string
+  userId?: string | null
+  noTelp: string
+  alamat: string
+  titikLokasi?: string | null
+  status?: $Enums.StatusEkpedisi
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type EkpedisiCreateOrConnectWithoutSetorSampahInput = {
+  where: Prisma.EkpedisiWhereUniqueInput
+  create: Prisma.XOR<Prisma.EkpedisiCreateWithoutSetorSampahInput, Prisma.EkpedisiUncheckedCreateWithoutSetorSampahInput>
+}
+
+export type EkpedisiUpsertWithoutSetorSampahInput = {
+  update: Prisma.XOR<Prisma.EkpedisiUpdateWithoutSetorSampahInput, Prisma.EkpedisiUncheckedUpdateWithoutSetorSampahInput>
+  create: Prisma.XOR<Prisma.EkpedisiCreateWithoutSetorSampahInput, Prisma.EkpedisiUncheckedCreateWithoutSetorSampahInput>
+  where?: Prisma.EkpedisiWhereInput
+}
+
+export type EkpedisiUpdateToOneWithWhereWithoutSetorSampahInput = {
+  where?: Prisma.EkpedisiWhereInput
+  data: Prisma.XOR<Prisma.EkpedisiUpdateWithoutSetorSampahInput, Prisma.EkpedisiUncheckedUpdateWithoutSetorSampahInput>
+}
+
+export type EkpedisiUpdateWithoutSetorSampahInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  noTelp?: Prisma.StringFieldUpdateOperationsInput | string
+  alamat?: Prisma.StringFieldUpdateOperationsInput | string
+  titikLokasi?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumStatusEkpedisiFieldUpdateOperationsInput | $Enums.StatusEkpedisi
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  user?: Prisma.UserUpdateOneWithoutEkpedisiNestedInput
+}
+
+export type EkpedisiUncheckedUpdateWithoutSetorSampahInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  noTelp?: Prisma.StringFieldUpdateOperationsInput | string
+  alamat?: Prisma.StringFieldUpdateOperationsInput | string
+  titikLokasi?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumStatusEkpedisiFieldUpdateOperationsInput | $Enums.StatusEkpedisi
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+
+/**
+ * Count Type EkpedisiCountOutputType
+ */
+
+export type EkpedisiCountOutputType = {
+  setorSampah: number
+}
+
+export type EkpedisiCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  setorSampah?: boolean | EkpedisiCountOutputTypeCountSetorSampahArgs
+}
+
+/**
+ * EkpedisiCountOutputType without action
+ */
+export type EkpedisiCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the EkpedisiCountOutputType
+   */
+  select?: Prisma.EkpedisiCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * EkpedisiCountOutputType without action
+ */
+export type EkpedisiCountOutputTypeCountSetorSampahArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.SetorSampahWhereInput
+}
 
 
 export type EkpedisiSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -482,6 +598,8 @@ export type EkpedisiSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.Ekpedisi$userArgs<ExtArgs>
+  setorSampah?: boolean | Prisma.Ekpedisi$setorSampahArgs<ExtArgs>
+  _count?: boolean | Prisma.EkpedisiCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["ekpedisi"]>
 
 export type EkpedisiSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -522,6 +640,8 @@ export type EkpedisiSelectScalar = {
 export type EkpedisiOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "noTelp" | "alamat" | "titikLokasi" | "status" | "createdAt" | "updatedAt", ExtArgs["result"]["ekpedisi"]>
 export type EkpedisiInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.Ekpedisi$userArgs<ExtArgs>
+  setorSampah?: boolean | Prisma.Ekpedisi$setorSampahArgs<ExtArgs>
+  _count?: boolean | Prisma.EkpedisiCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type EkpedisiIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.Ekpedisi$userArgs<ExtArgs>
@@ -534,6 +654,7 @@ export type $EkpedisiPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
   name: "Ekpedisi"
   objects: {
     user: Prisma.$UserPayload<ExtArgs> | null
+    setorSampah: Prisma.$SetorSampahPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -939,6 +1060,7 @@ readonly fields: EkpedisiFieldRefs;
 export interface Prisma__EkpedisiClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   user<T extends Prisma.Ekpedisi$userArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Ekpedisi$userArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  setorSampah<T extends Prisma.Ekpedisi$setorSampahArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Ekpedisi$setorSampahArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SetorSampahPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1393,6 +1515,30 @@ export type Ekpedisi$userArgs<ExtArgs extends runtime.Types.Extensions.InternalA
    */
   include?: Prisma.UserInclude<ExtArgs> | null
   where?: Prisma.UserWhereInput
+}
+
+/**
+ * Ekpedisi.setorSampah
+ */
+export type Ekpedisi$setorSampahArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the SetorSampah
+   */
+  select?: Prisma.SetorSampahSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the SetorSampah
+   */
+  omit?: Prisma.SetorSampahOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SetorSampahInclude<ExtArgs> | null
+  where?: Prisma.SetorSampahWhereInput
+  orderBy?: Prisma.SetorSampahOrderByWithRelationInput | Prisma.SetorSampahOrderByWithRelationInput[]
+  cursor?: Prisma.SetorSampahWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.SetorSampahScalarFieldEnum | Prisma.SetorSampahScalarFieldEnum[]
 }
 
 /**

@@ -68,21 +68,26 @@ export type Verification = Prisma.VerificationModel
 export type Nasabah = Prisma.NasabahModel
 /**
  * Model Produk
- * 
+ * Master data produk kemasan Indofood
  */
 export type Produk = Prisma.ProdukModel
 /**
  * Model Ekpedisi
- * 
+ * Data kurir / ekspedisi penjemputan
  */
 export type Ekpedisi = Prisma.EkpedisiModel
 /**
  * Model HargaSampah
- * 
+ * Referensi harga sampah per bulan
  */
 export type HargaSampah = Prisma.HargaSampahModel
 /**
- * Model LaporanPendataan
+ * Model SetorSampah
  * 
  */
-export type LaporanPendataan = Prisma.LaporanPendataanModel
+export type SetorSampah = Prisma.SetorSampahModel
+/**
+ * Model MutasiSaldo
+ * Riwayat mutasi saldo nasabah
+ */
+export type MutasiSaldo = Prisma.MutasiSaldoModel

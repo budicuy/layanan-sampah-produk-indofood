@@ -392,7 +392,8 @@ export const ModelName = {
   Produk: 'Produk',
   Ekpedisi: 'Ekpedisi',
   HargaSampah: 'HargaSampah',
-  LaporanPendataan: 'LaporanPendataan'
+  SetorSampah: 'SetorSampah',
+  MutasiSaldo: 'MutasiSaldo'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -408,7 +409,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "session" | "account" | "verification" | "nasabah" | "produk" | "ekpedisi" | "hargaSampah" | "laporanPendataan"
+    modelProps: "user" | "session" | "account" | "verification" | "nasabah" | "produk" | "ekpedisi" | "hargaSampah" | "setorSampah" | "mutasiSaldo"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1004,77 +1005,151 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
-    LaporanPendataan: {
-      payload: Prisma.$LaporanPendataanPayload<ExtArgs>
-      fields: Prisma.LaporanPendataanFieldRefs
+    SetorSampah: {
+      payload: Prisma.$SetorSampahPayload<ExtArgs>
+      fields: Prisma.SetorSampahFieldRefs
       operations: {
         findUnique: {
-          args: Prisma.LaporanPendataanFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$LaporanPendataanPayload> | null
+          args: Prisma.SetorSampahFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SetorSampahPayload> | null
         }
         findUniqueOrThrow: {
-          args: Prisma.LaporanPendataanFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$LaporanPendataanPayload>
+          args: Prisma.SetorSampahFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SetorSampahPayload>
         }
         findFirst: {
-          args: Prisma.LaporanPendataanFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$LaporanPendataanPayload> | null
+          args: Prisma.SetorSampahFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SetorSampahPayload> | null
         }
         findFirstOrThrow: {
-          args: Prisma.LaporanPendataanFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$LaporanPendataanPayload>
+          args: Prisma.SetorSampahFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SetorSampahPayload>
         }
         findMany: {
-          args: Prisma.LaporanPendataanFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$LaporanPendataanPayload>[]
+          args: Prisma.SetorSampahFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SetorSampahPayload>[]
         }
         create: {
-          args: Prisma.LaporanPendataanCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$LaporanPendataanPayload>
+          args: Prisma.SetorSampahCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SetorSampahPayload>
         }
         createMany: {
-          args: Prisma.LaporanPendataanCreateManyArgs<ExtArgs>
+          args: Prisma.SetorSampahCreateManyArgs<ExtArgs>
           result: BatchPayload
         }
         createManyAndReturn: {
-          args: Prisma.LaporanPendataanCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$LaporanPendataanPayload>[]
+          args: Prisma.SetorSampahCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SetorSampahPayload>[]
         }
         delete: {
-          args: Prisma.LaporanPendataanDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$LaporanPendataanPayload>
+          args: Prisma.SetorSampahDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SetorSampahPayload>
         }
         update: {
-          args: Prisma.LaporanPendataanUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$LaporanPendataanPayload>
+          args: Prisma.SetorSampahUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SetorSampahPayload>
         }
         deleteMany: {
-          args: Prisma.LaporanPendataanDeleteManyArgs<ExtArgs>
+          args: Prisma.SetorSampahDeleteManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateMany: {
-          args: Prisma.LaporanPendataanUpdateManyArgs<ExtArgs>
+          args: Prisma.SetorSampahUpdateManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateManyAndReturn: {
-          args: Prisma.LaporanPendataanUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$LaporanPendataanPayload>[]
+          args: Prisma.SetorSampahUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SetorSampahPayload>[]
         }
         upsert: {
-          args: Prisma.LaporanPendataanUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$LaporanPendataanPayload>
+          args: Prisma.SetorSampahUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SetorSampahPayload>
         }
         aggregate: {
-          args: Prisma.LaporanPendataanAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateLaporanPendataan>
+          args: Prisma.SetorSampahAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateSetorSampah>
         }
         groupBy: {
-          args: Prisma.LaporanPendataanGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.LaporanPendataanGroupByOutputType>[]
+          args: Prisma.SetorSampahGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SetorSampahGroupByOutputType>[]
         }
         count: {
-          args: Prisma.LaporanPendataanCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.LaporanPendataanCountAggregateOutputType> | number
+          args: Prisma.SetorSampahCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SetorSampahCountAggregateOutputType> | number
+        }
+      }
+    }
+    MutasiSaldo: {
+      payload: Prisma.$MutasiSaldoPayload<ExtArgs>
+      fields: Prisma.MutasiSaldoFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.MutasiSaldoFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MutasiSaldoPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.MutasiSaldoFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MutasiSaldoPayload>
+        }
+        findFirst: {
+          args: Prisma.MutasiSaldoFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MutasiSaldoPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.MutasiSaldoFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MutasiSaldoPayload>
+        }
+        findMany: {
+          args: Prisma.MutasiSaldoFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MutasiSaldoPayload>[]
+        }
+        create: {
+          args: Prisma.MutasiSaldoCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MutasiSaldoPayload>
+        }
+        createMany: {
+          args: Prisma.MutasiSaldoCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.MutasiSaldoCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MutasiSaldoPayload>[]
+        }
+        delete: {
+          args: Prisma.MutasiSaldoDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MutasiSaldoPayload>
+        }
+        update: {
+          args: Prisma.MutasiSaldoUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MutasiSaldoPayload>
+        }
+        deleteMany: {
+          args: Prisma.MutasiSaldoDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.MutasiSaldoUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.MutasiSaldoUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MutasiSaldoPayload>[]
+        }
+        upsert: {
+          args: Prisma.MutasiSaldoUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MutasiSaldoPayload>
+        }
+        aggregate: {
+          args: Prisma.MutasiSaldoAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateMutasiSaldo>
+        }
+        groupBy: {
+          args: Prisma.MutasiSaldoGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MutasiSaldoGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.MutasiSaldoCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MutasiSaldoCountAggregateOutputType> | number
         }
       }
     }
@@ -1126,8 +1201,7 @@ export const UserScalarFieldEnum = {
   role: 'role',
   status: 'status',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt',
-  ekpedisiId: 'ekpedisiId'
+  updatedAt: 'updatedAt'
 } as const
 
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
@@ -1189,6 +1263,7 @@ export const NasabahScalarFieldEnum = {
   fotoLokasi: 'fotoLokasi',
   titikLokasi: 'titikLokasi',
   status: 'status',
+  saldo: 'saldo',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -1239,17 +1314,40 @@ export const HargaSampahScalarFieldEnum = {
 export type HargaSampahScalarFieldEnum = (typeof HargaSampahScalarFieldEnum)[keyof typeof HargaSampahScalarFieldEnum]
 
 
-export const LaporanPendataanScalarFieldEnum = {
+export const SetorSampahScalarFieldEnum = {
   id: 'id',
   nasabahId: 'nasabahId',
   jenisSampah: 'jenisSampah',
-  berat: 'berat',
-  produkId: 'produkId',
+  beratEstimasi: 'beratEstimasi',
+  beratAktual: 'beratAktual',
+  keterangan: 'keterangan',
+  alamatPenjemputan: 'alamatPenjemputan',
+  status: 'status',
+  catatanAdmin: 'catatanAdmin',
+  verifikasiAt: 'verifikasiAt',
+  ekpedisiId: 'ekpedisiId',
+  penjemputanAt: 'penjemputanAt',
+  diserahkanAt: 'diserahkanAt',
+  hargaPerKg: 'hargaPerKg',
+  totalSaldo: 'totalSaldo',
+  selesaiAt: 'selesaiAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
-export type LaporanPendataanScalarFieldEnum = (typeof LaporanPendataanScalarFieldEnum)[keyof typeof LaporanPendataanScalarFieldEnum]
+export type SetorSampahScalarFieldEnum = (typeof SetorSampahScalarFieldEnum)[keyof typeof SetorSampahScalarFieldEnum]
+
+
+export const MutasiSaldoScalarFieldEnum = {
+  id: 'id',
+  nasabahId: 'nasabahId',
+  jumlah: 'jumlah',
+  keterangan: 'keterangan',
+  referensiId: 'referensiId',
+  createdAt: 'createdAt'
+} as const
+
+export type MutasiSaldoScalarFieldEnum = (typeof MutasiSaldoScalarFieldEnum)[keyof typeof MutasiSaldoScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -1374,6 +1472,20 @@ export type ListEnumStatusNasabahFieldRefInput<$PrismaModel> = FieldRefInputType
 
 
 /**
+ * Reference to a field of type 'Int'
+ */
+export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
+    
+
+
+/**
+ * Reference to a field of type 'Int[]'
+ */
+export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
+    
+
+
+/**
  * Reference to a field of type 'JenisProduk'
  */
 export type EnumJenisProdukFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'JenisProduk'>
@@ -1402,20 +1514,6 @@ export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaMode
 
 
 /**
- * Reference to a field of type 'Int'
- */
-export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
-    
-
-
-/**
- * Reference to a field of type 'Int[]'
- */
-export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
-    
-
-
-/**
  * Reference to a field of type 'StatusEkpedisi'
  */
 export type EnumStatusEkpedisiFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StatusEkpedisi'>
@@ -1440,6 +1538,20 @@ export type EnumJenisSampahFieldRefInput<$PrismaModel> = FieldRefInputType<$Pris
  * Reference to a field of type 'JenisSampah[]'
  */
 export type ListEnumJenisSampahFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'JenisSampah[]'>
+    
+
+
+/**
+ * Reference to a field of type 'StatusSetorSampah'
+ */
+export type EnumStatusSetorSampahFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StatusSetorSampah'>
+    
+
+
+/**
+ * Reference to a field of type 'StatusSetorSampah[]'
+ */
+export type ListEnumStatusSetorSampahFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StatusSetorSampah[]'>
     
 
 /**
@@ -1560,7 +1672,8 @@ export type GlobalOmitConfig = {
   produk?: Prisma.ProdukOmit
   ekpedisi?: Prisma.EkpedisiOmit
   hargaSampah?: Prisma.HargaSampahOmit
-  laporanPendataan?: Prisma.LaporanPendataanOmit
+  setorSampah?: Prisma.SetorSampahOmit
+  mutasiSaldo?: Prisma.MutasiSaldoOmit
 }
 
 /* Types for Logging */

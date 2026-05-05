@@ -59,7 +59,8 @@ export const ModelName = {
   Produk: 'Produk',
   Ekpedisi: 'Ekpedisi',
   HargaSampah: 'HargaSampah',
-  LaporanPendataan: 'LaporanPendataan'
+  SetorSampah: 'SetorSampah',
+  MutasiSaldo: 'MutasiSaldo'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -87,8 +88,7 @@ export const UserScalarFieldEnum = {
   role: 'role',
   status: 'status',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt',
-  ekpedisiId: 'ekpedisiId'
+  updatedAt: 'updatedAt'
 } as const
 
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
@@ -150,6 +150,7 @@ export const NasabahScalarFieldEnum = {
   fotoLokasi: 'fotoLokasi',
   titikLokasi: 'titikLokasi',
   status: 'status',
+  saldo: 'saldo',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -200,17 +201,40 @@ export const HargaSampahScalarFieldEnum = {
 export type HargaSampahScalarFieldEnum = (typeof HargaSampahScalarFieldEnum)[keyof typeof HargaSampahScalarFieldEnum]
 
 
-export const LaporanPendataanScalarFieldEnum = {
+export const SetorSampahScalarFieldEnum = {
   id: 'id',
   nasabahId: 'nasabahId',
   jenisSampah: 'jenisSampah',
-  berat: 'berat',
-  produkId: 'produkId',
+  beratEstimasi: 'beratEstimasi',
+  beratAktual: 'beratAktual',
+  keterangan: 'keterangan',
+  alamatPenjemputan: 'alamatPenjemputan',
+  status: 'status',
+  catatanAdmin: 'catatanAdmin',
+  verifikasiAt: 'verifikasiAt',
+  ekpedisiId: 'ekpedisiId',
+  penjemputanAt: 'penjemputanAt',
+  diserahkanAt: 'diserahkanAt',
+  hargaPerKg: 'hargaPerKg',
+  totalSaldo: 'totalSaldo',
+  selesaiAt: 'selesaiAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
-export type LaporanPendataanScalarFieldEnum = (typeof LaporanPendataanScalarFieldEnum)[keyof typeof LaporanPendataanScalarFieldEnum]
+export type SetorSampahScalarFieldEnum = (typeof SetorSampahScalarFieldEnum)[keyof typeof SetorSampahScalarFieldEnum]
+
+
+export const MutasiSaldoScalarFieldEnum = {
+  id: 'id',
+  nasabahId: 'nasabahId',
+  jumlah: 'jumlah',
+  keterangan: 'keterangan',
+  referensiId: 'referensiId',
+  createdAt: 'createdAt'
+} as const
+
+export type MutasiSaldoScalarFieldEnum = (typeof MutasiSaldoScalarFieldEnum)[keyof typeof MutasiSaldoScalarFieldEnum]
 
 
 export const SortOrder = {
