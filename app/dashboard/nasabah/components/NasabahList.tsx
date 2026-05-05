@@ -1,10 +1,12 @@
 "use client";
 
 import {
+  AtSign,
   CheckCircle2,
   CreditCard,
   Edit2,
   Filter,
+  KeyRound,
   MapPin,
   Phone,
   Plus,
@@ -12,6 +14,7 @@ import {
   Search,
   Tag,
   Trash2,
+  User2,
   Users,
   X,
   XCircle,
@@ -57,7 +60,7 @@ export default function NasabahList({
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-    const data = {
+    const nasabahData = {
       nama: formData.get("nama") as string,
       alamat: formData.get("alamat") as string,
       noTelp: formData.get("noTelp") as string,
@@ -70,9 +73,19 @@ export default function NasabahList({
     };
 
     if (selectedNasabah) {
-      await updateNasabah(selectedNasabah.id, data);
+      await updateNasabah(selectedNasabah.id, {
+        ...nasabahData,
+        email: (formData.get("email") as string) || undefined,
+        username: (formData.get("username") as string) || undefined,
+        password: (formData.get("password") as string) || undefined,
+      });
     } else {
-      await createNasabah(data);
+      await createNasabah({
+        ...nasabahData,
+        email: formData.get("email") as string,
+        username: formData.get("username") as string,
+        password: formData.get("password") as string,
+      });
     }
     closeModal();
   };
@@ -243,6 +256,9 @@ export default function NasabahList({
                   Kontak & Alamat
                 </th>
                 <th className="px-8 py-4 text-xs font-bold text-zinc-400 uppercase tracking-widest">
+                  Akun User
+                </th>
+                <th className="px-8 py-4 text-xs font-bold text-zinc-400 uppercase tracking-widest">
                   Kategori
                 </th>
                 <th className="px-8 py-4 text-xs font-bold text-zinc-400 uppercase tracking-widest">
@@ -260,7 +276,7 @@ export default function NasabahList({
               {filteredData.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={6}
+                    colSpan={7}
                     className="px-8 py-12 text-center text-zinc-500">
                     Tidak ada data nasabah ditemukan.
                   </td>
@@ -285,6 +301,24 @@ export default function NasabahList({
                         <MapPin size={14} className="text-zinc-400" />
                         {n.alamat}
                       </div>
+                    </td>
+                    <td className="px-8 py-6">
+                      {n.user ? (
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2 text-sm font-bold text-zinc-800">
+                            <User2 size={13} className="text-zinc-400" />
+                            {n.user.username}
+                          </div>
+                          <div className="flex items-center gap-2 text-xs text-zinc-400">
+                            <AtSign size={11} className="text-zinc-400" />
+                            {n.user.email}
+                          </div>
+                        </div>
+                      ) : (
+                        <span className="text-xs text-zinc-400 italic">
+                          Belum ada user
+                        </span>
+                      )}
                     </td>
                     <td className="px-8 py-6">
                       <span className="inline-flex items-center gap-2 px-3 py-1 bg-zinc-100 text-zinc-600 rounded-lg text-xs font-bold">
@@ -486,7 +520,79 @@ export default function NasabahList({
                 </div>
               </div>
 
-              <div className="flex gap-4 mt-10">
+              {/* User Account Fields */}
+              <div className="mt-6 pt-6 border-t border-zinc-100">
+                <p className="text-sm font-bold text-zinc-700 mb-4 flex items-center gap-2">
+                  <User2 size={16} className="text-primary" />
+                  Akun Login Konsumen
+                </p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <label
+                      htmlFor="email"
+                      className="text-sm font-bold text-zinc-700 flex items-center gap-1">
+                      <AtSign size={13} /> Email
+                      {!selectedNasabah && (
+                        <span className="text-red-500">*</span>
+                      )}
+                    </label>
+                    <input
+                      id="email"
+                      name="email"
+                      type="email"
+                      required={!selectedNasabah}
+                      defaultValue={selectedNasabah?.user?.email ?? ""}
+                      placeholder="konsumen@email.com"
+                      className="w-full px-4 py-3 bg-zinc-50 border-none rounded-xl focus:ring-2 focus:ring-primary/20"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label
+                      htmlFor="username"
+                      className="text-sm font-bold text-zinc-700 flex items-center gap-1">
+                      <User2 size={13} /> Username
+                      {!selectedNasabah && (
+                        <span className="text-red-500">*</span>
+                      )}
+                    </label>
+                    <input
+                      id="username"
+                      name="username"
+                      required={!selectedNasabah}
+                      defaultValue={selectedNasabah?.user?.username ?? ""}
+                      placeholder="username_login"
+                      className="w-full px-4 py-3 bg-zinc-50 border-none rounded-xl focus:ring-2 focus:ring-primary/20"
+                    />
+                  </div>
+                  <div className="space-y-2 md:col-span-2">
+                    <label
+                      htmlFor="password"
+                      className="text-sm font-bold text-zinc-700 flex items-center gap-1">
+                      <KeyRound size={13} />
+                      {selectedNasabah ? (
+                        "Password Baru (kosongkan jika tidak diubah)"
+                      ) : (
+                        <>
+                          Password<span className="text-red-500">*</span>
+                        </>
+                      )}
+                    </label>
+                    <input
+                      id="password"
+                      name="password"
+                      type="password"
+                      required={!selectedNasabah}
+                      placeholder={
+                        selectedNasabah ? "••••••••" : "Min. 6 karakter"
+                      }
+                      minLength={selectedNasabah ? 0 : 6}
+                      className="w-full px-4 py-3 bg-zinc-50 border-none rounded-xl focus:ring-2 focus:ring-primary/20"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex gap-4 mt-8">
                 <button
                   type="button"
                   onClick={closeModal}

@@ -4,16 +4,13 @@ import type {
   JenisProduk,
   JenisSampah,
   KategoriNasabah,
-  Role,
   StatusEkpedisi,
   StatusNasabah,
-  StatusUser,
 } from "./generated/prisma/enums";
 import { EkpedisiSeed } from "./seed_ekspedisi";
 import { HargaSampahSeed } from "./seed_harga_sampah";
 import { NasabahsSeed } from "./seed_nasabah";
 import { ProdukSeed } from "./seed_produk";
-import { UsersSeed } from "./seed_user";
 
 async function main() {
   const { prisma } = await import("../lib/prisma");
@@ -52,69 +49,41 @@ async function main() {
     },
   });
 
-  console.log("👤 Seeding dummy Users...");
+  console.log("👥 Seeding Nasabah + User konsumen...");
   const defaultPassword = await hashPassword("123456");
-  await Promise.all(
-    UsersSeed.map((u) =>
-      prisma.user.create({
-        data: {
-          name: u.name,
-          email: u.email,
-          username: u.username,
-          emailVerified: true,
-          role: u.role as Role,
-          status: u.status as StatusUser,
-          accounts: {
-            create: {
-              id: `acc-${u.username}`,
-              accountId: u.username,
-              providerId: "credential",
-              password: defaultPassword,
+  for (const n of NasabahsSeed) {
+    await prisma.nasabah.create({
+      data: {
+        nama: n.nama,
+        alamat: n.alamat,
+        noTelp: n.noTelp,
+        kategori: n.kategori as KategoriNasabah,
+        nik: n.nik,
+        noRek: n.noRek,
+        jenisBank: n.jenisBank,
+        titikLokasi: n.titikLokasi,
+        status: n.status as StatusNasabah,
+        user: {
+          create: {
+            name: n.nama,
+            email: n.email,
+            username: n.username,
+            emailVerified: true,
+            role: "KONSUMEN",
+            accounts: {
+              create: {
+                id: `acc-${n.username}`,
+                accountId: n.username,
+                providerId: "credential",
+                password: defaultPassword,
+              },
             },
           },
         },
-      }),
-    ),
-  );
-
-  console.log("👥 Seeding dummy Nasabah data...");
-  await prisma.nasabah.createMany({
-    data: NasabahsSeed.map((n) => ({
-      nama: n.nama,
-      alamat: n.alamat,
-      noTelp: n.noTelp,
-      kategori: n.kategori as KategoriNasabah,
-      nik: n.nik,
-      noRek: n.noRek,
-      jenisBank: n.jenisBank,
-      fotoLokasi: n.fotoLokasi,
-      titikLokasi: n.titikLokasi,
-      status: n.status as StatusNasabah,
-    })),
-  });
-
-  // Link user konsumen "budi" ke nasabah pribadi
-  console.log("🔗 Linking konsumen user to nasabah...");
-  const userBudi = await prisma.user.findUnique({
-    where: { username: "budi" },
-  });
-  if (userBudi) {
-    await prisma.nasabah.create({
-      data: {
-        userId: userBudi.id,
-        nama: "Budi Santoso",
-        alamat: "Jl. Merdeka No. 10, Jakarta Selatan",
-        noTelp: "081234567890",
-        kategori: "PERORANGAN",
-        nik: "konsumen-budi-001",
-        noRek: "1234567890",
-        jenisBank: "BCA",
-        status: "AKTIF",
-        saldo: 0,
       },
     });
-    console.log("✅ Nasabah untuk budi berhasil dibuat.");
   }
+  console.log(`✅ ${NasabahsSeed.length} nasabah + user berhasil dibuat.`);
 
   console.log("📦 Seeding dummy Produk data...");
   await prisma.produk.createMany({

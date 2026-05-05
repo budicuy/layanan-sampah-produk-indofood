@@ -44,7 +44,6 @@ function formatDateTime(d: Date | null | undefined) {
     minute: "2-digit",
   });
 }
-089503
 
 export default async function TabunganDetailPage({
   params,
