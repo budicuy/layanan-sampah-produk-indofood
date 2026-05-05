@@ -1,7 +1,6 @@
 import "dotenv/config";
 import { hashPassword } from "better-auth/crypto";
 import type {
-  JenisProduk,
   JenisSampah,
   KategoriNasabah,
   StatusEkpedisi,
@@ -90,7 +89,7 @@ async function main() {
     data: ProdukSeed.map((p) => ({
       kode: p.kode,
       nama: p.nama,
-      jenis: p.jenis as JenisProduk,
+      jenis: p.jenis as JenisSampah,
       berat: p.berat,
       brand: p.brand,
       harga: p.harga,

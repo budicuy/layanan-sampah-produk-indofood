@@ -23,7 +23,6 @@ import { useState } from "react";
 import type {
   KategoriNasabah,
   StatusNasabah,
-  User,
 } from "@/prisma/generated/prisma/client";
 import { createNasabah, deleteNasabah, updateNasabah } from "../actions";
 
@@ -38,7 +37,7 @@ export type Nasabah = {
   jenisBank: string;
   titikLokasi: string | null;
   status: StatusNasabah;
-  user: User | null;
+  user: { id: string; username: string; email: string } | null;
 };
 
 export default function NasabahList({

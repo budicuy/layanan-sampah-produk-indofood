@@ -14,14 +14,14 @@ import {
   X,
 } from "lucide-react";
 import { useState } from "react";
-import type { JenisProduk } from "@/prisma/generated/prisma/client";
+import type { JenisSampah } from "@/prisma/generated/prisma/client";
 import { createProduk, deleteProduk, updateProduk } from "../actions";
 
 export type Produk = {
   id: string;
   kode: string;
   nama: string;
-  jenis: JenisProduk;
+  jenis: JenisSampah;
   berat: number;
   brand: string;
   harga: number;
@@ -47,7 +47,7 @@ export default function ProdukList({ initialData }: { initialData: Produk[] }) {
     const data = {
       kode: formData.get("kode") as string,
       nama: formData.get("nama") as string,
-      jenis: formData.get("jenis") as JenisProduk,
+      jenis: formData.get("jenis") as JenisSampah,
       berat: parseFloat(formData.get("berat") as string),
       brand: formData.get("brand") as string,
       harga: parseInt(formData.get("harga") as string, 10),

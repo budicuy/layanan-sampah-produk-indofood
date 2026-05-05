@@ -14,7 +14,14 @@ export default async function TabunganNasabahPage() {
   // Ambil nasabah beserta setoran yang sudah selesai
   const nasabahs = await prisma.nasabah.findMany({
     orderBy: { saldo: "desc" },
-    include: {
+    select: {
+      id: true,
+      nama: true,
+      kategori: true,
+      nik: true,
+      noRek: true,
+      jenisBank: true,
+      saldo: true,
       setorSampah: {
         where: { status: "SELESAI" },
         select: {

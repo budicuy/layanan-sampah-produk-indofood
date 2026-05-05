@@ -14,7 +14,7 @@ import type * as Prisma from "../internal/prismaNamespace"
 
 /**
  * Model Produk
- * Master data produk kemasan Indofood
+ * 
  */
 export type ProdukModel = runtime.Types.Result.DefaultSelection<Prisma.$ProdukPayload>
 
@@ -42,7 +42,7 @@ export type ProdukMinAggregateOutputType = {
   id: string | null
   kode: string | null
   nama: string | null
-  jenis: $Enums.JenisProduk | null
+  jenis: $Enums.JenisSampah | null
   berat: number | null
   brand: string | null
   harga: number | null
@@ -55,7 +55,7 @@ export type ProdukMaxAggregateOutputType = {
   id: string | null
   kode: string | null
   nama: string | null
-  jenis: $Enums.JenisProduk | null
+  jenis: $Enums.JenisSampah | null
   berat: number | null
   brand: string | null
   harga: number | null
@@ -221,7 +221,7 @@ export type ProdukGroupByOutputType = {
   id: string
   kode: string
   nama: string
-  jenis: $Enums.JenisProduk
+  jenis: $Enums.JenisSampah
   berat: number
   brand: string
   harga: number
@@ -257,7 +257,7 @@ export type ProdukWhereInput = {
   id?: Prisma.StringFilter<"Produk"> | string
   kode?: Prisma.StringFilter<"Produk"> | string
   nama?: Prisma.StringFilter<"Produk"> | string
-  jenis?: Prisma.EnumJenisProdukFilter<"Produk"> | $Enums.JenisProduk
+  jenis?: Prisma.EnumJenisSampahFilter<"Produk"> | $Enums.JenisSampah
   berat?: Prisma.FloatFilter<"Produk"> | number
   brand?: Prisma.StringFilter<"Produk"> | string
   harga?: Prisma.IntFilter<"Produk"> | number
@@ -286,7 +286,7 @@ export type ProdukWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.ProdukWhereInput[]
   NOT?: Prisma.ProdukWhereInput | Prisma.ProdukWhereInput[]
   nama?: Prisma.StringFilter<"Produk"> | string
-  jenis?: Prisma.EnumJenisProdukFilter<"Produk"> | $Enums.JenisProduk
+  jenis?: Prisma.EnumJenisSampahFilter<"Produk"> | $Enums.JenisSampah
   berat?: Prisma.FloatFilter<"Produk"> | number
   brand?: Prisma.StringFilter<"Produk"> | string
   harga?: Prisma.IntFilter<"Produk"> | number
@@ -320,7 +320,7 @@ export type ProdukScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"Produk"> | string
   kode?: Prisma.StringWithAggregatesFilter<"Produk"> | string
   nama?: Prisma.StringWithAggregatesFilter<"Produk"> | string
-  jenis?: Prisma.EnumJenisProdukWithAggregatesFilter<"Produk"> | $Enums.JenisProduk
+  jenis?: Prisma.EnumJenisSampahWithAggregatesFilter<"Produk"> | $Enums.JenisSampah
   berat?: Prisma.FloatWithAggregatesFilter<"Produk"> | number
   brand?: Prisma.StringWithAggregatesFilter<"Produk"> | string
   harga?: Prisma.IntWithAggregatesFilter<"Produk"> | number
@@ -333,7 +333,7 @@ export type ProdukCreateInput = {
   id?: string
   kode: string
   nama: string
-  jenis: $Enums.JenisProduk
+  jenis: $Enums.JenisSampah
   berat: number
   brand: string
   harga: number
@@ -346,7 +346,7 @@ export type ProdukUncheckedCreateInput = {
   id?: string
   kode: string
   nama: string
-  jenis: $Enums.JenisProduk
+  jenis: $Enums.JenisSampah
   berat: number
   brand: string
   harga: number
@@ -359,7 +359,7 @@ export type ProdukUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   kode?: Prisma.StringFieldUpdateOperationsInput | string
   nama?: Prisma.StringFieldUpdateOperationsInput | string
-  jenis?: Prisma.EnumJenisProdukFieldUpdateOperationsInput | $Enums.JenisProduk
+  jenis?: Prisma.EnumJenisSampahFieldUpdateOperationsInput | $Enums.JenisSampah
   berat?: Prisma.FloatFieldUpdateOperationsInput | number
   brand?: Prisma.StringFieldUpdateOperationsInput | string
   harga?: Prisma.IntFieldUpdateOperationsInput | number
@@ -372,7 +372,7 @@ export type ProdukUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   kode?: Prisma.StringFieldUpdateOperationsInput | string
   nama?: Prisma.StringFieldUpdateOperationsInput | string
-  jenis?: Prisma.EnumJenisProdukFieldUpdateOperationsInput | $Enums.JenisProduk
+  jenis?: Prisma.EnumJenisSampahFieldUpdateOperationsInput | $Enums.JenisSampah
   berat?: Prisma.FloatFieldUpdateOperationsInput | number
   brand?: Prisma.StringFieldUpdateOperationsInput | string
   harga?: Prisma.IntFieldUpdateOperationsInput | number
@@ -385,7 +385,7 @@ export type ProdukCreateManyInput = {
   id?: string
   kode: string
   nama: string
-  jenis: $Enums.JenisProduk
+  jenis: $Enums.JenisSampah
   berat: number
   brand: string
   harga: number
@@ -398,7 +398,7 @@ export type ProdukUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   kode?: Prisma.StringFieldUpdateOperationsInput | string
   nama?: Prisma.StringFieldUpdateOperationsInput | string
-  jenis?: Prisma.EnumJenisProdukFieldUpdateOperationsInput | $Enums.JenisProduk
+  jenis?: Prisma.EnumJenisSampahFieldUpdateOperationsInput | $Enums.JenisSampah
   berat?: Prisma.FloatFieldUpdateOperationsInput | number
   brand?: Prisma.StringFieldUpdateOperationsInput | string
   harga?: Prisma.IntFieldUpdateOperationsInput | number
@@ -411,7 +411,7 @@ export type ProdukUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   kode?: Prisma.StringFieldUpdateOperationsInput | string
   nama?: Prisma.StringFieldUpdateOperationsInput | string
-  jenis?: Prisma.EnumJenisProdukFieldUpdateOperationsInput | $Enums.JenisProduk
+  jenis?: Prisma.EnumJenisSampahFieldUpdateOperationsInput | $Enums.JenisSampah
   berat?: Prisma.FloatFieldUpdateOperationsInput | number
   brand?: Prisma.StringFieldUpdateOperationsInput | string
   harga?: Prisma.IntFieldUpdateOperationsInput | number
@@ -471,8 +471,8 @@ export type ProdukSumOrderByAggregateInput = {
   isi?: Prisma.SortOrder
 }
 
-export type EnumJenisProdukFieldUpdateOperationsInput = {
-  set?: $Enums.JenisProduk
+export type EnumJenisSampahFieldUpdateOperationsInput = {
+  set?: $Enums.JenisSampah
 }
 
 export type FloatFieldUpdateOperationsInput = {
@@ -546,7 +546,7 @@ export type $ProdukPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     id: string
     kode: string
     nama: string
-    jenis: $Enums.JenisProduk
+    jenis: $Enums.JenisSampah
     berat: number
     brand: string
     harga: number
@@ -979,7 +979,7 @@ export interface ProdukFieldRefs {
   readonly id: Prisma.FieldRef<"Produk", 'String'>
   readonly kode: Prisma.FieldRef<"Produk", 'String'>
   readonly nama: Prisma.FieldRef<"Produk", 'String'>
-  readonly jenis: Prisma.FieldRef<"Produk", 'JenisProduk'>
+  readonly jenis: Prisma.FieldRef<"Produk", 'JenisSampah'>
   readonly berat: Prisma.FieldRef<"Produk", 'Float'>
   readonly brand: Prisma.FieldRef<"Produk", 'String'>
   readonly harga: Prisma.FieldRef<"Produk", 'Int'>

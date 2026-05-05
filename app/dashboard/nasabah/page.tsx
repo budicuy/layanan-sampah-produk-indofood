@@ -4,7 +4,11 @@ import NasabahList, { type Nasabah } from "./components/NasabahList";
 export default async function NasabahPage() {
   const nasabahs = await prisma.nasabah.findMany({
     orderBy: { createdAt: "desc" },
-    include: { user: true },
+    include: {
+      user: {
+        select: { id: true, username: true, email: true },
+      },
+    },
   });
 
   return <NasabahList initialData={nasabahs as Nasabah[]} />;

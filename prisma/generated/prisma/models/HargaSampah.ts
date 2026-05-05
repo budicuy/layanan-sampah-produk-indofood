@@ -399,10 +399,6 @@ export type HargaSampahSumOrderByAggregateInput = {
   berat?: Prisma.SortOrder
 }
 
-export type EnumJenisSampahFieldUpdateOperationsInput = {
-  set?: $Enums.JenisSampah
-}
-
 
 
 export type HargaSampahSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{

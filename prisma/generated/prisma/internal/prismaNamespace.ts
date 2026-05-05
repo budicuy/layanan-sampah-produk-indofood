@@ -1260,7 +1260,6 @@ export const NasabahScalarFieldEnum = {
   nik: 'nik',
   noRek: 'noRek',
   jenisBank: 'jenisBank',
-  fotoLokasi: 'fotoLokasi',
   titikLokasi: 'titikLokasi',
   status: 'status',
   saldo: 'saldo',
@@ -1486,16 +1485,16 @@ export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel,
 
 
 /**
- * Reference to a field of type 'JenisProduk'
+ * Reference to a field of type 'JenisSampah'
  */
-export type EnumJenisProdukFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'JenisProduk'>
+export type EnumJenisSampahFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'JenisSampah'>
     
 
 
 /**
- * Reference to a field of type 'JenisProduk[]'
+ * Reference to a field of type 'JenisSampah[]'
  */
-export type ListEnumJenisProdukFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'JenisProduk[]'>
+export type ListEnumJenisSampahFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'JenisSampah[]'>
     
 
 
@@ -1524,20 +1523,6 @@ export type EnumStatusEkpedisiFieldRefInput<$PrismaModel> = FieldRefInputType<$P
  * Reference to a field of type 'StatusEkpedisi[]'
  */
 export type ListEnumStatusEkpedisiFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StatusEkpedisi[]'>
-    
-
-
-/**
- * Reference to a field of type 'JenisSampah'
- */
-export type EnumJenisSampahFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'JenisSampah'>
-    
-
-
-/**
- * Reference to a field of type 'JenisSampah[]'
- */
-export type ListEnumJenisSampahFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'JenisSampah[]'>
     
 
 

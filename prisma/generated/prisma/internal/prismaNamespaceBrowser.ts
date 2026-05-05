@@ -147,7 +147,6 @@ export const NasabahScalarFieldEnum = {
   nik: 'nik',
   noRek: 'noRek',
   jenisBank: 'jenisBank',
-  fotoLokasi: 'fotoLokasi',
   titikLokasi: 'titikLokasi',
   status: 'status',
   saldo: 'saldo',

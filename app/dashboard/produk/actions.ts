@@ -2,12 +2,12 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
-import type { JenisProduk } from "@/prisma/generated/prisma/client";
+import type { JenisSampah } from "@/prisma/generated/prisma/client";
 
 export async function createProduk(data: {
   kode: string;
   nama: string;
-  jenis: JenisProduk;
+  jenis: JenisSampah;
   berat: number;
   brand: string;
   harga: number;
@@ -30,7 +30,7 @@ export async function updateProduk(
   data: {
     kode: string;
     nama: string;
-    jenis: JenisProduk;
+    jenis: JenisSampah;
     berat: number;
     brand: string;
     harga: number;

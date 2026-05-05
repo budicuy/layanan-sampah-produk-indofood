@@ -68,7 +68,7 @@ export type Verification = Prisma.VerificationModel
 export type Nasabah = Prisma.NasabahModel
 /**
  * Model Produk
- * Master data produk kemasan Indofood
+ * 
  */
 export type Produk = Prisma.ProdukModel
 /**

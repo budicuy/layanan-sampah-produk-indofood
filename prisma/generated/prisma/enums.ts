@@ -43,12 +43,12 @@ export const StatusNasabah = {
 export type StatusNasabah = (typeof StatusNasabah)[keyof typeof StatusNasabah]
 
 
-export const JenisProduk = {
+export const JenisSampah = {
   PLASTIK: 'PLASTIK',
   KARTON: 'KARTON'
 } as const
 
-export type JenisProduk = (typeof JenisProduk)[keyof typeof JenisProduk]
+export type JenisSampah = (typeof JenisSampah)[keyof typeof JenisSampah]
 
 
 export const StatusEkpedisi = {
@@ -58,14 +58,6 @@ export const StatusEkpedisi = {
 } as const
 
 export type StatusEkpedisi = (typeof StatusEkpedisi)[keyof typeof StatusEkpedisi]
-
-
-export const JenisSampah = {
-  PLASTIK: 'PLASTIK',
-  KARTON: 'KARTON'
-} as const
-
-export type JenisSampah = (typeof JenisSampah)[keyof typeof JenisSampah]
 
 
 export const StatusSetorSampah = {

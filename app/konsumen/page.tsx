@@ -64,10 +64,23 @@ export default async function ConsumerDashboardPage() {
   const nasabah = user
     ? await prisma.nasabah.findUnique({
         where: { userId: user.id },
-        include: {
+        select: {
+          saldo: true,
+          noRek: true,
+          alamat: true,
           setorSampah: {
             orderBy: { createdAt: "desc" },
             take: 10,
+            select: {
+              id: true,
+              jenisSampah: true,
+              beratEstimasi: true,
+              beratAktual: true,
+              totalSaldo: true,
+              status: true,
+              selesaiAt: true,
+              createdAt: true,
+            },
           },
         },
       })

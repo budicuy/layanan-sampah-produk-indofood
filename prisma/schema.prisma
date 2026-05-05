@@ -99,7 +99,7 @@ enum StatusNasabah {
   NONAKTIF
 }
 
-enum JenisProduk {
+enum JenisSampah {
   PLASTIK
   KARTON
 }
@@ -110,10 +110,6 @@ enum StatusEkpedisi {
   DONE
 }
 
-enum JenisSampah {
-  PLASTIK
-  KARTON
-}
 
 /// Status alur setor sampah:
 /// MENUNGGU_VERIFIKASI → Konsumen baru submit
@@ -137,8 +133,8 @@ enum StatusSetorSampah {
 
 model Nasabah {
   id          String          @id @default(cuid())
-  userId      String?         @unique // Relasi opsional ke User (konsumen)
-  user        User?           @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userId      String          @unique
+  user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
   nama        String
   alamat      String
   noTelp      String
@@ -146,10 +142,9 @@ model Nasabah {
   nik         String          @unique
   noRek       String
   jenisBank   String
-  fotoLokasi  String?
   titikLokasi String?
   status      StatusNasabah   @default(AKTIF)
-  saldo       Int             @default(0) // Saldo tabungan dalam rupiah
+  saldo       Int             @default(0)
   createdAt   DateTime        @default(now())
   updatedAt   DateTime        @updatedAt
 
@@ -159,12 +154,11 @@ model Nasabah {
   @@map("nasabah")
 }
 
-/// Master data produk kemasan Indofood
 model Produk {
   id        String      @id @default(cuid())
   kode      String      @unique
   nama      String
-  jenis     JenisProduk
+  jenis     JenisSampah
   berat     Float
   brand     String
   harga     Int
@@ -239,7 +233,7 @@ model SetorSampah {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@index([nasabahId])
+  @@index([nasabahId, status])
   @@index([status])
   @@index([selesaiAt])
   @@map("setor_sampah")

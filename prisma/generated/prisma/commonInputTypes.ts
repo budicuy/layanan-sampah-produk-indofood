@@ -243,11 +243,11 @@ export type IntWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedIntFilter<$PrismaModel>
 }
 
-export type EnumJenisProdukFilter<$PrismaModel = never> = {
-  equals?: $Enums.JenisProduk | Prisma.EnumJenisProdukFieldRefInput<$PrismaModel>
-  in?: $Enums.JenisProduk[] | Prisma.ListEnumJenisProdukFieldRefInput<$PrismaModel>
-  notIn?: $Enums.JenisProduk[] | Prisma.ListEnumJenisProdukFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumJenisProdukFilter<$PrismaModel> | $Enums.JenisProduk
+export type EnumJenisSampahFilter<$PrismaModel = never> = {
+  equals?: $Enums.JenisSampah | Prisma.EnumJenisSampahFieldRefInput<$PrismaModel>
+  in?: $Enums.JenisSampah[] | Prisma.ListEnumJenisSampahFieldRefInput<$PrismaModel>
+  notIn?: $Enums.JenisSampah[] | Prisma.ListEnumJenisSampahFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumJenisSampahFilter<$PrismaModel> | $Enums.JenisSampah
 }
 
 export type FloatFilter<$PrismaModel = never> = {
@@ -261,14 +261,14 @@ export type FloatFilter<$PrismaModel = never> = {
   not?: Prisma.NestedFloatFilter<$PrismaModel> | number
 }
 
-export type EnumJenisProdukWithAggregatesFilter<$PrismaModel = never> = {
-  equals?: $Enums.JenisProduk | Prisma.EnumJenisProdukFieldRefInput<$PrismaModel>
-  in?: $Enums.JenisProduk[] | Prisma.ListEnumJenisProdukFieldRefInput<$PrismaModel>
-  notIn?: $Enums.JenisProduk[] | Prisma.ListEnumJenisProdukFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumJenisProdukWithAggregatesFilter<$PrismaModel> | $Enums.JenisProduk
+export type EnumJenisSampahWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.JenisSampah | Prisma.EnumJenisSampahFieldRefInput<$PrismaModel>
+  in?: $Enums.JenisSampah[] | Prisma.ListEnumJenisSampahFieldRefInput<$PrismaModel>
+  notIn?: $Enums.JenisSampah[] | Prisma.ListEnumJenisSampahFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumJenisSampahWithAggregatesFilter<$PrismaModel> | $Enums.JenisSampah
   _count?: Prisma.NestedIntFilter<$PrismaModel>
-  _min?: Prisma.NestedEnumJenisProdukFilter<$PrismaModel>
-  _max?: Prisma.NestedEnumJenisProdukFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumJenisSampahFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumJenisSampahFilter<$PrismaModel>
 }
 
 export type FloatWithAggregatesFilter<$PrismaModel = never> = {
@@ -302,23 +302,6 @@ export type EnumStatusEkpedisiWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumStatusEkpedisiFilter<$PrismaModel>
   _max?: Prisma.NestedEnumStatusEkpedisiFilter<$PrismaModel>
-}
-
-export type EnumJenisSampahFilter<$PrismaModel = never> = {
-  equals?: $Enums.JenisSampah | Prisma.EnumJenisSampahFieldRefInput<$PrismaModel>
-  in?: $Enums.JenisSampah[] | Prisma.ListEnumJenisSampahFieldRefInput<$PrismaModel>
-  notIn?: $Enums.JenisSampah[] | Prisma.ListEnumJenisSampahFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumJenisSampahFilter<$PrismaModel> | $Enums.JenisSampah
-}
-
-export type EnumJenisSampahWithAggregatesFilter<$PrismaModel = never> = {
-  equals?: $Enums.JenisSampah | Prisma.EnumJenisSampahFieldRefInput<$PrismaModel>
-  in?: $Enums.JenisSampah[] | Prisma.ListEnumJenisSampahFieldRefInput<$PrismaModel>
-  notIn?: $Enums.JenisSampah[] | Prisma.ListEnumJenisSampahFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumJenisSampahWithAggregatesFilter<$PrismaModel> | $Enums.JenisSampah
-  _count?: Prisma.NestedIntFilter<$PrismaModel>
-  _min?: Prisma.NestedEnumJenisSampahFilter<$PrismaModel>
-  _max?: Prisma.NestedEnumJenisSampahFilter<$PrismaModel>
 }
 
 export type FloatNullableFilter<$PrismaModel = never> = {
@@ -634,21 +617,21 @@ export type NestedFloatFilter<$PrismaModel = never> = {
   not?: Prisma.NestedFloatFilter<$PrismaModel> | number
 }
 
-export type NestedEnumJenisProdukFilter<$PrismaModel = never> = {
-  equals?: $Enums.JenisProduk | Prisma.EnumJenisProdukFieldRefInput<$PrismaModel>
-  in?: $Enums.JenisProduk[] | Prisma.ListEnumJenisProdukFieldRefInput<$PrismaModel>
-  notIn?: $Enums.JenisProduk[] | Prisma.ListEnumJenisProdukFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumJenisProdukFilter<$PrismaModel> | $Enums.JenisProduk
+export type NestedEnumJenisSampahFilter<$PrismaModel = never> = {
+  equals?: $Enums.JenisSampah | Prisma.EnumJenisSampahFieldRefInput<$PrismaModel>
+  in?: $Enums.JenisSampah[] | Prisma.ListEnumJenisSampahFieldRefInput<$PrismaModel>
+  notIn?: $Enums.JenisSampah[] | Prisma.ListEnumJenisSampahFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumJenisSampahFilter<$PrismaModel> | $Enums.JenisSampah
 }
 
-export type NestedEnumJenisProdukWithAggregatesFilter<$PrismaModel = never> = {
-  equals?: $Enums.JenisProduk | Prisma.EnumJenisProdukFieldRefInput<$PrismaModel>
-  in?: $Enums.JenisProduk[] | Prisma.ListEnumJenisProdukFieldRefInput<$PrismaModel>
-  notIn?: $Enums.JenisProduk[] | Prisma.ListEnumJenisProdukFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumJenisProdukWithAggregatesFilter<$PrismaModel> | $Enums.JenisProduk
+export type NestedEnumJenisSampahWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.JenisSampah | Prisma.EnumJenisSampahFieldRefInput<$PrismaModel>
+  in?: $Enums.JenisSampah[] | Prisma.ListEnumJenisSampahFieldRefInput<$PrismaModel>
+  notIn?: $Enums.JenisSampah[] | Prisma.ListEnumJenisSampahFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumJenisSampahWithAggregatesFilter<$PrismaModel> | $Enums.JenisSampah
   _count?: Prisma.NestedIntFilter<$PrismaModel>
-  _min?: Prisma.NestedEnumJenisProdukFilter<$PrismaModel>
-  _max?: Prisma.NestedEnumJenisProdukFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumJenisSampahFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumJenisSampahFilter<$PrismaModel>
 }
 
 export type NestedFloatWithAggregatesFilter<$PrismaModel = never> = {
@@ -682,23 +665,6 @@ export type NestedEnumStatusEkpedisiWithAggregatesFilter<$PrismaModel = never> =
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumStatusEkpedisiFilter<$PrismaModel>
   _max?: Prisma.NestedEnumStatusEkpedisiFilter<$PrismaModel>
-}
-
-export type NestedEnumJenisSampahFilter<$PrismaModel = never> = {
-  equals?: $Enums.JenisSampah | Prisma.EnumJenisSampahFieldRefInput<$PrismaModel>
-  in?: $Enums.JenisSampah[] | Prisma.ListEnumJenisSampahFieldRefInput<$PrismaModel>
-  notIn?: $Enums.JenisSampah[] | Prisma.ListEnumJenisSampahFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumJenisSampahFilter<$PrismaModel> | $Enums.JenisSampah
-}
-
-export type NestedEnumJenisSampahWithAggregatesFilter<$PrismaModel = never> = {
-  equals?: $Enums.JenisSampah | Prisma.EnumJenisSampahFieldRefInput<$PrismaModel>
-  in?: $Enums.JenisSampah[] | Prisma.ListEnumJenisSampahFieldRefInput<$PrismaModel>
-  notIn?: $Enums.JenisSampah[] | Prisma.ListEnumJenisSampahFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumJenisSampahWithAggregatesFilter<$PrismaModel> | $Enums.JenisSampah
-  _count?: Prisma.NestedIntFilter<$PrismaModel>
-  _min?: Prisma.NestedEnumJenisSampahFilter<$PrismaModel>
-  _max?: Prisma.NestedEnumJenisSampahFilter<$PrismaModel>
 }
 
 export type NestedFloatNullableFilter<$PrismaModel = never> = {
