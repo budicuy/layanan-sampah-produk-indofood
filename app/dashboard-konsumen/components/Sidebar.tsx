@@ -21,7 +21,11 @@ const MENU_GROUPS = [
   {
     group: "Transaksi",
     items: [
-      { icon: Recycle, label: "Setor Sampah", href: "/konsumen/setor-sampah" },
+      {
+        icon: Recycle,
+        label: "Setor Sampah",
+        href: "/dashboard-konsumen/setor-sampah",
+      },
     ],
   },
 ];
