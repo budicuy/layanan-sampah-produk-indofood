@@ -51,9 +51,11 @@ export interface LaporanRow {
   createdAt: Date;
   nasabah: {
     id: string;
-    nama: string;
     nik: string;
     kategori: string;
+    user: {
+      name: string;
+    };
   };
   ekpedisi: {
     alamat: string;
@@ -116,7 +118,7 @@ export default function LaporanPage() {
 
   const filtered = setoran.filter(
     (r) =>
-      r.nasabah.nama.toLowerCase().includes(search.toLowerCase()) ||
+      r.nasabah.user?.name.toLowerCase().includes(search.toLowerCase()) ||
       r.nasabah.nik.toLowerCase().includes(search.toLowerCase()) ||
       r.jenisSampah.toLowerCase().includes(search.toLowerCase()),
   );
@@ -359,11 +361,11 @@ export default function LaporanPage() {
                     <td className="px-6 py-5">
                       <div className="flex items-center gap-2.5">
                         <div className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-xs shrink-0">
-                          {row.nasabah.nama[0]?.toUpperCase()}
+                          {row.nasabah.user?.name[0]?.toUpperCase()}
                         </div>
                         <div>
                           <p className="font-bold text-zinc-900 text-sm leading-tight">
-                            {row.nasabah.nama}
+                            {row.nasabah.user?.name}
                           </p>
                           <p className="text-[10px] text-zinc-400">
                             {row.nasabah.nik}

@@ -15,6 +15,9 @@ export async function getTabunganData() {
   return await prisma.nasabah.findMany({
     orderBy: { saldo: "desc" },
     include: {
+      user: {
+        select: { name: true },
+      },
       setorSampah: {
         orderBy: { createdAt: "desc" },
         include: {

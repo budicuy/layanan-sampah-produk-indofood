@@ -3,7 +3,6 @@
 import { revalidatePath } from "next/cache";
 import { getSession } from "@/app/login/auth/session";
 import { prisma } from "@/lib/prisma";
-import type { StatusEkpedisi } from "@/prisma/generated/prisma/client";
 
 async function checkAdminAuth() {
   const session = await getSession();
@@ -13,11 +12,9 @@ async function checkAdminAuth() {
 }
 
 export async function createEkpedisi(data: {
-  userId?: string | null;
+  nama: string;
   noTelp: string;
   alamat: string;
-  titikLokasi?: string | null;
-  status: StatusEkpedisi;
 }) {
   await checkAdminAuth();
   try {
@@ -35,11 +32,9 @@ export async function createEkpedisi(data: {
 export async function updateEkpedisi(
   id: string,
   data: {
-    userId?: string | null;
+    nama: string;
     noTelp: string;
     alamat: string;
-    titikLokasi?: string | null;
-    status: StatusEkpedisi;
   },
 ) {
   await checkAdminAuth();
@@ -74,15 +69,6 @@ export async function getEkpedisiData() {
   await checkAdminAuth();
   const ekpedisi = await prisma.ekpedisi.findMany({
     orderBy: { updatedAt: "desc" },
-    include: {
-      user: {
-        select: { id: true, name: true, username: true },
-      },
-    },
   });
-  const users = await prisma.user.findMany({
-    select: { id: true, name: true, username: true },
-    orderBy: { name: "asc" },
-  });
-  return { ekpedisi, users };
+  return { ekpedisi };
 }

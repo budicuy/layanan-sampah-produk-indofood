@@ -6,7 +6,6 @@ import {
   CreditCard,
   Edit2,
   Filter,
-  KeyRound,
   MapPin,
   Phone,
   Plus,
@@ -28,13 +27,13 @@ import type {
 import {
   createNasabah,
   deleteNasabah,
+  getAvailableUsers,
   getNasabahData,
   updateNasabah,
 } from "./actions";
 
 export type Nasabah = {
   id: string;
-  nama: string;
   alamat: string;
   noTelp: string;
   kategori: KategoriNasabah;
@@ -43,7 +42,7 @@ export type Nasabah = {
   jenisBank: string;
   titikLokasi: string | null;
   status: StatusNasabah;
-  user: { id: string; username: string; email: string } | null;
+  user: { id: string; name: string; username: string; email: string } | null;
 };
 
 export default function NasabahPage() {
@@ -53,6 +52,27 @@ export default function NasabahPage() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedNasabah, setSelectedNasabah] = useState<Nasabah | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [availableUsers, setAvailableUsers] = useState<
+    { id: string; name: string; username: string }[]
+  >([]);
+  const [userSearch, setUserSearch] = useState("");
+  const [selectedUser, setSelectedUser] = useState<{
+    id: string;
+    name: string;
+    username: string;
+  } | null>(null);
+  const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (!target.closest(".relative")) {
+        setIsUserDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   useEffect(() => {
     getNasabahData().then((res) => {
@@ -73,7 +93,7 @@ export default function NasabahPage() {
 
   const filteredData = initialData.filter(
     (n) =>
-      n.nama.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      n.user?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       n.nik.includes(searchTerm),
   );
 
@@ -81,7 +101,6 @@ export default function NasabahPage() {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const nasabahData = {
-      nama: formData.get("nama") as string,
       alamat: formData.get("alamat") as string,
       noTelp: formData.get("noTelp") as string,
       kategori: formData.get("kategori") as KategoriNasabah,
@@ -93,19 +112,16 @@ export default function NasabahPage() {
     };
 
     if (selectedNasabah) {
-      await updateNasabah(selectedNasabah.id, {
-        ...nasabahData,
-        email: (formData.get("email") as string) || undefined,
-        username: (formData.get("username") as string) || undefined,
-        password: (formData.get("password") as string) || undefined,
-      });
+      await updateNasabah(selectedNasabah.id, nasabahData);
       toast.success("Data nasabah berhasil diperbarui!");
     } else {
+      if (!selectedUser) {
+        toast.error("Silakan pilih user terlebih dahulu");
+        return;
+      }
       await createNasabah({
         ...nasabahData,
-        email: formData.get("email") as string,
-        username: formData.get("username") as string,
-        password: formData.get("password") as string,
+        userId: selectedUser.id,
       });
       toast.success("Data nasabah berhasil ditambahkan!");
     }
@@ -128,7 +144,17 @@ export default function NasabahPage() {
     }
   };
 
-  const openModal = (nasabah: Nasabah | null = null) => {
+  const openModal = async (nasabah: Nasabah | null = null) => {
+    if (!nasabah) {
+      const users = await getAvailableUsers();
+      setAvailableUsers(
+        users as { id: string; name: string; username: string }[],
+      );
+      setSelectedUser(null);
+      setUserSearch("");
+    } else {
+      setSelectedUser(null);
+    }
     setSelectedNasabah(nasabah);
     setIsModalOpen(true);
   };
@@ -136,6 +162,9 @@ export default function NasabahPage() {
   const closeModal = () => {
     setIsModalOpen(false);
     setSelectedNasabah(null);
+    setSelectedUser(null);
+    setUserSearch("");
+    setIsUserDropdownOpen(false);
   };
 
   const openDeleteModal = (nasabah: Nasabah) => {
@@ -319,7 +348,7 @@ export default function NasabahPage() {
                     className="hover:bg-zinc-50/50 transition-colors group">
                     <td className="px-4 md:px-8 py-4 md:py-6">
                       <p className="font-bold text-zinc-900 text-sm md:text-base">
-                        {n.nama}
+                        {n.user?.name || "Tanpa Nama"}
                       </p>
                       <p className="text-xs text-zinc-400 mt-1 font-mono uppercase tracking-tighter">
                         NIK: {n.nik}
@@ -445,23 +474,126 @@ export default function NasabahPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label
-                    htmlFor="nama"
+                    htmlFor={selectedNasabah ? "nama" : "userId"}
                     className="text-sm font-bold text-zinc-700">
                     Nama Lengkap
                   </label>
-                  <input
-                    id="nama"
-                    required
-                    name="nama"
-                    defaultValue={selectedNasabah?.nama}
-                    className="w-full px-4 py-3 bg-zinc-50 border-none rounded-xl focus:ring-2 focus:ring-primary/20"
-                  />
+                  {selectedNasabah ? (
+                    <input
+                      id="nama"
+                      disabled
+                      value={selectedNasabah.user?.name || ""}
+                      className="w-full px-4 py-3 bg-zinc-100 border-none rounded-xl text-zinc-500 cursor-not-allowed font-bold"
+                    />
+                  ) : (
+                    <div className="relative">
+                      {!selectedUser ? (
+                        <div className="relative">
+                          <Search
+                            size={18}
+                            className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400"
+                          />
+                          <input
+                            type="text"
+                            placeholder="Cari nama atau username..."
+                            value={userSearch}
+                            onChange={(e) => {
+                              setUserSearch(e.target.value);
+                              setIsUserDropdownOpen(true);
+                            }}
+                            onFocus={() => setIsUserDropdownOpen(true)}
+                            className="w-full pl-11 pr-4 py-3 bg-zinc-50 border-none rounded-xl focus:ring-2 focus:ring-primary/20 text-sm"
+                          />
+                        </div>
+                      ) : (
+                        <div className="flex items-center justify-between p-3 bg-primary/5 border border-primary/20 rounded-xl group animate-in zoom-in-95 duration-200">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center font-bold">
+                              {selectedUser.name[0].toUpperCase()}
+                            </div>
+                            <div>
+                              <p className="text-sm font-bold text-zinc-900 leading-tight">
+                                {selectedUser.name}
+                              </p>
+                              <p className="text-xs text-zinc-500">
+                                @{selectedUser.username}
+                              </p>
+                            </div>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setSelectedUser(null);
+                              setUserSearch("");
+                            }}
+                            className="p-2 text-zinc-400 hover:text-red-500 hover:bg-white rounded-lg transition-all">
+                            <X size={18} />
+                          </button>
+                        </div>
+                      )}
+
+                      {isUserDropdownOpen && !selectedUser && (
+                        <div className="absolute z-50 w-full mt-2 bg-white border border-zinc-100 rounded-2xl shadow-xl max-h-60 overflow-y-auto">
+                          {availableUsers.filter(
+                            (u) =>
+                              u.name
+                                .toLowerCase()
+                                .includes(userSearch.toLowerCase()) ||
+                              u.username
+                                .toLowerCase()
+                                .includes(userSearch.toLowerCase()),
+                          ).length === 0 ? (
+                            <div className="p-6 text-center">
+                              <p className="text-zinc-400 text-sm mb-3">
+                                {availableUsers.length === 0
+                                  ? "Tidak ada user konsumen yang tersedia untuk didaftarkan."
+                                  : "User tidak ditemukan."}
+                              </p>
+                              <a
+                                href="/dashboard-admin/master-data/users"
+                                className="text-xs font-bold text-primary hover:underline">
+                                + Buat User Konsumen Baru
+                              </a>
+                            </div>
+                          ) : (
+                            availableUsers
+                              .filter(
+                                (u) =>
+                                  u.name
+                                    .toLowerCase()
+                                    .includes(userSearch.toLowerCase()) ||
+                                  u.username
+                                    .toLowerCase()
+                                    .includes(userSearch.toLowerCase()),
+                              )
+                              .map((u) => (
+                                <button
+                                  key={u.id}
+                                  type="button"
+                                  onClick={() => {
+                                    setSelectedUser(u);
+                                    setIsUserDropdownOpen(false);
+                                  }}
+                                  className="w-full px-4 py-3 text-left hover:bg-zinc-50 transition-colors flex flex-col border-b border-zinc-50 last:border-none">
+                                  <span className="font-bold text-zinc-900 text-sm">
+                                    {u.name}
+                                  </span>
+                                  <span className="text-xs text-zinc-400">
+                                    @{u.username}
+                                  </span>
+                                </button>
+                              ))
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <label
                     htmlFor="nik"
                     className="text-sm font-bold text-zinc-700">
-                    NIK (No Nasabah)
+                    NIK
                   </label>
                   <input
                     id="nik"
@@ -577,77 +709,7 @@ export default function NasabahPage() {
                 </div>
               </div>
 
-              {/* User Account Fields */}
-              <div className="mt-6 pt-6 border-t border-zinc-100">
-                <p className="text-sm font-bold text-zinc-700 mb-4 flex items-center gap-2">
-                  <User2 size={16} className="text-primary" />
-                  Akun Login Konsumen
-                </p>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <label
-                      htmlFor="email"
-                      className="text-sm font-bold text-zinc-700 flex items-center gap-1">
-                      <AtSign size={13} /> Email
-                      {!selectedNasabah && (
-                        <span className="text-red-500">*</span>
-                      )}
-                    </label>
-                    <input
-                      id="email"
-                      name="email"
-                      type="email"
-                      required={!selectedNasabah}
-                      defaultValue={selectedNasabah?.user?.email ?? ""}
-                      placeholder="konsumen@email.com"
-                      className="w-full px-4 py-3 bg-zinc-50 border-none rounded-xl focus:ring-2 focus:ring-primary/20"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label
-                      htmlFor="username"
-                      className="text-sm font-bold text-zinc-700 flex items-center gap-1">
-                      <User2 size={13} /> Username
-                      {!selectedNasabah && (
-                        <span className="text-red-500">*</span>
-                      )}
-                    </label>
-                    <input
-                      id="username"
-                      name="username"
-                      required={!selectedNasabah}
-                      defaultValue={selectedNasabah?.user?.username ?? ""}
-                      placeholder="username_login"
-                      className="w-full px-4 py-3 bg-zinc-50 border-none rounded-xl focus:ring-2 focus:ring-primary/20"
-                    />
-                  </div>
-                  <div className="space-y-2 md:col-span-2">
-                    <label
-                      htmlFor="password"
-                      className="text-sm font-bold text-zinc-700 flex items-center gap-1">
-                      <KeyRound size={13} />
-                      {selectedNasabah ? (
-                        "Password Baru (kosongkan jika tidak diubah)"
-                      ) : (
-                        <>
-                          Password<span className="text-red-500">*</span>
-                        </>
-                      )}
-                    </label>
-                    <input
-                      id="password"
-                      name="password"
-                      type="password"
-                      required={!selectedNasabah}
-                      placeholder={
-                        selectedNasabah ? "••••••••" : "Min. 6 karakter"
-                      }
-                      minLength={selectedNasabah ? 0 : 6}
-                      className="w-full px-4 py-3 bg-zinc-50 border-none rounded-xl focus:ring-2 focus:ring-primary/20"
-                    />
-                  </div>
-                </div>
-              </div>
+              {/* User Account Fields removed per request */}
 
               <div className="flex gap-4 mt-8">
                 <button
@@ -680,7 +742,7 @@ export default function NasabahPage() {
             <p className="text-zinc-500 text-center mb-8">
               Apakah Anda yakin ingin menghapus nasabah{" "}
               <span className="font-bold text-zinc-900">
-                {selectedNasabah?.nama}
+                {selectedNasabah?.user?.name}
               </span>
               ? Tindakan ini tidak dapat dibatalkan.
             </p>

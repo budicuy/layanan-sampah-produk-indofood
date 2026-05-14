@@ -208,7 +208,6 @@ export type UserWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   accounts?: Prisma.AccountListRelationFilter
   nasabah?: Prisma.XOR<Prisma.NasabahNullableScalarRelationFilter, Prisma.NasabahWhereInput> | null
-  ekpedisi?: Prisma.XOR<Prisma.EkpedisiNullableScalarRelationFilter, Prisma.EkpedisiWhereInput> | null
 }
 
 export type UserOrderByWithRelationInput = {
@@ -222,7 +221,6 @@ export type UserOrderByWithRelationInput = {
   updatedAt?: Prisma.SortOrder
   accounts?: Prisma.AccountOrderByRelationAggregateInput
   nasabah?: Prisma.NasabahOrderByWithRelationInput
-  ekpedisi?: Prisma.EkpedisiOrderByWithRelationInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -239,7 +237,6 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   accounts?: Prisma.AccountListRelationFilter
   nasabah?: Prisma.XOR<Prisma.NasabahNullableScalarRelationFilter, Prisma.NasabahWhereInput> | null
-  ekpedisi?: Prisma.XOR<Prisma.EkpedisiNullableScalarRelationFilter, Prisma.EkpedisiWhereInput> | null
 }, "id" | "email" | "username">
 
 export type UserOrderByWithAggregationInput = {
@@ -281,7 +278,6 @@ export type UserCreateInput = {
   updatedAt?: Date | string
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
   nasabah?: Prisma.NasabahCreateNestedOneWithoutUserInput
-  ekpedisi?: Prisma.EkpedisiCreateNestedOneWithoutUserInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -295,7 +291,6 @@ export type UserUncheckedCreateInput = {
   updatedAt?: Date | string
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
   nasabah?: Prisma.NasabahUncheckedCreateNestedOneWithoutUserInput
-  ekpedisi?: Prisma.EkpedisiUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type UserUpdateInput = {
@@ -309,7 +304,6 @@ export type UserUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
   nasabah?: Prisma.NasabahUpdateOneWithoutUserNestedInput
-  ekpedisi?: Prisma.EkpedisiUpdateOneWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -323,7 +317,6 @@ export type UserUncheckedUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
   nasabah?: Prisma.NasabahUncheckedUpdateOneWithoutUserNestedInput
-  ekpedisi?: Prisma.EkpedisiUncheckedUpdateOneWithoutUserNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -397,11 +390,6 @@ export type UserScalarRelationFilter = {
   isNot?: Prisma.UserWhereInput
 }
 
-export type UserNullableScalarRelationFilter = {
-  is?: Prisma.UserWhereInput | null
-  isNot?: Prisma.UserWhereInput | null
-}
-
 export type StringFieldUpdateOperationsInput = {
   set?: string
 }
@@ -446,22 +434,6 @@ export type UserUpdateOneRequiredWithoutNasabahNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutNasabahInput, Prisma.UserUpdateWithoutNasabahInput>, Prisma.UserUncheckedUpdateWithoutNasabahInput>
 }
 
-export type UserCreateNestedOneWithoutEkpedisiInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutEkpedisiInput, Prisma.UserUncheckedCreateWithoutEkpedisiInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutEkpedisiInput
-  connect?: Prisma.UserWhereUniqueInput
-}
-
-export type UserUpdateOneWithoutEkpedisiNestedInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutEkpedisiInput, Prisma.UserUncheckedCreateWithoutEkpedisiInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutEkpedisiInput
-  upsert?: Prisma.UserUpsertWithoutEkpedisiInput
-  disconnect?: Prisma.UserWhereInput | boolean
-  delete?: Prisma.UserWhereInput | boolean
-  connect?: Prisma.UserWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutEkpedisiInput, Prisma.UserUpdateWithoutEkpedisiInput>, Prisma.UserUncheckedUpdateWithoutEkpedisiInput>
-}
-
 export type UserCreateWithoutAccountsInput = {
   id?: string
   name: string
@@ -472,7 +444,6 @@ export type UserCreateWithoutAccountsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   nasabah?: Prisma.NasabahCreateNestedOneWithoutUserInput
-  ekpedisi?: Prisma.EkpedisiCreateNestedOneWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutAccountsInput = {
@@ -485,7 +456,6 @@ export type UserUncheckedCreateWithoutAccountsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   nasabah?: Prisma.NasabahUncheckedCreateNestedOneWithoutUserInput
-  ekpedisi?: Prisma.EkpedisiUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutAccountsInput = {
@@ -514,7 +484,6 @@ export type UserUpdateWithoutAccountsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   nasabah?: Prisma.NasabahUpdateOneWithoutUserNestedInput
-  ekpedisi?: Prisma.EkpedisiUpdateOneWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAccountsInput = {
@@ -527,7 +496,6 @@ export type UserUncheckedUpdateWithoutAccountsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   nasabah?: Prisma.NasabahUncheckedUpdateOneWithoutUserNestedInput
-  ekpedisi?: Prisma.EkpedisiUncheckedUpdateOneWithoutUserNestedInput
 }
 
 export type UserCreateWithoutNasabahInput = {
@@ -540,7 +508,6 @@ export type UserCreateWithoutNasabahInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
-  ekpedisi?: Prisma.EkpedisiCreateNestedOneWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutNasabahInput = {
@@ -553,7 +520,6 @@ export type UserUncheckedCreateWithoutNasabahInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
-  ekpedisi?: Prisma.EkpedisiUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutNasabahInput = {
@@ -582,7 +548,6 @@ export type UserUpdateWithoutNasabahInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
-  ekpedisi?: Prisma.EkpedisiUpdateOneWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutNasabahInput = {
@@ -595,75 +560,6 @@ export type UserUncheckedUpdateWithoutNasabahInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
-  ekpedisi?: Prisma.EkpedisiUncheckedUpdateOneWithoutUserNestedInput
-}
-
-export type UserCreateWithoutEkpedisiInput = {
-  id?: string
-  name: string
-  email: string
-  username: string
-  role?: $Enums.Role
-  status?: $Enums.StatusUser
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
-  nasabah?: Prisma.NasabahCreateNestedOneWithoutUserInput
-}
-
-export type UserUncheckedCreateWithoutEkpedisiInput = {
-  id?: string
-  name: string
-  email: string
-  username: string
-  role?: $Enums.Role
-  status?: $Enums.StatusUser
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
-  nasabah?: Prisma.NasabahUncheckedCreateNestedOneWithoutUserInput
-}
-
-export type UserCreateOrConnectWithoutEkpedisiInput = {
-  where: Prisma.UserWhereUniqueInput
-  create: Prisma.XOR<Prisma.UserCreateWithoutEkpedisiInput, Prisma.UserUncheckedCreateWithoutEkpedisiInput>
-}
-
-export type UserUpsertWithoutEkpedisiInput = {
-  update: Prisma.XOR<Prisma.UserUpdateWithoutEkpedisiInput, Prisma.UserUncheckedUpdateWithoutEkpedisiInput>
-  create: Prisma.XOR<Prisma.UserCreateWithoutEkpedisiInput, Prisma.UserUncheckedCreateWithoutEkpedisiInput>
-  where?: Prisma.UserWhereInput
-}
-
-export type UserUpdateToOneWithWhereWithoutEkpedisiInput = {
-  where?: Prisma.UserWhereInput
-  data: Prisma.XOR<Prisma.UserUpdateWithoutEkpedisiInput, Prisma.UserUncheckedUpdateWithoutEkpedisiInput>
-}
-
-export type UserUpdateWithoutEkpedisiInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
-  username?: Prisma.StringFieldUpdateOperationsInput | string
-  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
-  status?: Prisma.EnumStatusUserFieldUpdateOperationsInput | $Enums.StatusUser
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
-  nasabah?: Prisma.NasabahUpdateOneWithoutUserNestedInput
-}
-
-export type UserUncheckedUpdateWithoutEkpedisiInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
-  username?: Prisma.StringFieldUpdateOperationsInput | string
-  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
-  status?: Prisma.EnumStatusUserFieldUpdateOperationsInput | $Enums.StatusUser
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
-  nasabah?: Prisma.NasabahUncheckedUpdateOneWithoutUserNestedInput
 }
 
 
@@ -708,7 +604,6 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   updatedAt?: boolean
   accounts?: boolean | Prisma.User$accountsArgs<ExtArgs>
   nasabah?: boolean | Prisma.User$nasabahArgs<ExtArgs>
-  ekpedisi?: boolean | Prisma.User$ekpedisiArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -749,7 +644,6 @@ export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = run
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   accounts?: boolean | Prisma.User$accountsArgs<ExtArgs>
   nasabah?: boolean | Prisma.User$nasabahArgs<ExtArgs>
-  ekpedisi?: boolean | Prisma.User$ekpedisiArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -760,7 +654,6 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   objects: {
     accounts: Prisma.$AccountPayload<ExtArgs>[]
     nasabah: Prisma.$NasabahPayload<ExtArgs> | null
-    ekpedisi: Prisma.$EkpedisiPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1167,7 +1060,6 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   readonly [Symbol.toStringTag]: "PrismaPromise"
   accounts<T extends Prisma.User$accountsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$accountsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AccountPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   nasabah<T extends Prisma.User$nasabahArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$nasabahArgs<ExtArgs>>): Prisma.Prisma__NasabahClient<runtime.Types.Result.GetResult<Prisma.$NasabahPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-  ekpedisi<T extends Prisma.User$ekpedisiArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$ekpedisiArgs<ExtArgs>>): Prisma.Prisma__EkpedisiClient<runtime.Types.Result.GetResult<Prisma.$EkpedisiPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1647,25 +1539,6 @@ export type User$nasabahArgs<ExtArgs extends runtime.Types.Extensions.InternalAr
    */
   include?: Prisma.NasabahInclude<ExtArgs> | null
   where?: Prisma.NasabahWhereInput
-}
-
-/**
- * User.ekpedisi
- */
-export type User$ekpedisiArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the Ekpedisi
-   */
-  select?: Prisma.EkpedisiSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the Ekpedisi
-   */
-  omit?: Prisma.EkpedisiOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.EkpedisiInclude<ExtArgs> | null
-  where?: Prisma.EkpedisiWhereInput
 }
 
 /**

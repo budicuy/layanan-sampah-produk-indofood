@@ -146,10 +146,12 @@ export async function getSetorSampahData() {
       nasabah: {
         select: {
           id: true,
-          nama: true,
           noTelp: true,
           alamat: true,
           nik: true,
+          user: {
+            select: { name: true },
+          },
         },
       },
       ekpedisi: {

@@ -266,6 +266,7 @@ function FormSetorSampah({
           required>
           <option value="PLASTIK">Plastik</option>
           <option value="KARTON">Karton / Kardus</option>
+          <option value="PAPER_CUP">Paper Cup</option>
         </select>
       </div>
 
@@ -525,7 +526,11 @@ export default function SetorSampahPage() {
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div>
                       <p className="font-bold text-zinc-900 text-sm">
-                        {item.jenisSampah === "PLASTIK" ? "Plastik" : "Karton"}{" "}
+                        {item.jenisSampah === "PLASTIK"
+                          ? "Plastik"
+                          : item.jenisSampah === "KARTON"
+                            ? "Karton"
+                            : "Paper Cup"}{" "}
                         · {item.beratEstimasi} kg (estimasi)
                       </p>
                       <p className="text-xs text-zinc-400 mt-0.5">

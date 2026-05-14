@@ -37,7 +37,6 @@ export type NasabahSumAggregateOutputType = {
 export type NasabahMinAggregateOutputType = {
   id: string | null
   userId: string | null
-  nama: string | null
   alamat: string | null
   noTelp: string | null
   kategori: $Enums.KategoriNasabah | null
@@ -54,7 +53,6 @@ export type NasabahMinAggregateOutputType = {
 export type NasabahMaxAggregateOutputType = {
   id: string | null
   userId: string | null
-  nama: string | null
   alamat: string | null
   noTelp: string | null
   kategori: $Enums.KategoriNasabah | null
@@ -71,7 +69,6 @@ export type NasabahMaxAggregateOutputType = {
 export type NasabahCountAggregateOutputType = {
   id: number
   userId: number
-  nama: number
   alamat: number
   noTelp: number
   kategori: number
@@ -98,7 +95,6 @@ export type NasabahSumAggregateInputType = {
 export type NasabahMinAggregateInputType = {
   id?: true
   userId?: true
-  nama?: true
   alamat?: true
   noTelp?: true
   kategori?: true
@@ -115,7 +111,6 @@ export type NasabahMinAggregateInputType = {
 export type NasabahMaxAggregateInputType = {
   id?: true
   userId?: true
-  nama?: true
   alamat?: true
   noTelp?: true
   kategori?: true
@@ -132,7 +127,6 @@ export type NasabahMaxAggregateInputType = {
 export type NasabahCountAggregateInputType = {
   id?: true
   userId?: true
-  nama?: true
   alamat?: true
   noTelp?: true
   kategori?: true
@@ -236,7 +230,6 @@ export type NasabahGroupByArgs<ExtArgs extends runtime.Types.Extensions.Internal
 export type NasabahGroupByOutputType = {
   id: string
   userId: string
-  nama: string
   alamat: string
   noTelp: string
   kategori: $Enums.KategoriNasabah
@@ -276,7 +269,6 @@ export type NasabahWhereInput = {
   NOT?: Prisma.NasabahWhereInput | Prisma.NasabahWhereInput[]
   id?: Prisma.StringFilter<"Nasabah"> | string
   userId?: Prisma.StringFilter<"Nasabah"> | string
-  nama?: Prisma.StringFilter<"Nasabah"> | string
   alamat?: Prisma.StringFilter<"Nasabah"> | string
   noTelp?: Prisma.StringFilter<"Nasabah"> | string
   kategori?: Prisma.EnumKategoriNasabahFilter<"Nasabah"> | $Enums.KategoriNasabah
@@ -296,7 +288,6 @@ export type NasabahWhereInput = {
 export type NasabahOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
-  nama?: Prisma.SortOrder
   alamat?: Prisma.SortOrder
   noTelp?: Prisma.SortOrder
   kategori?: Prisma.SortOrder
@@ -320,7 +311,6 @@ export type NasabahWhereUniqueInput = Prisma.AtLeast<{
   AND?: Prisma.NasabahWhereInput | Prisma.NasabahWhereInput[]
   OR?: Prisma.NasabahWhereInput[]
   NOT?: Prisma.NasabahWhereInput | Prisma.NasabahWhereInput[]
-  nama?: Prisma.StringFilter<"Nasabah"> | string
   alamat?: Prisma.StringFilter<"Nasabah"> | string
   noTelp?: Prisma.StringFilter<"Nasabah"> | string
   kategori?: Prisma.EnumKategoriNasabahFilter<"Nasabah"> | $Enums.KategoriNasabah
@@ -339,7 +329,6 @@ export type NasabahWhereUniqueInput = Prisma.AtLeast<{
 export type NasabahOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
-  nama?: Prisma.SortOrder
   alamat?: Prisma.SortOrder
   noTelp?: Prisma.SortOrder
   kategori?: Prisma.SortOrder
@@ -364,7 +353,6 @@ export type NasabahScalarWhereWithAggregatesInput = {
   NOT?: Prisma.NasabahScalarWhereWithAggregatesInput | Prisma.NasabahScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"Nasabah"> | string
   userId?: Prisma.StringWithAggregatesFilter<"Nasabah"> | string
-  nama?: Prisma.StringWithAggregatesFilter<"Nasabah"> | string
   alamat?: Prisma.StringWithAggregatesFilter<"Nasabah"> | string
   noTelp?: Prisma.StringWithAggregatesFilter<"Nasabah"> | string
   kategori?: Prisma.EnumKategoriNasabahWithAggregatesFilter<"Nasabah"> | $Enums.KategoriNasabah
@@ -380,7 +368,6 @@ export type NasabahScalarWhereWithAggregatesInput = {
 
 export type NasabahCreateInput = {
   id?: string
-  nama: string
   alamat: string
   noTelp: string
   kategori: $Enums.KategoriNasabah
@@ -400,7 +387,6 @@ export type NasabahCreateInput = {
 export type NasabahUncheckedCreateInput = {
   id?: string
   userId: string
-  nama: string
   alamat: string
   noTelp: string
   kategori: $Enums.KategoriNasabah
@@ -418,7 +404,6 @@ export type NasabahUncheckedCreateInput = {
 
 export type NasabahUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  nama?: Prisma.StringFieldUpdateOperationsInput | string
   alamat?: Prisma.StringFieldUpdateOperationsInput | string
   noTelp?: Prisma.StringFieldUpdateOperationsInput | string
   kategori?: Prisma.EnumKategoriNasabahFieldUpdateOperationsInput | $Enums.KategoriNasabah
@@ -438,7 +423,6 @@ export type NasabahUpdateInput = {
 export type NasabahUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
-  nama?: Prisma.StringFieldUpdateOperationsInput | string
   alamat?: Prisma.StringFieldUpdateOperationsInput | string
   noTelp?: Prisma.StringFieldUpdateOperationsInput | string
   kategori?: Prisma.EnumKategoriNasabahFieldUpdateOperationsInput | $Enums.KategoriNasabah
@@ -457,7 +441,6 @@ export type NasabahUncheckedUpdateInput = {
 export type NasabahCreateManyInput = {
   id?: string
   userId: string
-  nama: string
   alamat: string
   noTelp: string
   kategori: $Enums.KategoriNasabah
@@ -473,7 +456,6 @@ export type NasabahCreateManyInput = {
 
 export type NasabahUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  nama?: Prisma.StringFieldUpdateOperationsInput | string
   alamat?: Prisma.StringFieldUpdateOperationsInput | string
   noTelp?: Prisma.StringFieldUpdateOperationsInput | string
   kategori?: Prisma.EnumKategoriNasabahFieldUpdateOperationsInput | $Enums.KategoriNasabah
@@ -490,7 +472,6 @@ export type NasabahUpdateManyMutationInput = {
 export type NasabahUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
-  nama?: Prisma.StringFieldUpdateOperationsInput | string
   alamat?: Prisma.StringFieldUpdateOperationsInput | string
   noTelp?: Prisma.StringFieldUpdateOperationsInput | string
   kategori?: Prisma.EnumKategoriNasabahFieldUpdateOperationsInput | $Enums.KategoriNasabah
@@ -512,7 +493,6 @@ export type NasabahNullableScalarRelationFilter = {
 export type NasabahCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
-  nama?: Prisma.SortOrder
   alamat?: Prisma.SortOrder
   noTelp?: Prisma.SortOrder
   kategori?: Prisma.SortOrder
@@ -533,7 +513,6 @@ export type NasabahAvgOrderByAggregateInput = {
 export type NasabahMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
-  nama?: Prisma.SortOrder
   alamat?: Prisma.SortOrder
   noTelp?: Prisma.SortOrder
   kategori?: Prisma.SortOrder
@@ -550,7 +529,6 @@ export type NasabahMaxOrderByAggregateInput = {
 export type NasabahMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
-  nama?: Prisma.SortOrder
   alamat?: Prisma.SortOrder
   noTelp?: Prisma.SortOrder
   kategori?: Prisma.SortOrder
@@ -655,7 +633,6 @@ export type NasabahUpdateOneRequiredWithoutMutasiSaldoNestedInput = {
 
 export type NasabahCreateWithoutUserInput = {
   id?: string
-  nama: string
   alamat: string
   noTelp: string
   kategori: $Enums.KategoriNasabah
@@ -673,7 +650,6 @@ export type NasabahCreateWithoutUserInput = {
 
 export type NasabahUncheckedCreateWithoutUserInput = {
   id?: string
-  nama: string
   alamat: string
   noTelp: string
   kategori: $Enums.KategoriNasabah
@@ -707,7 +683,6 @@ export type NasabahUpdateToOneWithWhereWithoutUserInput = {
 
 export type NasabahUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  nama?: Prisma.StringFieldUpdateOperationsInput | string
   alamat?: Prisma.StringFieldUpdateOperationsInput | string
   noTelp?: Prisma.StringFieldUpdateOperationsInput | string
   kategori?: Prisma.EnumKategoriNasabahFieldUpdateOperationsInput | $Enums.KategoriNasabah
@@ -725,7 +700,6 @@ export type NasabahUpdateWithoutUserInput = {
 
 export type NasabahUncheckedUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  nama?: Prisma.StringFieldUpdateOperationsInput | string
   alamat?: Prisma.StringFieldUpdateOperationsInput | string
   noTelp?: Prisma.StringFieldUpdateOperationsInput | string
   kategori?: Prisma.EnumKategoriNasabahFieldUpdateOperationsInput | $Enums.KategoriNasabah
@@ -743,7 +717,6 @@ export type NasabahUncheckedUpdateWithoutUserInput = {
 
 export type NasabahCreateWithoutSetorSampahInput = {
   id?: string
-  nama: string
   alamat: string
   noTelp: string
   kategori: $Enums.KategoriNasabah
@@ -762,7 +735,6 @@ export type NasabahCreateWithoutSetorSampahInput = {
 export type NasabahUncheckedCreateWithoutSetorSampahInput = {
   id?: string
   userId: string
-  nama: string
   alamat: string
   noTelp: string
   kategori: $Enums.KategoriNasabah
@@ -795,7 +767,6 @@ export type NasabahUpdateToOneWithWhereWithoutSetorSampahInput = {
 
 export type NasabahUpdateWithoutSetorSampahInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  nama?: Prisma.StringFieldUpdateOperationsInput | string
   alamat?: Prisma.StringFieldUpdateOperationsInput | string
   noTelp?: Prisma.StringFieldUpdateOperationsInput | string
   kategori?: Prisma.EnumKategoriNasabahFieldUpdateOperationsInput | $Enums.KategoriNasabah
@@ -814,7 +785,6 @@ export type NasabahUpdateWithoutSetorSampahInput = {
 export type NasabahUncheckedUpdateWithoutSetorSampahInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
-  nama?: Prisma.StringFieldUpdateOperationsInput | string
   alamat?: Prisma.StringFieldUpdateOperationsInput | string
   noTelp?: Prisma.StringFieldUpdateOperationsInput | string
   kategori?: Prisma.EnumKategoriNasabahFieldUpdateOperationsInput | $Enums.KategoriNasabah
@@ -831,7 +801,6 @@ export type NasabahUncheckedUpdateWithoutSetorSampahInput = {
 
 export type NasabahCreateWithoutMutasiSaldoInput = {
   id?: string
-  nama: string
   alamat: string
   noTelp: string
   kategori: $Enums.KategoriNasabah
@@ -850,7 +819,6 @@ export type NasabahCreateWithoutMutasiSaldoInput = {
 export type NasabahUncheckedCreateWithoutMutasiSaldoInput = {
   id?: string
   userId: string
-  nama: string
   alamat: string
   noTelp: string
   kategori: $Enums.KategoriNasabah
@@ -883,7 +851,6 @@ export type NasabahUpdateToOneWithWhereWithoutMutasiSaldoInput = {
 
 export type NasabahUpdateWithoutMutasiSaldoInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  nama?: Prisma.StringFieldUpdateOperationsInput | string
   alamat?: Prisma.StringFieldUpdateOperationsInput | string
   noTelp?: Prisma.StringFieldUpdateOperationsInput | string
   kategori?: Prisma.EnumKategoriNasabahFieldUpdateOperationsInput | $Enums.KategoriNasabah
@@ -902,7 +869,6 @@ export type NasabahUpdateWithoutMutasiSaldoInput = {
 export type NasabahUncheckedUpdateWithoutMutasiSaldoInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
-  nama?: Prisma.StringFieldUpdateOperationsInput | string
   alamat?: Prisma.StringFieldUpdateOperationsInput | string
   noTelp?: Prisma.StringFieldUpdateOperationsInput | string
   kategori?: Prisma.EnumKategoriNasabahFieldUpdateOperationsInput | $Enums.KategoriNasabah
@@ -960,7 +926,6 @@ export type NasabahCountOutputTypeCountMutasiSaldoArgs<ExtArgs extends runtime.T
 export type NasabahSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   userId?: boolean
-  nama?: boolean
   alamat?: boolean
   noTelp?: boolean
   kategori?: boolean
@@ -981,7 +946,6 @@ export type NasabahSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
 export type NasabahSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   userId?: boolean
-  nama?: boolean
   alamat?: boolean
   noTelp?: boolean
   kategori?: boolean
@@ -999,7 +963,6 @@ export type NasabahSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
 export type NasabahSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   userId?: boolean
-  nama?: boolean
   alamat?: boolean
   noTelp?: boolean
   kategori?: boolean
@@ -1017,7 +980,6 @@ export type NasabahSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
 export type NasabahSelectScalar = {
   id?: boolean
   userId?: boolean
-  nama?: boolean
   alamat?: boolean
   noTelp?: boolean
   kategori?: boolean
@@ -1031,7 +993,7 @@ export type NasabahSelectScalar = {
   updatedAt?: boolean
 }
 
-export type NasabahOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "nama" | "alamat" | "noTelp" | "kategori" | "nik" | "noRek" | "jenisBank" | "titikLokasi" | "status" | "saldo" | "createdAt" | "updatedAt", ExtArgs["result"]["nasabah"]>
+export type NasabahOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "alamat" | "noTelp" | "kategori" | "nik" | "noRek" | "jenisBank" | "titikLokasi" | "status" | "saldo" | "createdAt" | "updatedAt", ExtArgs["result"]["nasabah"]>
 export type NasabahInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   setorSampah?: boolean | Prisma.Nasabah$setorSampahArgs<ExtArgs>
@@ -1055,7 +1017,6 @@ export type $NasabahPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     userId: string
-    nama: string
     alamat: string
     noTelp: string
     kategori: $Enums.KategoriNasabah
@@ -1495,7 +1456,6 @@ export interface Prisma__NasabahClient<T, Null = never, ExtArgs extends runtime.
 export interface NasabahFieldRefs {
   readonly id: Prisma.FieldRef<"Nasabah", 'String'>
   readonly userId: Prisma.FieldRef<"Nasabah", 'String'>
-  readonly nama: Prisma.FieldRef<"Nasabah", 'String'>
   readonly alamat: Prisma.FieldRef<"Nasabah", 'String'>
   readonly noTelp: Prisma.FieldRef<"Nasabah", 'String'>
   readonly kategori: Prisma.FieldRef<"Nasabah", 'KategoriNasabah'>

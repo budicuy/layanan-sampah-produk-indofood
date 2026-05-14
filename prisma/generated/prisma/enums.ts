@@ -45,19 +45,11 @@ export type StatusNasabah = (typeof StatusNasabah)[keyof typeof StatusNasabah]
 
 export const JenisSampah = {
   PLASTIK: 'PLASTIK',
-  KARTON: 'KARTON'
+  KARTON: 'KARTON',
+  PAPER_CUP: 'PAPER_CUP'
 } as const
 
 export type JenisSampah = (typeof JenisSampah)[keyof typeof JenisSampah]
-
-
-export const StatusEkpedisi = {
-  BELUM_DI_PROSES: 'BELUM_DI_PROSES',
-  PROSES: 'PROSES',
-  DONE: 'DONE'
-} as const
-
-export type StatusEkpedisi = (typeof StatusEkpedisi)[keyof typeof StatusEkpedisi]
 
 
 export const StatusSetorSampah = {

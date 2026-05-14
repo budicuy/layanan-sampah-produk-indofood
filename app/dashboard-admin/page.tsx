@@ -45,7 +45,11 @@ export default async function DashboardPage() {
       take: 5,
       include: {
         nasabah: {
-          select: { nama: true },
+          select: {
+            user: {
+              select: { name: true },
+            },
+          },
         },
       },
     }),
@@ -234,7 +238,7 @@ export default async function DashboardPage() {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-0.5">
                     <h4 className="font-bold text-zinc-900 text-sm truncate">
-                      {act.nasabah.nama}
+                      {act.nasabah.user?.name}
                     </h4>
                     <span
                       className={`text-[9px] font-bold px-1.5 py-0.5 rounded uppercase ${

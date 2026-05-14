@@ -1,6 +1,5 @@
 "use server";
 
-import { hash } from "bcryptjs";
 import { revalidatePath } from "next/cache";
 import { getSession } from "@/app/login/auth/session";
 import { prisma } from "@/lib/prisma";
@@ -17,7 +16,7 @@ async function checkAdminAuth() {
 }
 
 export async function createNasabah(data: {
-  nama: string;
+  userId: string;
   alamat: string;
   noTelp: string;
   kategori: KategoriNasabah;
@@ -26,36 +25,20 @@ export async function createNasabah(data: {
   jenisBank: string;
   titikLokasi?: string;
   status: StatusNasabah;
-  // User fields
-  email: string;
-  username: string;
-  password: string;
 }) {
   await checkAdminAuth();
-  const { email, username, password, ...nasabahData } = data;
-
-  const hashed = await hash(password, 12);
 
   await prisma.nasabah.create({
     data: {
-      ...nasabahData,
-      user: {
-        create: {
-          name: nasabahData.nama,
-          email,
-          username,
-          emailVerified: true,
-          role: "KONSUMEN",
-          accounts: {
-            create: {
-              id: `acc-${username}-${Date.now()}`,
-              accountId: username,
-              providerId: "credential",
-              password: hashed,
-            },
-          },
-        },
-      },
+      userId: data.userId,
+      alamat: data.alamat,
+      noTelp: data.noTelp,
+      kategori: data.kategori,
+      nik: data.nik,
+      noRek: data.noRek,
+      jenisBank: data.jenisBank,
+      titikLokasi: data.titikLokasi,
+      status: data.status,
     },
   });
 
@@ -65,7 +48,6 @@ export async function createNasabah(data: {
 export async function updateNasabah(
   id: string,
   data: {
-    nama: string;
     alamat: string;
     noTelp: string;
     kategori: KategoriNasabah;
@@ -74,61 +56,21 @@ export async function updateNasabah(
     jenisBank: string;
     titikLokasi?: string;
     status: StatusNasabah;
-    // User fields (optional on edit)
-    email?: string;
-    username?: string;
-    password?: string;
   },
 ) {
   await checkAdminAuth();
-  const { email, username, password, ...nasabahData } = data;
 
-  // Update nasabah data
-  const nasabah = await prisma.nasabah.update({
+  await prisma.nasabah.update({
     where: { id },
-    data: nasabahData,
-    include: { user: true },
+    data,
   });
-
-  // Update linked user fields if provided
-  if (nasabah.userId && (email || username)) {
-    await prisma.user.update({
-      where: { id: nasabah.userId },
-      data: {
-        name: nasabahData.nama,
-        ...(email ? { email } : {}),
-        ...(username ? { username } : {}),
-      },
-    });
-  }
-
-  // Update password if provided
-  if (nasabah.userId && password && password.trim()) {
-    const hashed = await hash(password, 12);
-    await prisma.account.updateMany({
-      where: { userId: nasabah.userId, providerId: "credential" },
-      data: { password: hashed },
-    });
-  }
 
   revalidatePath("/dashboard-admin/master-data/nasabah");
 }
 
 export async function deleteNasabah(id: string) {
   await checkAdminAuth();
-  // Cascade: delete user will cascade accounts/sessions via DB
-  const nasabah = await prisma.nasabah.findUnique({
-    where: { id },
-    select: { userId: true },
-  });
-
   await prisma.nasabah.delete({ where: { id } });
-
-  // Also delete linked user if exists
-  if (nasabah?.userId) {
-    await prisma.user.delete({ where: { id: nasabah.userId } });
-  }
-
   revalidatePath("/dashboard-admin/master-data/nasabah");
 }
 
@@ -138,9 +80,25 @@ export async function getNasabahData() {
     orderBy: { updatedAt: "desc" },
     include: {
       user: {
-        select: { id: true, username: true, email: true },
+        select: { id: true, name: true, username: true, email: true },
       },
     },
   });
   return nasabahs;
+}
+
+export async function getAvailableUsers() {
+  await checkAdminAuth();
+  const users = await prisma.user.findMany({
+    where: {
+      role: "KONSUMEN",
+      nasabah: null,
+    },
+    select: {
+      id: true,
+      name: true,
+      username: true,
+    },
+  });
+  return users;
 }

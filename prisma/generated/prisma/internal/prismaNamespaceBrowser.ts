@@ -113,7 +113,6 @@ export type AccountScalarFieldEnum = (typeof AccountScalarFieldEnum)[keyof typeo
 export const NasabahScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
-  nama: 'nama',
   alamat: 'alamat',
   noTelp: 'noTelp',
   kategori: 'kategori',
@@ -135,10 +134,6 @@ export const ProdukScalarFieldEnum = {
   kode: 'kode',
   nama: 'nama',
   jenis: 'jenis',
-  berat: 'berat',
-  brand: 'brand',
-  harga: 'harga',
-  isi: 'isi',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -148,11 +143,9 @@ export type ProdukScalarFieldEnum = (typeof ProdukScalarFieldEnum)[keyof typeof 
 
 export const EkpedisiScalarFieldEnum = {
   id: 'id',
-  userId: 'userId',
+  nama: 'nama',
   noTelp: 'noTelp',
   alamat: 'alamat',
-  titikLokasi: 'titikLokasi',
-  status: 'status',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

@@ -44,7 +44,7 @@ type MutasiSaldo = {
 
 type NasabahWithTabungan = {
   id: string;
-  nama: string;
+  user: { name: string };
   nik: string;
   kategori: string;
   noRek: string;
@@ -253,11 +253,11 @@ export default function TabunganNasabahPage() {
                       <td className="px-4 md:px-8 py-4 md:py-5">
                         <div className="flex items-center gap-3">
                           <div className="w-8 h-8 md:w-9 md:h-9 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-sm shrink-0">
-                            {nasabah.nama[0]?.toUpperCase()}
+                            {nasabah.user?.name[0]?.toUpperCase()}
                           </div>
                           <div className="min-w-0">
                             <p className="font-bold text-zinc-900 text-[13px] md:text-sm leading-tight truncate max-w-[120px] md:max-w-none">
-                              {nasabah.nama}
+                              {nasabah.user?.name}
                             </p>
                             <p className="text-[10px] text-zinc-400 mt-0.5 truncate max-w-[120px] md:max-w-none">
                               {nasabah.kategori.replace(/_/g, " ")}
@@ -350,11 +350,11 @@ export default function TabunganNasabahPage() {
             <div className="px-6 py-4 md:px-8 md:py-6 border-b border-zinc-100 flex items-center justify-between bg-white shrink-0">
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center font-bold text-xl shrink-0">
-                  {selectedNasabah.nama[0]?.toUpperCase()}
+                  {selectedNasabah.user?.name[0]?.toUpperCase()}
                 </div>
                 <div>
                   <h2 className="text-xl md:text-2xl font-heading font-bold text-zinc-900">
-                    {selectedNasabah.nama}
+                    {selectedNasabah.user?.name}
                   </h2>
                   <p className="text-xs md:text-sm text-zinc-500">
                     Detail tabungan & riwayat

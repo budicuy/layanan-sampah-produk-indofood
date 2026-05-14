@@ -2,12 +2,10 @@
 
 import {
   Box,
-  DollarSign,
   Edit2,
   Filter,
   PackageOpen,
   Plus,
-  Scale,
   Search,
   Tag,
   Trash2,
@@ -28,10 +26,6 @@ export type Produk = {
   kode: string;
   nama: string;
   jenis: JenisSampah;
-  berat: number;
-  brand: string;
-  harga: number;
-  isi: number;
 };
 
 export default function ProdukPage() {
@@ -63,8 +57,7 @@ export default function ProdukPage() {
   const filteredData = initialData.filter(
     (p) =>
       p.nama.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      p.kode.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      p.brand.toLowerCase().includes(searchTerm.toLowerCase()),
+      p.kode.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -74,10 +67,6 @@ export default function ProdukPage() {
       kode: formData.get("kode") as string,
       nama: formData.get("nama") as string,
       jenis: formData.get("jenis") as JenisSampah,
-      berat: parseFloat(formData.get("berat") as string),
-      brand: formData.get("brand") as string,
-      harga: parseInt(formData.get("harga") as string, 10),
-      isi: parseInt(formData.get("isi") as string, 10),
     };
 
     if (selectedProduk) {
@@ -126,15 +115,6 @@ export default function ProdukPage() {
     setSelectedProduk(null);
   };
 
-  // Format currency
-  const formatRupiah = (number: number) => {
-    return new Intl.NumberFormat("id-ID", {
-      style: "currency",
-      currency: "IDR",
-      minimumFractionDigits: 0,
-    }).format(number);
-  };
-
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
       {/* Header */}
@@ -157,7 +137,7 @@ export default function ProdukPage() {
       </div>
 
       {/* Stats Summary Section */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
         {/* Total */}
         <div className="bg-sky-50/50 rounded-3xl border border-sky-100 p-6 shadow-sm group hover:bg-sky-50 transition-colors">
           <div className="flex items-center justify-between mb-4">
@@ -205,6 +185,22 @@ export default function ProdukPage() {
           </p>
           <p className="text-xs text-zinc-500 mt-1">Produk Karton</p>
         </div>
+
+        {/* Paper Cup */}
+        <div className="bg-blue-50/50 rounded-3xl border border-blue-100 p-6 shadow-sm group hover:bg-blue-50 transition-colors">
+          <div className="flex items-center justify-between mb-4">
+            <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center text-blue-600">
+              <PackageOpen size={20} />
+            </div>
+            <span className="text-[10px] font-bold text-blue-600 bg-blue-100 px-2 py-1 rounded-full uppercase tracking-wider">
+              Paper Cup
+            </span>
+          </div>
+          <p className="text-3xl font-heading font-extrabold text-zinc-900">
+            {initialData.filter((p) => p.jenis === "PAPER_CUP").length}
+          </p>
+          <p className="text-xs text-zinc-500 mt-1">Produk Paper Cup</p>
+        </div>
       </div>
 
       <div className="bg-white rounded-3xl md:rounded-4xl border border-zinc-100 shadow-sm overflow-hidden">
@@ -241,12 +237,6 @@ export default function ProdukPage() {
                 <th className="px-4 md:px-8 py-4 text-xs font-bold text-zinc-400 uppercase tracking-widest">
                   Jenis
                 </th>
-                <th className="px-4 md:px-8 py-4 text-xs font-bold text-zinc-400 uppercase tracking-widest">
-                  Berat & Isi
-                </th>
-                <th className="px-4 md:px-8 py-4 text-xs font-bold text-zinc-400 uppercase tracking-widest">
-                  Harga
-                </th>
                 <th className="px-4 md:px-8 py-4 text-xs font-bold text-zinc-400 uppercase tracking-widest text-right">
                   Aksi
                 </th>
@@ -274,10 +264,6 @@ export default function ProdukPage() {
                         <p className="text-[10px] md:text-xs text-zinc-400 font-mono uppercase tracking-tighter">
                           KODE: {p.kode}
                         </p>
-                        <span className="w-1 h-1 bg-zinc-300 rounded-full" />
-                        <p className="text-[10px] md:text-xs font-medium text-zinc-500">
-                          {p.brand}
-                        </p>
                       </div>
                     </td>
                     <td className="px-4 md:px-8 py-4 md:py-6">
@@ -285,33 +271,14 @@ export default function ProdukPage() {
                         className={`inline-flex items-center gap-1.5 px-2 md:px-3 py-1 rounded-lg text-[10px] md:text-xs font-bold ${
                           p.jenis === "PLASTIK"
                             ? "bg-amber-100 text-amber-700"
-                            : "bg-emerald-100 text-emerald-700"
+                            : p.jenis === "KARTON"
+                              ? "bg-emerald-100 text-emerald-700"
+                              : "bg-blue-100 text-blue-700"
                         }`}>
-                        <Tag size={12} /> {p.jenis}
+                        <Tag size={12} /> {p.jenis.replace("_", " ")}
                       </span>
                     </td>
-                    <td className="px-4 md:px-8 py-4 md:py-6 text-xs md:text-sm text-zinc-600">
-                      <div className="flex items-center gap-2 mb-1">
-                        <Scale size={14} className="text-zinc-400 shrink-0" />
-                        {p.berat} Kg
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <PackageOpen
-                          size={14}
-                          className="text-zinc-400 shrink-0"
-                        />
-                        Isi: {p.isi}
-                      </div>
-                    </td>
-                    <td className="px-4 md:px-8 py-4 md:py-6">
-                      <div className="font-bold text-zinc-900 flex items-center gap-2 text-sm md:text-base">
-                        <DollarSign
-                          size={14}
-                          className="text-zinc-400 shrink-0"
-                        />
-                        {formatRupiah(p.harga)}
-                      </div>
-                    </td>
+
                     <td className="px-4 md:px-8 py-4 md:py-6 text-right">
                       <div className="flex items-center justify-end gap-1 md:gap-2">
                         <button
@@ -384,21 +351,7 @@ export default function ProdukPage() {
                     className="w-full px-4 py-3 bg-zinc-50 border-none rounded-xl focus:ring-2 focus:ring-primary/20"
                   />
                 </div>
-                <div className="space-y-2">
-                  <label
-                    htmlFor="brand"
-                    className="text-sm font-bold text-zinc-700">
-                    Brand Produk
-                  </label>
-                  <input
-                    id="brand"
-                    required
-                    name="brand"
-                    defaultValue={selectedProduk?.brand}
-                    placeholder="Indofood"
-                    className="w-full px-4 py-3 bg-zinc-50 border-none rounded-xl focus:ring-2 focus:ring-primary/20"
-                  />
-                </div>
+
                 <div className="space-y-2">
                   <label
                     htmlFor="jenis"
@@ -412,56 +365,8 @@ export default function ProdukPage() {
                     className="w-full px-4 py-3 bg-zinc-50 border-none rounded-xl focus:ring-2 focus:ring-primary/20">
                     <option value="PLASTIK">Plastik</option>
                     <option value="KARTON">Karton</option>
+                    <option value="PAPER_CUP">Paper Cup</option>
                   </select>
-                </div>
-                <div className="space-y-2">
-                  <label
-                    htmlFor="berat"
-                    className="text-sm font-bold text-zinc-700">
-                    Berat (Kg)
-                  </label>
-                  <input
-                    id="berat"
-                    required
-                    type="number"
-                    step="0.01"
-                    name="berat"
-                    defaultValue={selectedProduk?.berat}
-                    placeholder="0.5"
-                    className="w-full px-4 py-3 bg-zinc-50 border-none rounded-xl focus:ring-2 focus:ring-primary/20"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label
-                    htmlFor="isi"
-                    className="text-sm font-bold text-zinc-700">
-                    Isi (Quantity)
-                  </label>
-                  <input
-                    id="isi"
-                    required
-                    type="number"
-                    name="isi"
-                    defaultValue={selectedProduk?.isi}
-                    placeholder="40"
-                    className="w-full px-4 py-3 bg-zinc-50 border-none rounded-xl focus:ring-2 focus:ring-primary/20"
-                  />
-                </div>
-                <div className="space-y-2 md:col-span-2">
-                  <label
-                    htmlFor="harga"
-                    className="text-sm font-bold text-zinc-700">
-                    Harga (Rp)
-                  </label>
-                  <input
-                    id="harga"
-                    required
-                    type="number"
-                    name="harga"
-                    defaultValue={selectedProduk?.harga}
-                    placeholder="100000"
-                    className="w-full px-4 py-3 bg-zinc-50 border-none rounded-xl focus:ring-2 focus:ring-primary/20"
-                  />
                 </div>
               </div>
 

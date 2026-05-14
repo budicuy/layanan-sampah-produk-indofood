@@ -20,22 +20,8 @@ export type ProdukModel = runtime.Types.Result.DefaultSelection<Prisma.$ProdukPa
 
 export type AggregateProduk = {
   _count: ProdukCountAggregateOutputType | null
-  _avg: ProdukAvgAggregateOutputType | null
-  _sum: ProdukSumAggregateOutputType | null
   _min: ProdukMinAggregateOutputType | null
   _max: ProdukMaxAggregateOutputType | null
-}
-
-export type ProdukAvgAggregateOutputType = {
-  berat: number | null
-  harga: number | null
-  isi: number | null
-}
-
-export type ProdukSumAggregateOutputType = {
-  berat: number | null
-  harga: number | null
-  isi: number | null
 }
 
 export type ProdukMinAggregateOutputType = {
@@ -43,10 +29,6 @@ export type ProdukMinAggregateOutputType = {
   kode: string | null
   nama: string | null
   jenis: $Enums.JenisSampah | null
-  berat: number | null
-  brand: string | null
-  harga: number | null
-  isi: number | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -56,10 +38,6 @@ export type ProdukMaxAggregateOutputType = {
   kode: string | null
   nama: string | null
   jenis: $Enums.JenisSampah | null
-  berat: number | null
-  brand: string | null
-  harga: number | null
-  isi: number | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -69,37 +47,17 @@ export type ProdukCountAggregateOutputType = {
   kode: number
   nama: number
   jenis: number
-  berat: number
-  brand: number
-  harga: number
-  isi: number
   createdAt: number
   updatedAt: number
   _all: number
 }
 
 
-export type ProdukAvgAggregateInputType = {
-  berat?: true
-  harga?: true
-  isi?: true
-}
-
-export type ProdukSumAggregateInputType = {
-  berat?: true
-  harga?: true
-  isi?: true
-}
-
 export type ProdukMinAggregateInputType = {
   id?: true
   kode?: true
   nama?: true
   jenis?: true
-  berat?: true
-  brand?: true
-  harga?: true
-  isi?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -109,10 +67,6 @@ export type ProdukMaxAggregateInputType = {
   kode?: true
   nama?: true
   jenis?: true
-  berat?: true
-  brand?: true
-  harga?: true
-  isi?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -122,10 +76,6 @@ export type ProdukCountAggregateInputType = {
   kode?: true
   nama?: true
   jenis?: true
-  berat?: true
-  brand?: true
-  harga?: true
-  isi?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -169,18 +119,6 @@ export type ProdukAggregateArgs<ExtArgs extends runtime.Types.Extensions.Interna
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
-   * Select which fields to average
-  **/
-  _avg?: ProdukAvgAggregateInputType
-  /**
-   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-   * 
-   * Select which fields to sum
-  **/
-  _sum?: ProdukSumAggregateInputType
-  /**
-   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-   * 
    * Select which fields to find the minimum value
   **/
   _min?: ProdukMinAggregateInputType
@@ -211,8 +149,6 @@ export type ProdukGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalA
   take?: number
   skip?: number
   _count?: ProdukCountAggregateInputType | true
-  _avg?: ProdukAvgAggregateInputType
-  _sum?: ProdukSumAggregateInputType
   _min?: ProdukMinAggregateInputType
   _max?: ProdukMaxAggregateInputType
 }
@@ -222,15 +158,9 @@ export type ProdukGroupByOutputType = {
   kode: string
   nama: string
   jenis: $Enums.JenisSampah
-  berat: number
-  brand: string
-  harga: number
-  isi: number
   createdAt: Date
   updatedAt: Date
   _count: ProdukCountAggregateOutputType | null
-  _avg: ProdukAvgAggregateOutputType | null
-  _sum: ProdukSumAggregateOutputType | null
   _min: ProdukMinAggregateOutputType | null
   _max: ProdukMaxAggregateOutputType | null
 }
@@ -258,10 +188,6 @@ export type ProdukWhereInput = {
   kode?: Prisma.StringFilter<"Produk"> | string
   nama?: Prisma.StringFilter<"Produk"> | string
   jenis?: Prisma.EnumJenisSampahFilter<"Produk"> | $Enums.JenisSampah
-  berat?: Prisma.FloatFilter<"Produk"> | number
-  brand?: Prisma.StringFilter<"Produk"> | string
-  harga?: Prisma.IntFilter<"Produk"> | number
-  isi?: Prisma.IntFilter<"Produk"> | number
   createdAt?: Prisma.DateTimeFilter<"Produk"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Produk"> | Date | string
 }
@@ -271,10 +197,6 @@ export type ProdukOrderByWithRelationInput = {
   kode?: Prisma.SortOrder
   nama?: Prisma.SortOrder
   jenis?: Prisma.SortOrder
-  berat?: Prisma.SortOrder
-  brand?: Prisma.SortOrder
-  harga?: Prisma.SortOrder
-  isi?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -287,10 +209,6 @@ export type ProdukWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.ProdukWhereInput | Prisma.ProdukWhereInput[]
   nama?: Prisma.StringFilter<"Produk"> | string
   jenis?: Prisma.EnumJenisSampahFilter<"Produk"> | $Enums.JenisSampah
-  berat?: Prisma.FloatFilter<"Produk"> | number
-  brand?: Prisma.StringFilter<"Produk"> | string
-  harga?: Prisma.IntFilter<"Produk"> | number
-  isi?: Prisma.IntFilter<"Produk"> | number
   createdAt?: Prisma.DateTimeFilter<"Produk"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Produk"> | Date | string
 }, "id" | "kode">
@@ -300,17 +218,11 @@ export type ProdukOrderByWithAggregationInput = {
   kode?: Prisma.SortOrder
   nama?: Prisma.SortOrder
   jenis?: Prisma.SortOrder
-  berat?: Prisma.SortOrder
-  brand?: Prisma.SortOrder
-  harga?: Prisma.SortOrder
-  isi?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.ProdukCountOrderByAggregateInput
-  _avg?: Prisma.ProdukAvgOrderByAggregateInput
   _max?: Prisma.ProdukMaxOrderByAggregateInput
   _min?: Prisma.ProdukMinOrderByAggregateInput
-  _sum?: Prisma.ProdukSumOrderByAggregateInput
 }
 
 export type ProdukScalarWhereWithAggregatesInput = {
@@ -321,10 +233,6 @@ export type ProdukScalarWhereWithAggregatesInput = {
   kode?: Prisma.StringWithAggregatesFilter<"Produk"> | string
   nama?: Prisma.StringWithAggregatesFilter<"Produk"> | string
   jenis?: Prisma.EnumJenisSampahWithAggregatesFilter<"Produk"> | $Enums.JenisSampah
-  berat?: Prisma.FloatWithAggregatesFilter<"Produk"> | number
-  brand?: Prisma.StringWithAggregatesFilter<"Produk"> | string
-  harga?: Prisma.IntWithAggregatesFilter<"Produk"> | number
-  isi?: Prisma.IntWithAggregatesFilter<"Produk"> | number
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Produk"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Produk"> | Date | string
 }
@@ -334,10 +242,6 @@ export type ProdukCreateInput = {
   kode: string
   nama: string
   jenis: $Enums.JenisSampah
-  berat: number
-  brand: string
-  harga: number
-  isi: number
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -347,10 +251,6 @@ export type ProdukUncheckedCreateInput = {
   kode: string
   nama: string
   jenis: $Enums.JenisSampah
-  berat: number
-  brand: string
-  harga: number
-  isi: number
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -360,10 +260,6 @@ export type ProdukUpdateInput = {
   kode?: Prisma.StringFieldUpdateOperationsInput | string
   nama?: Prisma.StringFieldUpdateOperationsInput | string
   jenis?: Prisma.EnumJenisSampahFieldUpdateOperationsInput | $Enums.JenisSampah
-  berat?: Prisma.FloatFieldUpdateOperationsInput | number
-  brand?: Prisma.StringFieldUpdateOperationsInput | string
-  harga?: Prisma.IntFieldUpdateOperationsInput | number
-  isi?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -373,10 +269,6 @@ export type ProdukUncheckedUpdateInput = {
   kode?: Prisma.StringFieldUpdateOperationsInput | string
   nama?: Prisma.StringFieldUpdateOperationsInput | string
   jenis?: Prisma.EnumJenisSampahFieldUpdateOperationsInput | $Enums.JenisSampah
-  berat?: Prisma.FloatFieldUpdateOperationsInput | number
-  brand?: Prisma.StringFieldUpdateOperationsInput | string
-  harga?: Prisma.IntFieldUpdateOperationsInput | number
-  isi?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -386,10 +278,6 @@ export type ProdukCreateManyInput = {
   kode: string
   nama: string
   jenis: $Enums.JenisSampah
-  berat: number
-  brand: string
-  harga: number
-  isi: number
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -399,10 +287,6 @@ export type ProdukUpdateManyMutationInput = {
   kode?: Prisma.StringFieldUpdateOperationsInput | string
   nama?: Prisma.StringFieldUpdateOperationsInput | string
   jenis?: Prisma.EnumJenisSampahFieldUpdateOperationsInput | $Enums.JenisSampah
-  berat?: Prisma.FloatFieldUpdateOperationsInput | number
-  brand?: Prisma.StringFieldUpdateOperationsInput | string
-  harga?: Prisma.IntFieldUpdateOperationsInput | number
-  isi?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -412,10 +296,6 @@ export type ProdukUncheckedUpdateManyInput = {
   kode?: Prisma.StringFieldUpdateOperationsInput | string
   nama?: Prisma.StringFieldUpdateOperationsInput | string
   jenis?: Prisma.EnumJenisSampahFieldUpdateOperationsInput | $Enums.JenisSampah
-  berat?: Prisma.FloatFieldUpdateOperationsInput | number
-  brand?: Prisma.StringFieldUpdateOperationsInput | string
-  harga?: Prisma.IntFieldUpdateOperationsInput | number
-  isi?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -425,18 +305,8 @@ export type ProdukCountOrderByAggregateInput = {
   kode?: Prisma.SortOrder
   nama?: Prisma.SortOrder
   jenis?: Prisma.SortOrder
-  berat?: Prisma.SortOrder
-  brand?: Prisma.SortOrder
-  harga?: Prisma.SortOrder
-  isi?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-}
-
-export type ProdukAvgOrderByAggregateInput = {
-  berat?: Prisma.SortOrder
-  harga?: Prisma.SortOrder
-  isi?: Prisma.SortOrder
 }
 
 export type ProdukMaxOrderByAggregateInput = {
@@ -444,10 +314,6 @@ export type ProdukMaxOrderByAggregateInput = {
   kode?: Prisma.SortOrder
   nama?: Prisma.SortOrder
   jenis?: Prisma.SortOrder
-  berat?: Prisma.SortOrder
-  brand?: Prisma.SortOrder
-  harga?: Prisma.SortOrder
-  isi?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -457,30 +323,12 @@ export type ProdukMinOrderByAggregateInput = {
   kode?: Prisma.SortOrder
   nama?: Prisma.SortOrder
   jenis?: Prisma.SortOrder
-  berat?: Prisma.SortOrder
-  brand?: Prisma.SortOrder
-  harga?: Prisma.SortOrder
-  isi?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
-export type ProdukSumOrderByAggregateInput = {
-  berat?: Prisma.SortOrder
-  harga?: Prisma.SortOrder
-  isi?: Prisma.SortOrder
-}
-
 export type EnumJenisSampahFieldUpdateOperationsInput = {
   set?: $Enums.JenisSampah
-}
-
-export type FloatFieldUpdateOperationsInput = {
-  set?: number
-  increment?: number
-  decrement?: number
-  multiply?: number
-  divide?: number
 }
 
 
@@ -490,10 +338,6 @@ export type ProdukSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   kode?: boolean
   nama?: boolean
   jenis?: boolean
-  berat?: boolean
-  brand?: boolean
-  harga?: boolean
-  isi?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["produk"]>
@@ -503,10 +347,6 @@ export type ProdukSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extens
   kode?: boolean
   nama?: boolean
   jenis?: boolean
-  berat?: boolean
-  brand?: boolean
-  harga?: boolean
-  isi?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["produk"]>
@@ -516,10 +356,6 @@ export type ProdukSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extens
   kode?: boolean
   nama?: boolean
   jenis?: boolean
-  berat?: boolean
-  brand?: boolean
-  harga?: boolean
-  isi?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["produk"]>
@@ -529,15 +365,11 @@ export type ProdukSelectScalar = {
   kode?: boolean
   nama?: boolean
   jenis?: boolean
-  berat?: boolean
-  brand?: boolean
-  harga?: boolean
-  isi?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type ProdukOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "kode" | "nama" | "jenis" | "berat" | "brand" | "harga" | "isi" | "createdAt" | "updatedAt", ExtArgs["result"]["produk"]>
+export type ProdukOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "kode" | "nama" | "jenis" | "createdAt" | "updatedAt", ExtArgs["result"]["produk"]>
 
 export type $ProdukPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Produk"
@@ -547,10 +379,6 @@ export type $ProdukPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     kode: string
     nama: string
     jenis: $Enums.JenisSampah
-    berat: number
-    brand: string
-    harga: number
-    isi: number
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["produk"]>
@@ -980,10 +808,6 @@ export interface ProdukFieldRefs {
   readonly kode: Prisma.FieldRef<"Produk", 'String'>
   readonly nama: Prisma.FieldRef<"Produk", 'String'>
   readonly jenis: Prisma.FieldRef<"Produk", 'JenisSampah'>
-  readonly berat: Prisma.FieldRef<"Produk", 'Float'>
-  readonly brand: Prisma.FieldRef<"Produk", 'String'>
-  readonly harga: Prisma.FieldRef<"Produk", 'Int'>
-  readonly isi: Prisma.FieldRef<"Produk", 'Int'>
   readonly createdAt: Prisma.FieldRef<"Produk", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Produk", 'DateTime'>
 }

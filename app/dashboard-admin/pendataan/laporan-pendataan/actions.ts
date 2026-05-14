@@ -18,7 +18,14 @@ export async function getLaporanData() {
     orderBy: { selesaiAt: "desc" },
     include: {
       nasabah: {
-        select: { id: true, nama: true, nik: true, kategori: true },
+        select: {
+          id: true,
+          nik: true,
+          kategori: true,
+          user: {
+            select: { name: true },
+          },
+        },
       },
       ekpedisi: {
         select: { alamat: true, noTelp: true },

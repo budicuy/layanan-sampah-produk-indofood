@@ -53,10 +53,12 @@ interface SetorSampahItem {
   createdAt: Date;
   nasabah: {
     id: string;
-    nama: string;
     noTelp: string;
     alamat: string;
     nik: string;
+    user: {
+      name: string;
+    };
   };
 }
 
@@ -473,12 +475,12 @@ function SetorCard({
       <div className="p-4 md:p-5 flex items-start gap-3">
         {/* Avatar */}
         <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-bold text-base shrink-0 mt-0.5">
-          {item.nasabah.nama[0]?.toUpperCase()}
+          {item.nasabah.user?.name[0]?.toUpperCase()}
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex flex-wrap items-center gap-2">
             <p className="font-bold text-zinc-900 text-sm truncate">
-              {item.nasabah.nama}
+              {item.nasabah.user?.name}
             </p>
             <span
               className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold border ${cfg.cls} whitespace-nowrap`}>
@@ -488,7 +490,11 @@ function SetorCard({
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1.5 text-xs text-zinc-500">
             <span className="flex items-center gap-1">
               <Tag size={11} className="text-zinc-400" />
-              {item.jenisSampah === "PLASTIK" ? "Plastik" : "Karton"}
+              {item.jenisSampah === "PLASTIK"
+                ? "Plastik"
+                : item.jenisSampah === "KARTON"
+                  ? "Karton"
+                  : "Paper Cup"}
             </span>
             <span className="flex items-center gap-1">
               <Scale size={11} className="text-zinc-400" />
@@ -674,7 +680,7 @@ export default function SetorSampahAdminPage() {
       const q = search.toLowerCase();
       result = result.filter(
         (d) =>
-          d.nasabah.nama.toLowerCase().includes(q) ||
+          d.nasabah.user.name.toLowerCase().includes(q) ||
           d.nasabah.nik.includes(q) ||
           d.nasabah.noTelp.includes(q),
       );

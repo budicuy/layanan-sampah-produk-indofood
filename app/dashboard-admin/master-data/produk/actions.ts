@@ -16,10 +16,6 @@ export async function createProduk(data: {
   kode: string;
   nama: string;
   jenis: JenisSampah;
-  berat: number;
-  brand: string;
-  harga: number;
-  isi: number;
 }) {
   await checkAdminAuth();
   try {
@@ -40,10 +36,6 @@ export async function updateProduk(
     kode: string;
     nama: string;
     jenis: JenisSampah;
-    berat: number;
-    brand: string;
-    harga: number;
-    isi: number;
   },
 ) {
   await checkAdminAuth();

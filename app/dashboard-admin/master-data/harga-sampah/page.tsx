@@ -170,7 +170,7 @@ export default function HargaSampahPage() {
       </div>
 
       {/* Stats Summary Section */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
         <div className="bg-sky-50/50 rounded-[24px] border border-sky-100 p-6 shadow-sm group hover:bg-sky-50 transition-colors">
           <div className="flex items-center justify-between mb-4">
             <div className="w-10 h-10 rounded-xl bg-sky-100 flex items-center justify-center text-sky-600">
@@ -199,6 +199,23 @@ export default function HargaSampahPage() {
             {formatRupiah(averageHarga("KARTON"))}
           </p>
           <p className="text-xs text-zinc-500 mt-1">Rata-rata Harga Karton</p>
+        </div>
+
+        <div className="bg-blue-50/50 rounded-[24px] border border-blue-100 p-6 shadow-sm group hover:bg-blue-50 transition-colors">
+          <div className="flex items-center justify-between mb-4">
+            <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center text-blue-600">
+              <TrendingUp size={20} />
+            </div>
+            <span className="text-[10px] font-bold text-blue-600 bg-blue-100 px-2 py-1 rounded-full uppercase tracking-wider">
+              Avg Paper Cup
+            </span>
+          </div>
+          <p className="text-3xl font-heading font-extrabold text-zinc-900">
+            {formatRupiah(averageHarga("PAPER_CUP"))}
+          </p>
+          <p className="text-xs text-zinc-500 mt-1">
+            Rata-rata Harga Paper Cup
+          </p>
         </div>
 
         <div className="bg-zinc-50 rounded-[24px] border border-zinc-200 p-6 shadow-sm">
@@ -282,11 +299,14 @@ export default function HargaSampahPage() {
                     </td>
                     <td className="px-4 md:px-8 py-4 md:py-6">
                       <span
-                        className={`inline-flex items-center gap-1.5 px-2 md:px-3 py-1 rounded-lg text-[10px] md:text-xs font-bold ${h.jenisSampah === "PLASTIK"
+                        className={`inline-flex items-center gap-1.5 px-2 md:px-3 py-1 rounded-lg text-[10px] md:text-xs font-bold ${
+                          h.jenisSampah === "PLASTIK"
                             ? "bg-sky-100 text-sky-700"
-                            : "bg-amber-100 text-amber-700"
-                          }`}>
-                        <Tag size={12} /> {h.jenisSampah}
+                            : h.jenisSampah === "KARTON"
+                              ? "bg-emerald-100 text-emerald-700"
+                              : "bg-blue-100 text-blue-700"
+                        }`}>
+                        <Tag size={12} /> {h.jenisSampah.replace("_", " ")}
                       </span>
                     </td>
                     <td className="px-4 md:px-8 py-4 md:py-6 font-bold text-zinc-900 text-sm md:text-base">
@@ -379,6 +399,7 @@ export default function HargaSampahPage() {
                     className="w-full px-4 py-3 bg-zinc-50 border-none rounded-xl focus:ring-2 focus:ring-primary/20">
                     <option value="PLASTIK">Plastik</option>
                     <option value="KARTON">Karton</option>
+                    <option value="PAPER_CUP">Paper Cup</option>
                   </select>
                 </div>
                 <div className="space-y-2">

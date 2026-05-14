@@ -22,7 +22,6 @@ model User {
 
   accounts Account[]
   nasabah  Nasabah?
-  ekpedisi Ekpedisi?
 
   @@map("user")
 }
@@ -67,13 +66,10 @@ enum StatusNasabah {
 enum JenisSampah {
   PLASTIK
   KARTON
+  PAPER_CUP
 }
 
-enum StatusEkpedisi {
-  BELUM_DI_PROSES
-  PROSES
-  DONE
-}
+
 
 /// Status alur setor sampah:
 /// MENUNGGU_VERIFIKASI → Konsumen baru submit
@@ -99,7 +95,6 @@ model Nasabah {
   id          String          @id @default(cuid())
   userId      String          @unique
   user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
-  nama        String
   alamat      String
   noTelp      String
   kategori    KategoriNasabah
@@ -123,10 +118,6 @@ model Produk {
   kode      String      @unique
   nama      String
   jenis     JenisSampah
-  berat     Float
-  brand     String
-  harga     Int
-  isi       Int
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt
 
@@ -135,16 +126,13 @@ model Produk {
 
 /// Data kurir / ekspedisi penjemputan
 model Ekpedisi {
-  id          String         @id @default(cuid())
-  userId      String?        @unique
-  noTelp      String
-  alamat      String
-  titikLokasi String?
-  status      StatusEkpedisi @default(BELUM_DI_PROSES)
-  createdAt   DateTime       @default(now())
-  updatedAt   DateTime       @updatedAt
+  id        String   @id @default(cuid())
+  nama      String
+  noTelp    String
+  alamat    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  user        User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
   setorSampah SetorSampah[]
 
   @@map("ekpedisi")

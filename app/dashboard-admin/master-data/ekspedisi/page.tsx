@@ -1,23 +1,18 @@
 "use client";
 
 import {
-  CheckCircle2,
-  Clock,
   Edit2,
   Filter,
   MapPin,
   Phone,
   Plus,
-  RefreshCcw,
   Search,
   Trash2,
   Truck,
-  User,
   X,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import type { StatusEkpedisi } from "@/prisma/generated/prisma/client";
 import {
   createEkpedisi,
   deleteEkpedisi,
@@ -27,27 +22,16 @@ import {
 
 export type EkpedisiData = {
   id: string;
-  userId: string | null;
+  nama: string;
   noTelp: string;
   alamat: string;
-  titikLokasi: string | null;
-  status: StatusEkpedisi;
-  user?: {
-    id: string;
-    name: string;
-    username: string;
-  } | null;
 };
-
-type UserItem = { id: string; name: string; username: string };
 
 export default function EkpedisiPage() {
   const [data, setData] = useState<{
     ekpedisi: EkpedisiData[];
-    users: UserItem[];
   }>({
     ekpedisi: [],
-    users: [],
   });
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -61,14 +45,12 @@ export default function EkpedisiPage() {
     getEkpedisiData().then((res) => {
       setData({
         ekpedisi: res.ekpedisi as EkpedisiData[],
-        users: res.users as UserItem[],
       });
       setIsLoading(false);
     });
   }, []);
 
   const initialData = data.ekpedisi;
-  const users = data.users;
 
   if (isLoading) {
     return (
@@ -79,22 +61,19 @@ export default function EkpedisiPage() {
   }
 
   const filteredData = initialData.filter(
-    (e) =>
+    (e: EkpedisiData) =>
+      e.nama.toLowerCase().includes(searchTerm.toLowerCase()) ||
       e.alamat.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      e.noTelp.includes(searchTerm) ||
-      e.user?.name.toLowerCase().includes(searchTerm.toLowerCase()),
+      e.noTelp.includes(searchTerm),
   );
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-    const userIdVal = formData.get("userId") as string;
     const data = {
-      userId: userIdVal === "NULL" ? null : userIdVal,
+      nama: formData.get("nama") as string,
       noTelp: formData.get("noTelp") as string,
       alamat: formData.get("alamat") as string,
-      titikLokasi: (formData.get("titikLokasi") as string) || null,
-      status: formData.get("status") as StatusEkpedisi,
     };
 
     if (selectedEkpedisi) {
@@ -117,7 +96,6 @@ export default function EkpedisiPage() {
     const updatedData = await getEkpedisiData();
     setData({
       ekpedisi: updatedData.ekpedisi as EkpedisiData[],
-      users: updatedData.users as UserItem[],
     });
     closeModal();
   };
@@ -135,7 +113,6 @@ export default function EkpedisiPage() {
       const updatedData = await getEkpedisiData();
       setData({
         ekpedisi: updatedData.ekpedisi as EkpedisiData[],
-        users: updatedData.users as UserItem[],
       });
       closeDeleteModal();
     }
@@ -199,54 +176,6 @@ export default function EkpedisiPage() {
           </p>
           <p className="text-xs text-zinc-500 mt-1">Seluruh Armada</p>
         </div>
-
-        {/* Belum Di Proses */}
-        <div className="bg-red-50/50 rounded-[24px] border border-red-100 p-6 shadow-sm group hover:bg-red-50 transition-colors">
-          <div className="flex items-center justify-between mb-4">
-            <div className="w-10 h-10 rounded-xl bg-red-100 flex items-center justify-center text-red-600">
-              <Clock size={20} />
-            </div>
-            <span className="text-[10px] font-bold text-red-600 bg-red-100 px-2 py-1 rounded-full uppercase tracking-wider">
-              Pending
-            </span>
-          </div>
-          <p className="text-3xl font-heading font-extrabold text-zinc-900">
-            {initialData.filter((e) => e.status === "BELUM_DI_PROSES").length}
-          </p>
-          <p className="text-xs text-zinc-500 mt-1">Belum Diproses</p>
-        </div>
-
-        {/* Proses */}
-        <div className="bg-amber-50/50 rounded-[24px] border border-amber-100 p-6 shadow-sm group hover:bg-amber-50 transition-colors">
-          <div className="flex items-center justify-between mb-4">
-            <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center text-amber-600">
-              <RefreshCcw size={20} />
-            </div>
-            <span className="text-[10px] font-bold text-amber-600 bg-amber-100 px-2 py-1 rounded-full uppercase tracking-wider">
-              Proses
-            </span>
-          </div>
-          <p className="text-3xl font-heading font-extrabold text-zinc-900">
-            {initialData.filter((e) => e.status === "PROSES").length}
-          </p>
-          <p className="text-xs text-zinc-500 mt-1">Dalam Perjalanan</p>
-        </div>
-
-        {/* Done */}
-        <div className="bg-emerald-50/50 rounded-[24px] border border-emerald-100 p-6 shadow-sm group hover:bg-emerald-50 transition-colors">
-          <div className="flex items-center justify-between mb-4">
-            <div className="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center text-emerald-600">
-              <CheckCircle2 size={20} />
-            </div>
-            <span className="text-[10px] font-bold text-emerald-600 bg-emerald-100 px-2 py-1 rounded-full uppercase tracking-wider">
-              Selesai
-            </span>
-          </div>
-          <p className="text-3xl font-heading font-extrabold text-zinc-900">
-            {initialData.filter((e) => e.status === "DONE").length}
-          </p>
-          <p className="text-xs text-zinc-500 mt-1">Pengiriman Berhasil</p>
-        </div>
       </div>
 
       <div className="bg-white rounded-[24px] md:rounded-[32px] border border-zinc-100 shadow-sm overflow-hidden">
@@ -278,16 +207,13 @@ export default function EkpedisiPage() {
             <thead>
               <tr className="bg-zinc-50/50">
                 <th className="px-4 md:px-8 py-4 text-xs font-bold text-zinc-400 uppercase tracking-widest">
-                  Pengemudi / User
+                  Nama Ekspedisi
                 </th>
                 <th className="px-4 md:px-8 py-4 text-xs font-bold text-zinc-400 uppercase tracking-widest">
                   Kontak
                 </th>
                 <th className="px-4 md:px-8 py-4 text-xs font-bold text-zinc-400 uppercase tracking-widest">
-                  Lokasi / Alamat
-                </th>
-                <th className="px-4 md:px-8 py-4 text-xs font-bold text-zinc-400 uppercase tracking-widest">
-                  Status
+                  Alamat
                 </th>
                 <th className="px-4 md:px-8 py-4 text-xs font-bold text-zinc-400 uppercase tracking-widest text-right">
                   Aksi
@@ -304,34 +230,21 @@ export default function EkpedisiPage() {
                   </td>
                 </tr>
               ) : (
-                filteredData.map((e) => (
+                filteredData.map((e: EkpedisiData) => (
                   <tr
                     key={e.id}
                     className="hover:bg-zinc-50/50 transition-colors group">
                     <td className="px-4 md:px-8 py-4 md:py-6">
                       <div className="flex items-center gap-3">
                         <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-zinc-100 flex items-center justify-center font-bold text-zinc-600 shrink-0">
-                          <User
+                          <Truck
                             size={18}
                             className="w-4 h-4 md:w-[18px] md:h-[18px]"
                           />
                         </div>
-                        <div>
-                          {e.user ? (
-                            <>
-                              <p className="font-bold text-zinc-900 text-sm md:text-base">
-                                {e.user.name}
-                              </p>
-                              <p className="text-[10px] md:text-xs text-zinc-400 mt-0.5">
-                                @{e.user.username}
-                              </p>
-                            </>
-                          ) : (
-                            <p className="text-xs md:text-sm font-medium text-zinc-500 italic">
-                              Tanpa User
-                            </p>
-                          )}
-                        </div>
+                        <p className="font-bold text-zinc-900 text-sm md:text-base">
+                          {e.nama}
+                        </p>
                       </div>
                     </td>
                     <td className="px-4 md:px-8 py-4 md:py-6 text-xs md:text-sm text-zinc-600">
@@ -348,30 +261,8 @@ export default function EkpedisiPage() {
                           size={14}
                           className="text-zinc-400 mt-0.5 shrink-0"
                         />
-                        <div>
-                          <p className="line-clamp-2">{e.alamat}</p>
-                          {e.titikLokasi && (
-                            <p className="text-[10px] md:text-xs text-zinc-400 mt-1 font-mono">
-                              {e.titikLokasi}
-                            </p>
-                          )}
-                        </div>
+                        <p className="line-clamp-2">{e.alamat}</p>
                       </div>
-                    </td>
-                    <td className="px-4 md:px-8 py-4 md:py-6">
-                      <span
-                        className={`inline-flex items-center gap-1.5 px-2 md:px-3 py-1 rounded-lg text-[10px] md:text-xs font-bold ${
-                          e.status === "DONE"
-                            ? "bg-emerald-100 text-emerald-700"
-                            : e.status === "PROSES"
-                              ? "bg-amber-100 text-amber-700"
-                              : "bg-red-100 text-red-700"
-                        }`}>
-                        {e.status === "DONE" && <CheckCircle2 size={12} />}
-                        {e.status === "PROSES" && <RefreshCcw size={12} />}
-                        {e.status === "BELUM_DI_PROSES" && <Clock size={12} />}
-                        {e.status.replace(/_/g, " ")}
-                      </span>
                     </td>
                     <td className="px-4 md:px-8 py-4 md:py-6 text-right">
                       <div className="flex items-center justify-end gap-1 md:gap-2">
@@ -423,22 +314,18 @@ export default function EkpedisiPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label
-                    htmlFor="userId"
+                    htmlFor="nama"
                     className="text-sm font-bold text-zinc-700">
-                    User / Pengemudi
+                    Nama Ekspedisi
                   </label>
-                  <select
-                    id="userId"
-                    name="userId"
-                    defaultValue={selectedEkpedisi?.userId || "NULL"}
-                    className="w-full px-4 py-3 bg-zinc-50 border-none rounded-xl focus:ring-2 focus:ring-primary/20">
-                    <option value="NULL">-- Pilih User (Opsional) --</option>
-                    {users.map((u) => (
-                      <option key={u.id} value={u.id}>
-                        {u.name} (@{u.username})
-                      </option>
-                    ))}
-                  </select>
+                  <input
+                    id="nama"
+                    required
+                    name="nama"
+                    defaultValue={selectedEkpedisi?.nama}
+                    placeholder="Contoh: Kurir ABC"
+                    className="w-full px-4 py-3 bg-zinc-50 border-none rounded-xl focus:ring-2 focus:ring-primary/20"
+                  />
                 </div>
                 <div className="space-y-2">
                   <label
@@ -470,36 +357,6 @@ export default function EkpedisiPage() {
                     placeholder="Jl. Raya Utama No.123..."
                     className="w-full px-4 py-3 bg-zinc-50 border-none rounded-xl focus:ring-2 focus:ring-primary/20"
                   />
-                </div>
-                <div className="space-y-2">
-                  <label
-                    htmlFor="titikLokasi"
-                    className="text-sm font-bold text-zinc-700">
-                    Titik Lokasi (Koordinat)
-                  </label>
-                  <input
-                    id="titikLokasi"
-                    name="titikLokasi"
-                    defaultValue={selectedEkpedisi?.titikLokasi || ""}
-                    placeholder="-6.123, 106.456"
-                    className="w-full px-4 py-3 bg-zinc-50 border-none rounded-xl focus:ring-2 focus:ring-primary/20"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label
-                    htmlFor="status"
-                    className="text-sm font-bold text-zinc-700">
-                    Status Ekspedisi
-                  </label>
-                  <select
-                    id="status"
-                    name="status"
-                    defaultValue={selectedEkpedisi?.status || "BELUM_DI_PROSES"}
-                    className="w-full px-4 py-3 bg-zinc-50 border-none rounded-xl focus:ring-2 focus:ring-primary/20">
-                    <option value="BELUM_DI_PROSES">Belum Di Proses</option>
-                    <option value="PROSES">Proses</option>
-                    <option value="DONE">Done</option>
-                  </select>
                 </div>
               </div>
 
