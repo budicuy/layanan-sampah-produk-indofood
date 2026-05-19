@@ -68,77 +68,77 @@ NODE_ENV="development"
 app/
   dashboard-admin/
     components/
-      Charts.tsx         # Grafik rekap sampah bulanan (recharts)
-      Clock.tsx          # Widget jam waktu real-time
-      NasabahCharts.tsx  # Grafik statistik pendaftaran nasabah
-      Sidebar.tsx        # Sidebar panel admin (dashboard, master data, pendataan, tabungan)
-    master-data/
+      Charts.tsx         # Visualisasi chart recharts untuk grafik bulanan total poin & berat setoran.
+      Clock.tsx          # Widget digital penampil jam/waktu real-time untuk efisiensi admin.
+      NasabahCharts.tsx  # Grafik statistik pendaftaran nasabah berdasarkan kategori.
+      Sidebar.tsx        # Navigasi dashboard panel admin (Master Data, Pendataan, & Tabungan).
+    master-data/         # Modul manajemen CRUD data primer (halaman mandiri terpadu).
       ekspedisi/
-        actions.ts       # Server Actions CRUD driver/ekspedisi
-        page.tsx         # Halaman CRUD & kelola driver ekspedisi
+        actions.ts       # Server Actions untuk CRUD kurir & driver penjemputan sampah.
+        page.tsx         # Tampilan tabel & form input data kurir ekspedisi.
       harga-sampah/
-        actions.ts       # Server Actions CRUD reference points/harga
-        page.tsx         # Halaman CRUD kelola rate poin sampah per bulan
+        actions.ts       # Server Actions CRUD acuan harga/poin bulanan per jenis sampah.
+        page.tsx         # Kelola harga referensi bulanan per kilogram sampah.
       nasabah/
-        actions.ts       # Server Actions CRUD nasabah
-        page.tsx         # Halaman CRUD kelola akun & status nasabah
+        actions.ts       # Server Actions kelola nasabah & penambahan saldo poin awal.
+        page.tsx         # Kelola status keanggotaan nasabah (aktif/nonaktif) & verifikasi data.
       produk/
-        actions.ts       # Server Actions CRUD metadata produk
-        page.tsx         # Halaman CRUD kelola kode & jenis produk
+        actions.ts       # Server Actions CRUD data kode dan jenis sampah produk Indofood.
+        page.tsx         # Kelola daftar metadata produk (kode unik, jenis, nama).
       users/
-        actions.ts       # Server Actions CRUD akun internal (Admin/HRD/Konsumen)
-        page.tsx         # Halaman CRUD kelola otentikasi user
-    pendataan/
+        actions.ts       # Server Actions CRUD user login sistem (Admin, HRD, Konsumen).
+        page.tsx         # Kelola otentikasi login pengguna sistem.
+    pendataan/           # Modul administrasi timbangan masuk dan pelaporan.
       laporan-pendataan/
-        actions.ts       # Server Actions fetch data laporan/rekap
-        page.tsx         # Halaman rekap setoran & download laporan cetak
+        actions.ts       # Aksi server penarikan data rekap bulanan & statistik.
+        page.tsx         # Halaman pencetakan laporan bulanan & filter data setoran.
       setor-sampah/
-        actions.ts       # Server Actions verifikasi & alur setoran sampah
-        page.tsx         # Halaman verifikasi, timbang aktual, & konfirmasi setoran
-    tabungan-nasabah/
+        actions.ts       # Aksi verifikasi alur setoran (timbang aktual & kredit poin).
+        page.tsx         # Panel validasi setoran, tombol "Data Sudah Benar", & input berat aktual.
+    tabungan-nasabah/    # Pengelolaan point ledger & history point.
       tabungan/
-        actions.ts       # Server Actions mutasi tabungan poin
-        page.tsx         # Halaman ledger tabungan nasabah & detail mutasi poin
-    page.tsx             # Halaman Utama Dashboard Admin (Statistik rekap poin & berat)
-    layout.tsx           # Layout Panel Admin (navigasi & Sidebar)
+        actions.ts       # Aksi server pengambilan detail mutasi tabungan poin nasabah.
+        page.tsx         # Buku tabungan nasabah beserta riwayat kredit/debit mutasi poin.
+    page.tsx             # Halaman utama Admin (rekap ringkasan total setoran & nasabah aktif).
+    layout.tsx           # Layout Panel Admin (navigasi & Sidebar).
   dashboard-konsumen/
     components/
-      ConsumerCharts.tsx # Grafik rekap poin pribadi nasabah
-      Sidebar.tsx        # Sidebar panel konsumen (dashboard, setor sampah)
+      ConsumerCharts.tsx # Visualisasi grafik poin pribadi yang didapatkan nasabah bulanan.
+      Sidebar.tsx        # Navigasi dashboard panel konsumen (Dashboard, Setor Sampah).
     setor-sampah/
-      actions.ts         # Server Actions pengajuan setoran baru konsumen
-      page.tsx           # Halaman submit setoran sampah baru (langsung/ekspedisi)
-    page.tsx             # Halaman Utama Dashboard Konsumen (Rangkuman poin, timeline status)
-    layout.tsx           # Layout Panel Konsumen (navigasi & Sidebar)
+      actions.ts         # Server Actions pengajuan setoran baru konsumen.
+      page.tsx           # Form pendaftaran setoran baru (Langsung / Ekspedisi) & input estimasi.
+    page.tsx             # Halaman utama Konsumen (ringkasan poin aktif, timeline status aktif).
+    layout.tsx           # Layout Panel Konsumen (navigasi & Sidebar).
   login/
     auth/
-      index.ts           # JWT signing & verification (HS256 Jose)
-      cookies.ts         # Cookie management (httpOnly auth_token)
-      session.ts         # Session retrieval (Edge-compatible)
-    actions.ts           # Server actions (login, logout)
-    page.tsx             # Halaman Login
-  api/                   # API routes (kosong)
-  layout.tsx             # Root layout (Html, Head, Body, & Providers)
-  page.tsx               # Halaman Landing page (Welcome screen & info portal)
-  globals.css            # Global CSS (Tailwind CSS 4)
-  providers.tsx          # Providers client (Toaster notifications)
+      index.ts           # Token utility JWT (signing & verify) menggunakan HS256 Jose.
+      cookies.ts         # Konfigurasi manajemen cookie httpOnly aman (auth_token).
+      session.ts         # Helper edge-compatible untuk parsing session JWT.
+    actions.ts           # Server actions untuk autentikasi kredensial login & logout.
+    page.tsx             # Halaman form Login admin, HRD, dan konsumen.
+  api/                   # API routes (kosong).
+  layout.tsx             # Root layout (Html, Head, Body, & global Providers).
+  page.tsx               # Halaman depan / Landing Page sistem Bank Sampah.
+  globals.css            # Global styling framework Tailwind CSS v4.
+  providers.tsx          # Client notification provider (Toaster).
 lib/
-  prisma.ts              # Prisma Client singleton dengan Neon serverless adapter
+  prisma.ts              # Prisma Client singleton dengan Neon serverless adapter.
 prisma/
-  generated/             # Generated Prisma Client (auto-generated)
-  migrations/            # Database migration files
-  seeder/
-    seed_ekspedisi.ts    # Data dummy driver & kurir
-    seed_harga_sampah.ts # Data dummy rate harga & poin bulanan
-    seed_nasabah.ts      # Data dummy nasabah (Budi, Warmiendo, Banksampah, Siti)
-    seed_produk.ts       # Data dummy metadata produk
-  migrate.ts             # Script migrasi schema custom untuk port 5432 yang terblokir
-  schema.prisma          # Database schema
-  seed.ts                # Main script seeder
-public/                  # File statis (favicon, robots.txt, dll)
-package.json             # Package dependencies & npm scripts
-next.config.ts           # Next.js configuration
-tsconfig.json            # TypeScript configuration
+  generated/             # Generated Prisma Client (auto-generated).
+  migrations/            # Kumpulan berkas database migration.
+  seeder/                # Sub-seeder modular pemisah data dummy awal:
+    seed_ekspedisi.ts    # Data dummy driver & kurir ekspedisi.
+    seed_harga_sampah.ts # Data dummy rate harga/poin bulanan.
+    seed_nasabah.ts      # Data dummy profil nasabah awal & username.
+    seed_produk.ts       # Data dummy metadata produk awal.
+  migrate.ts             # Script migrasi custom via HTTP adapter (bypass port 5432 terblokir).
+  schema.prisma          # Skema pemodelan database relational Prisma.
+  seed.ts                # Main seeder untuk inisialisasi awal database.
+public/                  # Aset statis favicon, robots, gambar, dll.
+package.json             # Konfigurasi scripts run & dependencies project.
+next.config.ts           # Konfigurasi Next.js app compiler & proxy middleware.
+tsconfig.json            # Konfigurasi compiler TypeScript.
 proxy.ts                 # Middleware Edge-level routing & session protection
 ```
 
