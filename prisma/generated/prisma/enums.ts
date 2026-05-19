@@ -43,6 +43,14 @@ export const StatusNasabah = {
 export type StatusNasabah = (typeof StatusNasabah)[keyof typeof StatusNasabah]
 
 
+export const JenisSetor = {
+  LANGSUNG: 'LANGSUNG',
+  EKSPEDISI: 'EKSPEDISI'
+} as const
+
+export type JenisSetor = (typeof JenisSetor)[keyof typeof JenisSetor]
+
+
 export const JenisSampah = {
   PLASTIK: 'PLASTIK',
   KARTON: 'KARTON',

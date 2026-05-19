@@ -48,6 +48,7 @@ export type SetorSampahMinAggregateOutputType = {
   beratAktual: number | null
   keterangan: string | null
   alamatPenjemputan: string | null
+  jenisSetor: $Enums.JenisSetor | null
   status: $Enums.StatusSetorSampah | null
   catatanAdmin: string | null
   verifikasiAt: Date | null
@@ -69,6 +70,7 @@ export type SetorSampahMaxAggregateOutputType = {
   beratAktual: number | null
   keterangan: string | null
   alamatPenjemputan: string | null
+  jenisSetor: $Enums.JenisSetor | null
   status: $Enums.StatusSetorSampah | null
   catatanAdmin: string | null
   verifikasiAt: Date | null
@@ -90,6 +92,7 @@ export type SetorSampahCountAggregateOutputType = {
   beratAktual: number
   keterangan: number
   alamatPenjemputan: number
+  jenisSetor: number
   status: number
   catatanAdmin: number
   verifikasiAt: number
@@ -127,6 +130,7 @@ export type SetorSampahMinAggregateInputType = {
   beratAktual?: true
   keterangan?: true
   alamatPenjemputan?: true
+  jenisSetor?: true
   status?: true
   catatanAdmin?: true
   verifikasiAt?: true
@@ -148,6 +152,7 @@ export type SetorSampahMaxAggregateInputType = {
   beratAktual?: true
   keterangan?: true
   alamatPenjemputan?: true
+  jenisSetor?: true
   status?: true
   catatanAdmin?: true
   verifikasiAt?: true
@@ -169,6 +174,7 @@ export type SetorSampahCountAggregateInputType = {
   beratAktual?: true
   keterangan?: true
   alamatPenjemputan?: true
+  jenisSetor?: true
   status?: true
   catatanAdmin?: true
   verifikasiAt?: true
@@ -277,6 +283,7 @@ export type SetorSampahGroupByOutputType = {
   beratAktual: number | null
   keterangan: string | null
   alamatPenjemputan: string
+  jenisSetor: $Enums.JenisSetor
   status: $Enums.StatusSetorSampah
   catatanAdmin: string | null
   verifikasiAt: Date | null
@@ -321,6 +328,7 @@ export type SetorSampahWhereInput = {
   beratAktual?: Prisma.FloatNullableFilter<"SetorSampah"> | number | null
   keterangan?: Prisma.StringNullableFilter<"SetorSampah"> | string | null
   alamatPenjemputan?: Prisma.StringFilter<"SetorSampah"> | string
+  jenisSetor?: Prisma.EnumJenisSetorFilter<"SetorSampah"> | $Enums.JenisSetor
   status?: Prisma.EnumStatusSetorSampahFilter<"SetorSampah"> | $Enums.StatusSetorSampah
   catatanAdmin?: Prisma.StringNullableFilter<"SetorSampah"> | string | null
   verifikasiAt?: Prisma.DateTimeNullableFilter<"SetorSampah"> | Date | string | null
@@ -344,6 +352,7 @@ export type SetorSampahOrderByWithRelationInput = {
   beratAktual?: Prisma.SortOrderInput | Prisma.SortOrder
   keterangan?: Prisma.SortOrderInput | Prisma.SortOrder
   alamatPenjemputan?: Prisma.SortOrder
+  jenisSetor?: Prisma.SortOrder
   status?: Prisma.SortOrder
   catatanAdmin?: Prisma.SortOrderInput | Prisma.SortOrder
   verifikasiAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -370,6 +379,7 @@ export type SetorSampahWhereUniqueInput = Prisma.AtLeast<{
   beratAktual?: Prisma.FloatNullableFilter<"SetorSampah"> | number | null
   keterangan?: Prisma.StringNullableFilter<"SetorSampah"> | string | null
   alamatPenjemputan?: Prisma.StringFilter<"SetorSampah"> | string
+  jenisSetor?: Prisma.EnumJenisSetorFilter<"SetorSampah"> | $Enums.JenisSetor
   status?: Prisma.EnumStatusSetorSampahFilter<"SetorSampah"> | $Enums.StatusSetorSampah
   catatanAdmin?: Prisma.StringNullableFilter<"SetorSampah"> | string | null
   verifikasiAt?: Prisma.DateTimeNullableFilter<"SetorSampah"> | Date | string | null
@@ -393,6 +403,7 @@ export type SetorSampahOrderByWithAggregationInput = {
   beratAktual?: Prisma.SortOrderInput | Prisma.SortOrder
   keterangan?: Prisma.SortOrderInput | Prisma.SortOrder
   alamatPenjemputan?: Prisma.SortOrder
+  jenisSetor?: Prisma.SortOrder
   status?: Prisma.SortOrder
   catatanAdmin?: Prisma.SortOrderInput | Prisma.SortOrder
   verifikasiAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -422,6 +433,7 @@ export type SetorSampahScalarWhereWithAggregatesInput = {
   beratAktual?: Prisma.FloatNullableWithAggregatesFilter<"SetorSampah"> | number | null
   keterangan?: Prisma.StringNullableWithAggregatesFilter<"SetorSampah"> | string | null
   alamatPenjemputan?: Prisma.StringWithAggregatesFilter<"SetorSampah"> | string
+  jenisSetor?: Prisma.EnumJenisSetorWithAggregatesFilter<"SetorSampah"> | $Enums.JenisSetor
   status?: Prisma.EnumStatusSetorSampahWithAggregatesFilter<"SetorSampah"> | $Enums.StatusSetorSampah
   catatanAdmin?: Prisma.StringNullableWithAggregatesFilter<"SetorSampah"> | string | null
   verifikasiAt?: Prisma.DateTimeNullableWithAggregatesFilter<"SetorSampah"> | Date | string | null
@@ -442,6 +454,7 @@ export type SetorSampahCreateInput = {
   beratAktual?: number | null
   keterangan?: string | null
   alamatPenjemputan: string
+  jenisSetor?: $Enums.JenisSetor
   status?: $Enums.StatusSetorSampah
   catatanAdmin?: string | null
   verifikasiAt?: Date | string | null
@@ -464,6 +477,7 @@ export type SetorSampahUncheckedCreateInput = {
   beratAktual?: number | null
   keterangan?: string | null
   alamatPenjemputan: string
+  jenisSetor?: $Enums.JenisSetor
   status?: $Enums.StatusSetorSampah
   catatanAdmin?: string | null
   verifikasiAt?: Date | string | null
@@ -484,6 +498,7 @@ export type SetorSampahUpdateInput = {
   beratAktual?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   keterangan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   alamatPenjemputan?: Prisma.StringFieldUpdateOperationsInput | string
+  jenisSetor?: Prisma.EnumJenisSetorFieldUpdateOperationsInput | $Enums.JenisSetor
   status?: Prisma.EnumStatusSetorSampahFieldUpdateOperationsInput | $Enums.StatusSetorSampah
   catatanAdmin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   verifikasiAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -506,6 +521,7 @@ export type SetorSampahUncheckedUpdateInput = {
   beratAktual?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   keterangan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   alamatPenjemputan?: Prisma.StringFieldUpdateOperationsInput | string
+  jenisSetor?: Prisma.EnumJenisSetorFieldUpdateOperationsInput | $Enums.JenisSetor
   status?: Prisma.EnumStatusSetorSampahFieldUpdateOperationsInput | $Enums.StatusSetorSampah
   catatanAdmin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   verifikasiAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -527,6 +543,7 @@ export type SetorSampahCreateManyInput = {
   beratAktual?: number | null
   keterangan?: string | null
   alamatPenjemputan: string
+  jenisSetor?: $Enums.JenisSetor
   status?: $Enums.StatusSetorSampah
   catatanAdmin?: string | null
   verifikasiAt?: Date | string | null
@@ -547,6 +564,7 @@ export type SetorSampahUpdateManyMutationInput = {
   beratAktual?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   keterangan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   alamatPenjemputan?: Prisma.StringFieldUpdateOperationsInput | string
+  jenisSetor?: Prisma.EnumJenisSetorFieldUpdateOperationsInput | $Enums.JenisSetor
   status?: Prisma.EnumStatusSetorSampahFieldUpdateOperationsInput | $Enums.StatusSetorSampah
   catatanAdmin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   verifikasiAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -567,6 +585,7 @@ export type SetorSampahUncheckedUpdateManyInput = {
   beratAktual?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   keterangan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   alamatPenjemputan?: Prisma.StringFieldUpdateOperationsInput | string
+  jenisSetor?: Prisma.EnumJenisSetorFieldUpdateOperationsInput | $Enums.JenisSetor
   status?: Prisma.EnumStatusSetorSampahFieldUpdateOperationsInput | $Enums.StatusSetorSampah
   catatanAdmin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   verifikasiAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -598,6 +617,7 @@ export type SetorSampahCountOrderByAggregateInput = {
   beratAktual?: Prisma.SortOrder
   keterangan?: Prisma.SortOrder
   alamatPenjemputan?: Prisma.SortOrder
+  jenisSetor?: Prisma.SortOrder
   status?: Prisma.SortOrder
   catatanAdmin?: Prisma.SortOrder
   verifikasiAt?: Prisma.SortOrder
@@ -626,6 +646,7 @@ export type SetorSampahMaxOrderByAggregateInput = {
   beratAktual?: Prisma.SortOrder
   keterangan?: Prisma.SortOrder
   alamatPenjemputan?: Prisma.SortOrder
+  jenisSetor?: Prisma.SortOrder
   status?: Prisma.SortOrder
   catatanAdmin?: Prisma.SortOrder
   verifikasiAt?: Prisma.SortOrder
@@ -647,6 +668,7 @@ export type SetorSampahMinOrderByAggregateInput = {
   beratAktual?: Prisma.SortOrder
   keterangan?: Prisma.SortOrder
   alamatPenjemputan?: Prisma.SortOrder
+  jenisSetor?: Prisma.SortOrder
   status?: Prisma.SortOrder
   catatanAdmin?: Prisma.SortOrder
   verifikasiAt?: Prisma.SortOrder
@@ -759,6 +781,10 @@ export type NullableFloatFieldUpdateOperationsInput = {
   divide?: number
 }
 
+export type EnumJenisSetorFieldUpdateOperationsInput = {
+  set?: $Enums.JenisSetor
+}
+
 export type EnumStatusSetorSampahFieldUpdateOperationsInput = {
   set?: $Enums.StatusSetorSampah
 }
@@ -782,6 +808,7 @@ export type SetorSampahCreateWithoutNasabahInput = {
   beratAktual?: number | null
   keterangan?: string | null
   alamatPenjemputan: string
+  jenisSetor?: $Enums.JenisSetor
   status?: $Enums.StatusSetorSampah
   catatanAdmin?: string | null
   verifikasiAt?: Date | string | null
@@ -802,6 +829,7 @@ export type SetorSampahUncheckedCreateWithoutNasabahInput = {
   beratAktual?: number | null
   keterangan?: string | null
   alamatPenjemputan: string
+  jenisSetor?: $Enums.JenisSetor
   status?: $Enums.StatusSetorSampah
   catatanAdmin?: string | null
   verifikasiAt?: Date | string | null
@@ -852,6 +880,7 @@ export type SetorSampahScalarWhereInput = {
   beratAktual?: Prisma.FloatNullableFilter<"SetorSampah"> | number | null
   keterangan?: Prisma.StringNullableFilter<"SetorSampah"> | string | null
   alamatPenjemputan?: Prisma.StringFilter<"SetorSampah"> | string
+  jenisSetor?: Prisma.EnumJenisSetorFilter<"SetorSampah"> | $Enums.JenisSetor
   status?: Prisma.EnumStatusSetorSampahFilter<"SetorSampah"> | $Enums.StatusSetorSampah
   catatanAdmin?: Prisma.StringNullableFilter<"SetorSampah"> | string | null
   verifikasiAt?: Prisma.DateTimeNullableFilter<"SetorSampah"> | Date | string | null
@@ -872,6 +901,7 @@ export type SetorSampahCreateWithoutEkpedisiInput = {
   beratAktual?: number | null
   keterangan?: string | null
   alamatPenjemputan: string
+  jenisSetor?: $Enums.JenisSetor
   status?: $Enums.StatusSetorSampah
   catatanAdmin?: string | null
   verifikasiAt?: Date | string | null
@@ -893,6 +923,7 @@ export type SetorSampahUncheckedCreateWithoutEkpedisiInput = {
   beratAktual?: number | null
   keterangan?: string | null
   alamatPenjemputan: string
+  jenisSetor?: $Enums.JenisSetor
   status?: $Enums.StatusSetorSampah
   catatanAdmin?: string | null
   verifikasiAt?: Date | string | null
@@ -938,6 +969,7 @@ export type SetorSampahCreateManyNasabahInput = {
   beratAktual?: number | null
   keterangan?: string | null
   alamatPenjemputan: string
+  jenisSetor?: $Enums.JenisSetor
   status?: $Enums.StatusSetorSampah
   catatanAdmin?: string | null
   verifikasiAt?: Date | string | null
@@ -958,6 +990,7 @@ export type SetorSampahUpdateWithoutNasabahInput = {
   beratAktual?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   keterangan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   alamatPenjemputan?: Prisma.StringFieldUpdateOperationsInput | string
+  jenisSetor?: Prisma.EnumJenisSetorFieldUpdateOperationsInput | $Enums.JenisSetor
   status?: Prisma.EnumStatusSetorSampahFieldUpdateOperationsInput | $Enums.StatusSetorSampah
   catatanAdmin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   verifikasiAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -978,6 +1011,7 @@ export type SetorSampahUncheckedUpdateWithoutNasabahInput = {
   beratAktual?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   keterangan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   alamatPenjemputan?: Prisma.StringFieldUpdateOperationsInput | string
+  jenisSetor?: Prisma.EnumJenisSetorFieldUpdateOperationsInput | $Enums.JenisSetor
   status?: Prisma.EnumStatusSetorSampahFieldUpdateOperationsInput | $Enums.StatusSetorSampah
   catatanAdmin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   verifikasiAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -998,6 +1032,7 @@ export type SetorSampahUncheckedUpdateManyWithoutNasabahInput = {
   beratAktual?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   keterangan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   alamatPenjemputan?: Prisma.StringFieldUpdateOperationsInput | string
+  jenisSetor?: Prisma.EnumJenisSetorFieldUpdateOperationsInput | $Enums.JenisSetor
   status?: Prisma.EnumStatusSetorSampahFieldUpdateOperationsInput | $Enums.StatusSetorSampah
   catatanAdmin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   verifikasiAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1019,6 +1054,7 @@ export type SetorSampahCreateManyEkpedisiInput = {
   beratAktual?: number | null
   keterangan?: string | null
   alamatPenjemputan: string
+  jenisSetor?: $Enums.JenisSetor
   status?: $Enums.StatusSetorSampah
   catatanAdmin?: string | null
   verifikasiAt?: Date | string | null
@@ -1038,6 +1074,7 @@ export type SetorSampahUpdateWithoutEkpedisiInput = {
   beratAktual?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   keterangan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   alamatPenjemputan?: Prisma.StringFieldUpdateOperationsInput | string
+  jenisSetor?: Prisma.EnumJenisSetorFieldUpdateOperationsInput | $Enums.JenisSetor
   status?: Prisma.EnumStatusSetorSampahFieldUpdateOperationsInput | $Enums.StatusSetorSampah
   catatanAdmin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   verifikasiAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1059,6 +1096,7 @@ export type SetorSampahUncheckedUpdateWithoutEkpedisiInput = {
   beratAktual?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   keterangan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   alamatPenjemputan?: Prisma.StringFieldUpdateOperationsInput | string
+  jenisSetor?: Prisma.EnumJenisSetorFieldUpdateOperationsInput | $Enums.JenisSetor
   status?: Prisma.EnumStatusSetorSampahFieldUpdateOperationsInput | $Enums.StatusSetorSampah
   catatanAdmin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   verifikasiAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1079,6 +1117,7 @@ export type SetorSampahUncheckedUpdateManyWithoutEkpedisiInput = {
   beratAktual?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   keterangan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   alamatPenjemputan?: Prisma.StringFieldUpdateOperationsInput | string
+  jenisSetor?: Prisma.EnumJenisSetorFieldUpdateOperationsInput | $Enums.JenisSetor
   status?: Prisma.EnumStatusSetorSampahFieldUpdateOperationsInput | $Enums.StatusSetorSampah
   catatanAdmin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   verifikasiAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1101,6 +1140,7 @@ export type SetorSampahSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   beratAktual?: boolean
   keterangan?: boolean
   alamatPenjemputan?: boolean
+  jenisSetor?: boolean
   status?: boolean
   catatanAdmin?: boolean
   verifikasiAt?: boolean
@@ -1124,6 +1164,7 @@ export type SetorSampahSelectCreateManyAndReturn<ExtArgs extends runtime.Types.E
   beratAktual?: boolean
   keterangan?: boolean
   alamatPenjemputan?: boolean
+  jenisSetor?: boolean
   status?: boolean
   catatanAdmin?: boolean
   verifikasiAt?: boolean
@@ -1147,6 +1188,7 @@ export type SetorSampahSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.E
   beratAktual?: boolean
   keterangan?: boolean
   alamatPenjemputan?: boolean
+  jenisSetor?: boolean
   status?: boolean
   catatanAdmin?: boolean
   verifikasiAt?: boolean
@@ -1170,6 +1212,7 @@ export type SetorSampahSelectScalar = {
   beratAktual?: boolean
   keterangan?: boolean
   alamatPenjemputan?: boolean
+  jenisSetor?: boolean
   status?: boolean
   catatanAdmin?: boolean
   verifikasiAt?: boolean
@@ -1183,7 +1226,7 @@ export type SetorSampahSelectScalar = {
   updatedAt?: boolean
 }
 
-export type SetorSampahOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "nasabahId" | "jenisSampah" | "beratEstimasi" | "beratAktual" | "keterangan" | "alamatPenjemputan" | "status" | "catatanAdmin" | "verifikasiAt" | "ekpedisiId" | "penjemputanAt" | "diserahkanAt" | "hargaPerKg" | "totalSaldo" | "selesaiAt" | "createdAt" | "updatedAt", ExtArgs["result"]["setorSampah"]>
+export type SetorSampahOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "nasabahId" | "jenisSampah" | "beratEstimasi" | "beratAktual" | "keterangan" | "alamatPenjemputan" | "jenisSetor" | "status" | "catatanAdmin" | "verifikasiAt" | "ekpedisiId" | "penjemputanAt" | "diserahkanAt" | "hargaPerKg" | "totalSaldo" | "selesaiAt" | "createdAt" | "updatedAt", ExtArgs["result"]["setorSampah"]>
 export type SetorSampahInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   nasabah?: boolean | Prisma.NasabahDefaultArgs<ExtArgs>
   ekpedisi?: boolean | Prisma.SetorSampah$ekpedisiArgs<ExtArgs>
@@ -1211,6 +1254,7 @@ export type $SetorSampahPayload<ExtArgs extends runtime.Types.Extensions.Interna
     beratAktual: number | null
     keterangan: string | null
     alamatPenjemputan: string
+    jenisSetor: $Enums.JenisSetor
     status: $Enums.StatusSetorSampah
     catatanAdmin: string | null
     verifikasiAt: Date | null
@@ -1654,6 +1698,7 @@ export interface SetorSampahFieldRefs {
   readonly beratAktual: Prisma.FieldRef<"SetorSampah", 'Float'>
   readonly keterangan: Prisma.FieldRef<"SetorSampah", 'String'>
   readonly alamatPenjemputan: Prisma.FieldRef<"SetorSampah", 'String'>
+  readonly jenisSetor: Prisma.FieldRef<"SetorSampah", 'JenisSetor'>
   readonly status: Prisma.FieldRef<"SetorSampah", 'StatusSetorSampah'>
   readonly catatanAdmin: Prisma.FieldRef<"SetorSampah", 'String'>
   readonly verifikasiAt: Prisma.FieldRef<"SetorSampah", 'DateTime'>

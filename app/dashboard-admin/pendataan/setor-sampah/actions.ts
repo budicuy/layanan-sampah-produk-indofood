@@ -34,6 +34,60 @@ export async function verifikasiSetorSampah(
   revalidatePath("/dashboard-admin/pendataan/setor-sampah");
 }
 
+// ─── Verifikasi & langsung kreditkan saldo (khusus Setor Langsung) ──────────
+
+export async function verifikasiSetorLangsungDanKreditSaldo(
+  setorSampahId: string,
+  beratAktual: number,
+  hargaPerKg: number,
+  catatan?: string,
+) {
+  const session = await getSession();
+  if (!session || session.user.role === "KONSUMEN")
+    throw new Error("Unauthorized");
+
+  const setor = await prisma.setorSampah.findUnique({
+    where: { id: setorSampahId },
+    include: { nasabah: true },
+  });
+  if (!setor) throw new Error("Data tidak ditemukan");
+  if (setor.status !== "MENUNGGU_VERIFIKASI") {
+    throw new Error("Status harus MENUNGGU_VERIFIKASI");
+  }
+
+  const totalSaldo = Math.round(beratAktual * hargaPerKg);
+  const now = new Date();
+
+  await prisma.$transaction([
+    prisma.setorSampah.update({
+      where: { id: setorSampahId },
+      data: {
+        status: "SELESAI",
+        beratAktual,
+        hargaPerKg,
+        totalSaldo,
+        catatanAdmin: catatan,
+        verifikasiAt: now,
+        selesaiAt: now,
+      },
+    }),
+    prisma.nasabah.update({
+      where: { id: setor.nasabahId },
+      data: { saldo: { increment: totalSaldo } },
+    }),
+    prisma.mutasiSaldo.create({
+      data: {
+        nasabahId: setor.nasabahId,
+        jumlah: totalSaldo,
+        keterangan: `Setor langsung ${setor.jenisSampah} ${beratAktual} kg`,
+        referensiId: setorSampahId,
+      },
+    }),
+  ]);
+
+  revalidatePath("/dashboard-admin/pendataan/setor-sampah");
+}
+
 // ─── Tugaskan ekpedisi untuk penjemputan ──────────────────────────────────
 
 export async function tugaskanEkpedisi(
@@ -166,5 +220,14 @@ export async function getEkpedisiList() {
   return await prisma.ekpedisi.findMany({
     select: { id: true, noTelp: true, alamat: true },
     orderBy: { createdAt: "desc" },
+  });
+}
+
+export async function getHargaTerbaru(jenisSampah: string) {
+  await checkAdminAuth();
+  return await prisma.hargaSampah.findFirst({
+    where: { jenisSampah: jenisSampah as never },
+    orderBy: { bulan: "desc" },
+    select: { harga: true, bulan: true },
   });
 }

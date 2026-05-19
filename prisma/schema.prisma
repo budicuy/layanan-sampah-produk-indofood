@@ -63,6 +63,11 @@ enum StatusNasabah {
   NONAKTIF
 }
 
+enum JenisSetor {
+  LANGSUNG
+  EKSPEDISI
+}
+
 enum JenisSampah {
   PLASTIK
   KARTON
@@ -162,6 +167,7 @@ model SetorSampah {
   beratAktual       Float? // Berat aktual setelah ditimbang
   keterangan        String? // Catatan dari konsumen
   alamatPenjemputan String
+  jenisSetor        JenisSetor @default(EKSPEDISI)
 
   status StatusSetorSampah @default(MENUNGGU_VERIFIKASI)
 

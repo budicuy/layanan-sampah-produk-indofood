@@ -23,10 +23,12 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import type { StatusSetorSampah } from "@/prisma/generated/prisma/client";
 import {
   getEkpedisiList,
+  getHargaTerbaru,
   getSetorSampahData,
   konfirmasiSampahDiterima,
   tugaskanEkpedisi,
   verifikasiAkhirDanKreditSaldo,
+  verifikasiSetorLangsungDanKreditSaldo,
   verifikasiSetorSampah,
 } from "./actions";
 
@@ -41,6 +43,7 @@ interface Ekpedisi {
 interface SetorSampahItem {
   id: string;
   jenisSampah: string;
+  jenisSetor: "LANGSUNG" | "EKSPEDISI";
   beratEstimasi: number;
   beratAktual: number | null;
   keterangan: string | null;
@@ -377,26 +380,86 @@ function PanelVerifikasiAkhir({
 
 // ─── Step Progress ──────────────────────────────────────────────────────────
 
-const STEPS = ["Verifikasi", "Kurir", "Serah", "Terima", "Selesai"];
+const STEPS_EKSPEDISI = [
+  { label: "Verifikasi", step: 1 },
+  { label: "Kurir", step: 2 },
+  { label: "Serah", step: 3 },
+  { label: "Terima", step: 4 },
+  { label: "Selesai", step: 5 },
+];
 
-function StepProgress({ currentStep }: { currentStep: number }) {
+const STEPS_LANGSUNG = [
+  { label: "Verifikasi", step: 1 },
+  { label: "Selesai", step: 6 },
+];
+
+function StepProgress({
+  currentStep,
+  jenisSetor,
+}: {
+  currentStep: number;
+  jenisSetor: "LANGSUNG" | "EKSPEDISI";
+}) {
   if (currentStep < 0) return null;
+
+  const steps = jenisSetor === "LANGSUNG" ? STEPS_LANGSUNG : STEPS_EKSPEDISI;
+  const totalSteps = steps.length;
+
+  // Normalize: untuk LANGSUNG step 6 = selesai, untuk EKSPEDISI step 1-6
+  const normalizedIndex =
+    jenisSetor === "LANGSUNG" ? (currentStep >= 6 ? 2 : 1) : currentStep - 1;
+
   return (
-    <div className="flex items-center gap-1 mt-3">
-      {STEPS.map((s, i) => {
-        const stepNum = i + 2; // steps start at 2 (after MENUNGGU=1)
-        const done = currentStep >= stepNum;
-        const active = currentStep === stepNum - 1;
-        return (
-          <div key={s} className="flex items-center gap-1 flex-1">
-            <div
-              className={`h-1.5 rounded-full flex-1 transition-all ${
-                done ? "bg-green-400" : active ? "bg-primary/60" : "bg-zinc-200"
+    <div className="mt-3 space-y-1">
+      <div className="flex items-center gap-1">
+        {steps.map((s, i) => {
+          const done = normalizedIndex > i;
+          const active = normalizedIndex === i;
+          return (
+            <div key={s.label} className="flex items-center gap-1 flex-1">
+              <div
+                className={`h-1.5 rounded-full flex-1 transition-all ${
+                  done
+                    ? "bg-green-400"
+                    : active
+                      ? jenisSetor === "LANGSUNG"
+                        ? "bg-zinc-500"
+                        : "bg-primary/60"
+                      : "bg-zinc-200"
+                }`}
+              />
+            </div>
+          );
+        })}
+      </div>
+      <div className="flex justify-between px-0.5">
+        {steps.map((s, i) => {
+          const done = normalizedIndex > i;
+          const active = normalizedIndex === i;
+          return (
+            <span
+              key={s.label}
+              className={`text-[9px] font-bold transition-colors ${
+                done
+                  ? "text-green-500"
+                  : active
+                    ? "text-zinc-700"
+                    : "text-zinc-300"
               }`}
-            />
-          </div>
-        );
-      })}
+              style={{
+                width: `${100 / totalSteps}%`,
+                textAlign:
+                  i === 0
+                    ? "left"
+                    : i === steps.length - 1
+                      ? "right"
+                      : "center",
+              }}>
+              {s.label}
+            </span>
+          );
+        })}
+      </div>
     </div>
   );
 }
@@ -442,7 +505,198 @@ function ActionSection({
   );
 }
 
-// ─── Card ────────────────────────────────────────────────────────────────────
+// ─── Panel Verifikasi Setor Langsung (approve = selesai + kredit saldo) ───────
+
+function PanelVerifikasiLangsung({
+  id,
+  jenisSampah,
+  beratEstimasi,
+  onActionSuccess,
+}: {
+  id: string;
+  jenisSampah: string;
+  beratEstimasi: number;
+  onActionSuccess: () => void;
+}) {
+  const [loading, setLoading] = useState(false);
+  const [loadingHarga, setLoadingHarga] = useState(true);
+  const [hargaDB, setHargaDB] = useState<{ harga: number; bulan: Date } | null>(
+    null,
+  );
+  const [form, setForm] = useState({
+    beratAktual: "",
+    hargaPerKg: "",
+    catatan: "",
+  });
+
+  // Auto-load harga terbaru dari DB saat panel dibuka
+  useEffect(() => {
+    getHargaTerbaru(jenisSampah).then((res) => {
+      if (res) {
+        setHargaDB(res as { harga: number; bulan: Date });
+        setForm((f) => ({ ...f, hargaPerKg: String(res.harga) }));
+      }
+      setLoadingHarga(false);
+    });
+  }, [jenisSampah]);
+
+  // Tombol "Data Sudah Benar" — pakai berat estimasi + harga DB
+  function handleDataSudahBenar() {
+    setForm((f) => ({
+      ...f,
+      beratAktual: String(beratEstimasi),
+      hargaPerKg: hargaDB ? String(hargaDB.harga) : f.hargaPerKg,
+    }));
+  }
+
+  async function handleApprove() {
+    if (!form.beratAktual || !form.hargaPerKg) {
+      alert("Isi berat aktual dan harga per kg terlebih dahulu");
+      return;
+    }
+    setLoading(true);
+    try {
+      await verifikasiSetorLangsungDanKreditSaldo(
+        id,
+        Number(form.beratAktual),
+        Number(form.hargaPerKg),
+        form.catatan || undefined,
+      );
+      onActionSuccess();
+    } catch (e) {
+      alert(e instanceof Error ? e.message : "Terjadi kesalahan");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleTolak() {
+    const catatan = prompt("Masukkan alasan penolakan:");
+    if (!catatan) return;
+    setLoading(true);
+    try {
+      await verifikasiSetorSampah(id, false, catatan);
+      onActionSuccess();
+    } catch (e) {
+      alert(e instanceof Error ? e.message : "Terjadi kesalahan");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <div className="space-y-3">
+      {/* Info harga dari DB */}
+      {loadingHarga ? (
+        <div className="flex items-center gap-2 px-3 py-2 bg-zinc-50 border border-zinc-100 rounded-lg">
+          <Loader2 size={12} className="animate-spin text-zinc-400" />
+          <span className="text-xs text-zinc-400">
+            Memuat harga referensi...
+          </span>
+        </div>
+      ) : hargaDB ? (
+        <div className="space-y-2">
+          <div className="flex items-center justify-between px-3 py-2 bg-blue-50 border border-blue-100 rounded-lg">
+            <div>
+              <p className="text-[10px] font-bold text-blue-500 uppercase tracking-wider">
+                Harga Referensi DB
+              </p>
+              <p className="text-xs font-bold text-blue-800">
+                {formatRupiah(hargaDB.harga)}/kg · Bulan{" "}
+                {new Date(hargaDB.bulan).toLocaleDateString("id-ID", {
+                  month: "long",
+                  year: "numeric",
+                })}
+              </p>
+            </div>
+          </div>
+          {/* Tombol Data Sudah Benar */}
+          <button
+            type="button"
+            onClick={handleDataSudahBenar}
+            disabled={loading}
+            className="w-full flex items-center justify-center gap-1.5 py-2.5 bg-zinc-900 text-white rounded-xl text-xs font-bold hover:bg-zinc-800 disabled:opacity-60 transition-colors">
+            <CheckCircle2 size={13} />
+            Data Sudah Benar (Berat: {beratEstimasi} kg · Harga:{" "}
+            {formatRupiah(hargaDB.harga)}/kg)
+          </button>
+        </div>
+      ) : (
+        <div className="px-3 py-2 bg-amber-50 border border-amber-100 rounded-lg">
+          <p className="text-xs text-amber-700 font-medium">
+            ⚠ Belum ada data harga referensi untuk jenis sampah ini. Input
+            manual di bawah.
+          </p>
+        </div>
+      )}
+
+      <div>
+        <label
+          htmlFor="pvl-beratAktual"
+          className="text-[10px] font-bold text-zinc-500 uppercase mb-1 block">
+          Berat Aktual (kg) *
+        </label>
+        <input
+          id="pvl-beratAktual"
+          type="number"
+          min="0.1"
+          step="0.1"
+          value={form.beratAktual}
+          onChange={(e) => setForm({ ...form, beratAktual: e.target.value })}
+          placeholder="0.0"
+          className="w-full px-3 py-2 bg-white border border-zinc-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-200"
+        />
+      </div>
+      {form.beratAktual && form.hargaPerKg && (
+        <div className="px-3 py-2.5 bg-green-50 border border-green-100 rounded-lg space-y-0.5">
+          <p className="text-[10px] text-green-500 font-bold uppercase tracking-wider">
+            Perhitungan Saldo
+          </p>
+          <p className="text-xs text-green-700">
+            {form.beratAktual} kg × {formatRupiah(Number(form.hargaPerKg))}/kg
+            {" = "}
+            <span className="font-black text-green-800">
+              {formatRupiah(
+                Math.round(Number(form.beratAktual) * Number(form.hargaPerKg)),
+              )}
+            </span>
+          </p>
+        </div>
+      )}
+      <input
+        type="text"
+        value={form.catatan}
+        onChange={(e) => setForm({ ...form, catatan: e.target.value })}
+        placeholder="Catatan (opsional)"
+        className="w-full px-3 py-2 bg-white border border-zinc-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-zinc-200"
+      />
+      <div className="flex gap-2">
+        <button
+          type="button"
+          onClick={handleApprove}
+          disabled={loading}
+          className="flex-1 flex items-center justify-center gap-1.5 py-2 bg-green-600 text-white rounded-xl text-xs font-bold hover:bg-green-700 disabled:opacity-60 transition-colors">
+          {loading ? (
+            <Loader2 size={12} className="animate-spin" />
+          ) : (
+            <CheckCircle size={12} />
+          )}
+          Verifikasi & Kreditkan Saldo
+        </button>
+        <button
+          type="button"
+          onClick={handleTolak}
+          disabled={loading}
+          className="flex items-center justify-center gap-1.5 px-4 py-2 bg-red-50 text-red-600 border border-red-200 rounded-xl text-xs font-bold hover:bg-red-100 disabled:opacity-60 transition-colors">
+          <XCircle size={12} />
+          Tolak
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ─── Card ────────────────────────────────────────────────────────────────────────
 
 function SetorCard({
   item,
@@ -486,6 +740,14 @@ function SetorCard({
               className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold border ${cfg.cls} whitespace-nowrap`}>
               {cfg.label}
             </span>
+            <span
+              className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold whitespace-nowrap ${
+                item.jenisSetor === "LANGSUNG"
+                  ? "bg-zinc-100 text-zinc-600 border border-zinc-200"
+                  : "bg-blue-50 text-blue-600 border border-blue-100"
+              }`}>
+              {item.jenisSetor === "LANGSUNG" ? "🏪 Langsung" : "🚚 Ekspedisi"}
+            </span>
           </div>
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1.5 text-xs text-zinc-500">
             <span className="flex items-center gap-1">
@@ -506,7 +768,7 @@ function SetorCard({
               )}
             </span>
           </div>
-          <StepProgress currentStep={cfg.step} />
+          <StepProgress currentStep={cfg.step} jenisSetor={item.jenisSetor} />
         </div>
       </div>
 
@@ -553,11 +815,23 @@ function SetorCard({
         </p>
 
         {/* Action panels */}
-        {item.status === "MENUNGGU_VERIFIKASI" && (
-          <ActionSection title="Verifikasi Data">
-            <PanelVerifikasi id={item.id} onActionSuccess={onActionSuccess} />
-          </ActionSection>
-        )}
+        {item.status === "MENUNGGU_VERIFIKASI" &&
+          item.jenisSetor === "LANGSUNG" && (
+            <ActionSection title="Verifikasi & Kreditkan Saldo (Setor Langsung)">
+              <PanelVerifikasiLangsung
+                id={item.id}
+                jenisSampah={item.jenisSampah}
+                beratEstimasi={item.beratEstimasi}
+                onActionSuccess={onActionSuccess}
+              />
+            </ActionSection>
+          )}
+        {item.status === "MENUNGGU_VERIFIKASI" &&
+          item.jenisSetor !== "LANGSUNG" && (
+            <ActionSection title="Verifikasi Data">
+              <PanelVerifikasi id={item.id} onActionSuccess={onActionSuccess} />
+            </ActionSection>
+          )}
         {item.status === "TERVERIFIKASI" && (
           <ActionSection title="Tugaskan Kurir">
             <PanelEkpedisi

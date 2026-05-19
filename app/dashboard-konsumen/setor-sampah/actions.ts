@@ -40,6 +40,40 @@ export async function submitSetorSampah(data: {
   revalidatePath("/konsumen/setor-sampah");
 }
 
+// Konsumen submit setor langsung (tanpa alamat penjemputan)
+export async function submitSetorLangsung(data: {
+  jenisSampah: JenisSampah;
+  beratEstimasi: number;
+  keterangan?: string;
+}) {
+  const session = await getSession();
+  if (!session) throw new Error("Unauthorized");
+
+  const nasabah = await prisma.nasabah.findUnique({
+    where: { userId: session.user.sub },
+  });
+
+  if (!nasabah) {
+    throw new Error(
+      "Profil nasabah belum terdaftar. Hubungi admin untuk mendaftarkan akun Anda.",
+    );
+  }
+
+  await prisma.setorSampah.create({
+    data: {
+      nasabahId: nasabah.id,
+      jenisSampah: data.jenisSampah,
+      beratEstimasi: data.beratEstimasi,
+      keterangan: data.keterangan,
+      alamatPenjemputan: "-", // Setor langsung — tidak ada penjemputan
+      jenisSetor: "LANGSUNG",
+      status: "MENUNGGU_VERIFIKASI",
+    },
+  });
+
+  revalidatePath("/dashboard-konsumen/setor-sampah");
+}
+
 // Konsumen konfirmasi sudah menyerahkan sampah ke kurir
 export async function konfirmasiSerahTerima(setorSampahId: string) {
   const session = await getSession();

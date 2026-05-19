@@ -3,7 +3,6 @@ import { hash } from "bcryptjs";
 import type {
   JenisSampah,
   KategoriNasabah,
-  StatusEkpedisi,
   StatusNasabah,
 } from "./generated/prisma/enums";
 
@@ -64,7 +63,6 @@ async function main() {
     await prisma.nasabah.create({
       data: {
         userId: user.id,
-        nama: n.nama,
         alamat: n.alamat,
         noTelp: n.noTelp,
         kategori: n.kategori as KategoriNasabah,
@@ -94,10 +92,9 @@ async function main() {
   console.log("🚚 Seeding dummy Ekpedisi data...");
   await prisma.ekpedisi.createMany({
     data: EkpedisiSeed.map((e) => ({
+      nama: e.nama,
       noTelp: e.noTelp,
       alamat: e.alamat,
-      titikLokasi: e.titikLokasi,
-      status: e.status as StatusEkpedisi,
     })),
   });
 

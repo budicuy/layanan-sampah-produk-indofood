@@ -174,6 +174,7 @@ export const SetorSampahScalarFieldEnum = {
   beratAktual: 'beratAktual',
   keterangan: 'keterangan',
   alamatPenjemputan: 'alamatPenjemputan',
+  jenisSetor: 'jenisSetor',
   status: 'status',
   catatanAdmin: 'catatanAdmin',
   verifikasiAt: 'verifikasiAt',

@@ -1139,6 +1139,7 @@ export const SetorSampahScalarFieldEnum = {
   beratAktual: 'beratAktual',
   keterangan: 'keterangan',
   alamatPenjemputan: 'alamatPenjemputan',
+  jenisSetor: 'jenisSetor',
   status: 'status',
   catatanAdmin: 'catatanAdmin',
   verifikasiAt: 'verifikasiAt',
@@ -1320,6 +1321,20 @@ export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, '
  * Reference to a field of type 'Float[]'
  */
 export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
+    
+
+
+/**
+ * Reference to a field of type 'JenisSetor'
+ */
+export type EnumJenisSetorFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'JenisSetor'>
+    
+
+
+/**
+ * Reference to a field of type 'JenisSetor[]'
+ */
+export type ListEnumJenisSetorFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'JenisSetor[]'>
     
 
 
