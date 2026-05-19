@@ -23,14 +23,6 @@ import { getLaporanData } from "@/app/dashboard-admin/pendataan/laporan-pendataa
 
 // ─── Data helpers ────────────────────────────────────────────────────────────
 
-function formatRupiah(n: number) {
-  return new Intl.NumberFormat("id-ID", {
-    style: "currency",
-    currency: "IDR",
-    maximumFractionDigits: 0,
-  }).format(n);
-}
-
 function getMonthLabel(date: Date) {
   return date.toLocaleDateString("id-ID", { month: "short", year: "numeric" });
 }
@@ -43,8 +35,8 @@ export interface LaporanRow {
   jenisSampah: string;
   beratEstimasi: number;
   beratAktual: number | null;
-  hargaPerKg: number | null;
-  totalSaldo: number | null;
+  poinPerKg: number | null;
+  totalPoin: number | null;
   alamatPenjemputan: string;
   keterangan: string | null;
   selesaiAt: Date | null;
@@ -82,7 +74,7 @@ export default function LaporanPage() {
     (acc, s) => acc + (s.beratAktual ?? s.beratEstimasi),
     0,
   );
-  const totalSaldo = setoran.reduce((acc, s) => acc + (s.totalSaldo ?? 0), 0);
+  const totalPoin = setoran.reduce((acc, s) => acc + (s.totalPoin ?? 0), 0);
   const nasabahUnik = new Set(setoran.map((s) => s.nasabahId)).size;
   const jumlahSelesai = setoran.length;
 
@@ -139,7 +131,7 @@ export default function LaporanPage() {
           Laporan Setoran Sampah
         </h1>
         <p className="text-zinc-500 mt-1">
-          Rekap transaksi setoran sampah yang telah selesai dan saldo
+          Rekap transaksi setoran sampah yang telah selesai dan poin
           dikreditkan.
         </p>
       </div>
@@ -163,8 +155,8 @@ export default function LaporanPage() {
           },
           {
             icon: Wallet,
-            label: "Total Saldo",
-            value: formatRupiah(totalSaldo),
+            label: "Total Poin",
+            value: `${totalPoin} Poin`,
             sub: "Dikreditkan ke nasabah",
             color: "text-primary bg-red-50",
           },
@@ -263,7 +255,7 @@ export default function LaporanPage() {
               Detail Transaksi Setoran
             </h3>
             <p className="text-xs text-zinc-400 mt-0.5">
-              Semua setoran yang sudah selesai dan saldo dikreditkan
+              Semua setoran yang sudah selesai dan poin dikreditkan
             </p>
           </div>
           <div className="flex items-center gap-2 text-xs font-medium text-zinc-500 bg-zinc-50 px-4 py-2 rounded-xl">
@@ -301,8 +293,8 @@ export default function LaporanPage() {
                   "Kategori",
                   "Jenis Sampah",
                   "Berat",
-                  "Harga/kg",
-                  "Total Saldo",
+                  "Poin/kg",
+                  "Total Poin",
                   "Kurir",
                 ].map((h) => (
                   <th
@@ -412,24 +404,24 @@ export default function LaporanPage() {
                       </div>
                     </td>
 
-                    {/* Harga/kg */}
+                    {/* Poin/kg */}
                     <td className="px-6 py-5">
-                      {row.hargaPerKg != null ? (
+                      {row.poinPerKg != null ? (
                         <span className="font-medium text-zinc-700 text-sm">
-                          {formatRupiah(row.hargaPerKg)}/kg
+                          {row.poinPerKg} poin/kg
                         </span>
                       ) : (
                         <span className="text-zinc-400 text-sm">-</span>
                       )}
                     </td>
 
-                    {/* Total Saldo */}
+                    {/* Total Poin */}
                     <td className="px-6 py-5">
-                      {row.totalSaldo != null ? (
+                      {row.totalPoin != null ? (
                         <div className="flex items-center gap-1.5">
                           <Wallet size={13} className="text-green-600" />
                           <span className="font-bold text-green-700 text-sm">
-                            {formatRupiah(row.totalSaldo)}
+                            {row.totalPoin} poin
                           </span>
                         </div>
                       ) : (

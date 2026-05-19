@@ -28,8 +28,8 @@ type SetorSampah = {
   jenisSampah: string;
   beratEstimasi: number;
   beratAktual: number | null;
-  hargaPerKg: number | null;
-  totalSaldo: number | null;
+  poinPerKg: number | null;
+  totalPoin: number | null;
   status: string;
   createdAt: Date;
   ekpedisi: { alamat: string; noTelp: string } | null;
@@ -51,20 +51,12 @@ type NasabahWithTabungan = {
   jenisBank: string;
   noTelp: string;
   alamat: string;
-  saldo: number;
+  poin: number;
   setorSampah: SetorSampah[];
   mutasiSaldo: MutasiSaldo[];
 };
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
-
-function formatRupiah(n: number) {
-  return new Intl.NumberFormat("id-ID", {
-    style: "currency",
-    currency: "IDR",
-    maximumFractionDigits: 0,
-  }).format(n);
-}
 
 function formatDate(d: Date | string | null | undefined) {
   if (!d) return "-";
@@ -121,7 +113,7 @@ export default function TabunganNasabahPage() {
     });
   }, []);
 
-  const totalSaldoSemua = nasabahs.reduce((a, n) => a + n.saldo, 0);
+  const totalPoinSemua = nasabahs.reduce((a, n) => a + n.poin, 0);
   const totalSetoranSelesai = nasabahs.reduce(
     (a, n) => a + n.setorSampah.filter((s) => s.status === "SELESAI").length,
     0,
@@ -144,7 +136,7 @@ export default function TabunganNasabahPage() {
           Tabungan Nasabah Konsumen
         </h1>
         <p className="text-zinc-500 mt-1">
-          Rekap saldo, total setoran, dan rincian rekening setiap nasabah.
+          Rekap poin, total setoran, dan rincian rekening setiap nasabah.
         </p>
       </div>
 
@@ -167,9 +159,9 @@ export default function TabunganNasabahPage() {
           },
           {
             icon: Wallet,
-            label: "Total Saldo Terkumpul",
-            value: formatRupiah(totalSaldoSemua),
-            sub: "Total kredit ke nasabah",
+            label: "Total Poin Terkumpul",
+            value: `${totalPoinSemua} Poin`,
+            sub: "Total poin diberikan",
             color: "text-green-600 bg-green-50",
           },
         ].map(({ icon: Icon, label, value, sub, color }) => (
@@ -211,7 +203,7 @@ export default function TabunganNasabahPage() {
                   "Rekening",
                   "Total Setoran",
                   "Total Berat",
-                  "Saldo",
+                  "Poin",
                   "Aksi",
                 ].map((h) => (
                   <th
@@ -305,7 +297,7 @@ export default function TabunganNasabahPage() {
                         </div>
                       </td>
 
-                      {/* Saldo */}
+                      {/* Poin */}
                       <td className="px-4 md:px-8 py-4 md:py-5">
                         <div className="flex items-center gap-1.5 whitespace-nowrap">
                           <Wallet
@@ -314,11 +306,11 @@ export default function TabunganNasabahPage() {
                           />
                           <span
                             className={`font-bold text-[13px] md:text-sm ${
-                              nasabah.saldo > 0
+                              nasabah.poin > 0
                                 ? "text-green-700"
                                 : "text-zinc-400"
                             }`}>
-                            {formatRupiah(nasabah.saldo)}
+                            {nasabah.poin} poin
                           </span>
                         </div>
                       </td>
@@ -442,16 +434,16 @@ export default function TabunganNasabahPage() {
                     </div>
                   </div>
 
-                  {/* Ringkasan saldo & setoran */}
+                  {/* Ringkasan poin & setoran */}
                   <div className="lg:col-span-2 grid grid-cols-2 gap-4">
-                    {/* Saldo */}
+                    {/* Poin */}
                     <div className="col-span-2 bg-primary rounded-[24px] p-6 text-white relative overflow-hidden shadow-xl shadow-primary/20">
                       <div className="relative z-10">
                         <p className="text-white/70 text-sm font-medium">
-                          Saldo Tabungan
+                          Total Poin
                         </p>
                         <p className="text-3xl md:text-4xl font-heading font-bold mt-2">
-                          {formatRupiah(selectedNasabah.saldo)}
+                          {`${selectedNasabah.poin} poin`}
                         </p>
                       </div>
                       <Wallet
@@ -494,16 +486,14 @@ export default function TabunganNasabahPage() {
                       },
                       {
                         icon: Wallet,
-                        label: "Total Dikreditkan",
-                        value: formatRupiah(
-                          selectedNasabah.setorSampah
-                            .filter((s: SetorSampah) => s.status === "SELESAI")
-                            .reduce(
-                              (a: number, s: SetorSampah) =>
-                                a + (s.totalSaldo ?? 0),
-                              0,
-                            ),
-                        ),
+                        label: "Total Poin Diberikan",
+                        value: `${selectedNasabah.setorSampah
+                          .filter((s: SetorSampah) => s.status === "SELESAI")
+                          .reduce(
+                            (a: number, s: SetorSampah) =>
+                              a + (s.totalPoin ?? 0),
+                            0,
+                          )} poin`,
                         sub: "semua waktu",
                         color: "text-primary bg-red-50",
                       },
@@ -553,7 +543,7 @@ export default function TabunganNasabahPage() {
                               "Berat Estimasi",
                               "Berat Aktual",
                               "Harga/kg",
-                              "Saldo Kredit",
+                              "Poin Kredit",
                               "Kurir",
                               "Status",
                             ].map((h) => (
@@ -624,9 +614,9 @@ export default function TabunganNasabahPage() {
                                   )}
                                 </td>
                                 <td className="px-4 md:px-6 py-4 md:py-5">
-                                  {s.hargaPerKg != null ? (
+                                  {s.poinPerKg != null ? (
                                     <span className="text-[13px] md:text-sm text-zinc-700 font-medium whitespace-nowrap">
-                                      {formatRupiah(s.hargaPerKg)}/kg
+                                      {s.poinPerKg} poin/kg
                                     </span>
                                   ) : (
                                     <span className="text-zinc-400 text-sm whitespace-nowrap">
@@ -635,14 +625,14 @@ export default function TabunganNasabahPage() {
                                   )}
                                 </td>
                                 <td className="px-4 md:px-6 py-4 md:py-5">
-                                  {s.totalSaldo != null ? (
+                                  {s.totalPoin != null ? (
                                     <div className="flex items-center gap-1.5 whitespace-nowrap">
                                       <Wallet
                                         size={13}
                                         className="text-green-600 shrink-0"
                                       />
                                       <span className="font-bold text-green-700 text-[13px] md:text-sm">
-                                        {formatRupiah(s.totalSaldo)}
+                                        {`${s.totalPoin} poin`}
                                       </span>
                                     </div>
                                   ) : (
@@ -688,12 +678,12 @@ export default function TabunganNasabahPage() {
                   )}
                 </div>
 
-                {/* Riwayat mutasi saldo */}
+                {/* Riwayat mutasi poin */}
                 {selectedNasabah.mutasiSaldo.length > 0 && (
                   <div className="bg-white rounded-[32px] border border-zinc-100 shadow-sm overflow-hidden">
                     <div className="p-5 md:p-8 border-b border-zinc-100">
                       <h3 className="text-lg md:text-xl font-heading font-bold text-zinc-900">
-                        Riwayat Mutasi Saldo
+                        Riwayat Mutasi Poin
                       </h3>
                     </div>
                     <div className="divide-y divide-zinc-100">
@@ -724,7 +714,7 @@ export default function TabunganNasabahPage() {
                               m.jumlah >= 0 ? "text-green-700" : "text-red-600"
                             }`}>
                             {m.jumlah >= 0 ? "+" : ""}
-                            {formatRupiah(m.jumlah)}
+                            {m.jumlah} poin
                           </span>
                         </div>
                       ))}

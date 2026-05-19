@@ -82,10 +82,6 @@ async function main() {
       kode: p.kode,
       nama: p.nama,
       jenis: p.jenis as JenisSampah,
-      berat: p.berat,
-      brand: p.brand,
-      harga: p.harga,
-      isi: p.isi,
     })),
   });
 
@@ -102,6 +98,7 @@ async function main() {
   await prisma.hargaSampah.createMany({
     data: HargaSampahSeed.map((h) => ({
       harga: h.harga,
+      point: h.point,
       bulan: new Date(h.bulan),
       jenisSampah: h.jenisSampah as JenisSampah,
       berat: h.berat,
@@ -119,8 +116,8 @@ async function main() {
       beratAktual: number;
       alamatPenjemputan: string;
       status: "SELESAI";
-      hargaPerKg: number;
-      totalSaldo: number;
+      poinPerKg: number;
+      totalPoin: number;
       selesaiAt: Date;
       verifikasiAt: Date;
       penjemputanAt: Date;
@@ -133,8 +130,8 @@ async function main() {
         beratAktual: 2.8,
         alamatPenjemputan: nasabahs[0].alamat,
         status: "SELESAI",
-        hargaPerKg: 3000,
-        totalSaldo: 8400,
+        poinPerKg: 40,
+        totalPoin: 112,
         selesaiAt: new Date("2026-04-05"),
         verifikasiAt: new Date("2026-04-03"),
         penjemputanAt: new Date("2026-04-04"),
@@ -147,8 +144,8 @@ async function main() {
         beratAktual: 4.5,
         alamatPenjemputan: nasabahs[0].alamat,
         status: "SELESAI",
-        hargaPerKg: 2000,
-        totalSaldo: 9000,
+        poinPerKg: 22,
+        totalPoin: 99,
         selesaiAt: new Date("2026-04-15"),
         verifikasiAt: new Date("2026-04-13"),
         penjemputanAt: new Date("2026-04-14"),
@@ -161,8 +158,8 @@ async function main() {
         beratAktual: 1.8,
         alamatPenjemputan: nasabahs[1]?.alamat ?? nasabahs[0].alamat,
         status: "SELESAI",
-        hargaPerKg: 3000,
-        totalSaldo: 5400,
+        poinPerKg: 40,
+        totalPoin: 72,
         selesaiAt: new Date("2026-04-20"),
         verifikasiAt: new Date("2026-04-18"),
         penjemputanAt: new Date("2026-04-19"),
@@ -175,8 +172,8 @@ async function main() {
         beratAktual: 3.9,
         alamatPenjemputan: nasabahs[0].alamat,
         status: "SELESAI",
-        hargaPerKg: 3000,
-        totalSaldo: 11700,
+        poinPerKg: 40,
+        totalPoin: 156,
         selesaiAt: new Date("2026-05-02"),
         verifikasiAt: new Date("2026-04-30"),
         penjemputanAt: new Date("2026-05-01"),
@@ -189,8 +186,8 @@ async function main() {
         beratAktual: 7.5,
         alamatPenjemputan: nasabahs[2]?.alamat ?? nasabahs[0].alamat,
         status: "SELESAI",
-        hargaPerKg: 2000,
-        totalSaldo: 15000,
+        poinPerKg: 22,
+        totalPoin: 165,
         selesaiAt: new Date("2026-05-03"),
         verifikasiAt: new Date("2026-05-01"),
         penjemputanAt: new Date("2026-05-02"),
@@ -207,17 +204,17 @@ async function main() {
     await prisma.mutasiSaldo.createMany({
       data: selesaiList.map((s) => ({
         nasabahId: s.nasabahId,
-        jumlah: s.totalSaldo ?? 0,
+        jumlah: s.totalPoin ?? 0,
         keterangan: `Setor sampah ${s.jenisSampah} ${s.beratAktual} kg`,
         referensiId: s.id,
       })),
     });
 
-    // Update saldo nasabah
+    // Update poin nasabah
     for (const s of selesaiList) {
       await prisma.nasabah.update({
         where: { id: s.nasabahId },
-        data: { saldo: { increment: s.totalSaldo ?? 0 } },
+        data: { poin: { increment: s.totalPoin ?? 0 } },
       });
     }
     console.log("✅ Dummy SetorSampah (SELESAI) berhasil dibuat.");

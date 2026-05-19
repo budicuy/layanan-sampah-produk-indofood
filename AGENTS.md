@@ -13,15 +13,36 @@ See [README.md](README.md) for setup, tech stack, and environment configuration.
 
 ---
 
-## 🏗️ Architecture Overview
+## 🏗️ Architecture & Recent Refactors
 
 This is a **role-based, dual-dashboard application**:
 
-- **Admin Dashboard** (`/dashboard-admin`): Master data CRUD (consumers, products, drivers, pricing), waste submission processing, balance management
-- **Consumer Dashboard** (`/dashboard-konsumen`): Submit waste, track collection status, view balance
-- **Role-Based Routing**: Middleware (`proxy.ts`) redirects users at Edge level based on JWT role (KONSUMEN, ADMIN, HRD)
-- **Data Mutations**: All changes go through **Server Actions** in `[feature]/actions.ts` files
-- **Session Management**: JWT in httpOnly cookie; retrieve via `getSession()` (Edge-compatible)
+- **Admin Dashboard** (`/dashboard-admin`): Master data CRUD (consumers, drivers, pricing, users), waste submission processing, and balance/points ledgers.
+- **Consumer Dashboard** (`/dashboard-konsumen`): Submit waste (langsung/ekspedisi), view points balance, and track collection/verification workflow stages.
+- **Role-Based Routing**: Middleware (`proxy.ts`) redirects users at Edge level based on JWT role (`KONSUMEN`, `ADMIN`, `HRD`).
+- **Data Mutations**: All changes go through **Server Actions** in `[feature]/actions.ts` files.
+- **Session Management**: JWT in httpOnly cookie; retrieve via `getSession()` (Edge-compatible). Access user ID via `session.user.sub`, NOT `.user.id`.
+
+### 🔄 Summary of Key Project Evolution & Refactors
+
+1. **Reward Poin Migration (Points-Based Payouts)**
+   - The platform migrated from currency-based payouts (Saldo/Rupiah) to point-based rewards.
+   - `Nasabah` profile tracks `poin` instead of `saldo`.
+   - `SetorSampah` records `poinPerKg` and `totalPoin` instead of `hargaPerKg` and `totalSaldo`.
+   - `HargaSampah` (monthly reference rates) tracks points rewarded per kg in the `point` field.
+   - `MutasiSaldo` represents point transactions (kredit/debit) and links to the transaction reference.
+
+2. **Removing Price / Details from Product Data (`Produk` model)**
+   - The `Produk` model was simplified and acts strictly as metadata (`kode`, `nama`, `jenis`). All price, weight, brand, and size details were removed.
+   - Payout calculations dynamically fetch monthly rate limits from the `HargaSampah` table for the matching `JenisSampah` (`PLASTIK`, `KARTON`, `PAPER_CUP`) and month of submission.
+
+3. **Simplified Folder Structure (Self-Contained Pages)**
+   - To reduce folder nesting and prevent parsing/import errors, subcomponents have been merged directly into their respective `page.tsx` files.
+   - Interactive modals, tables, and CRUD triggers are declared in the same file as the page layout (annotated with `"use client"` at the top), while backend queries and operations are imported from a sibling `actions.ts` file.
+
+4. **Automatic Price/Point Verification ("Data Sudah Benar")**
+   - The Admin Setor Sampah verification panel automatically loads the matching rates from `HargaSampah`.
+   - Admin can click the "Data Sudah Benar" button to automatically verify and set actual weight equal to estimated weight, calculate points, lock in notes, and credit the points balance immediately.
 
 ---
 
@@ -30,26 +51,25 @@ This is a **role-based, dual-dashboard application**:
 **Key Entities**:
 
 - `User` → `Account` (password: bcrypt hash)
-- `User` → `Nasabah` (consumer profile: saldo, mutasi history)
+- `User` → `Nasabah` (consumer profile: `poin` balance, mutasi history)
 - `Nasabah` → `SetorSampah` (waste submissions with 7-stage workflow)
-- `Nasabah` → `MutasiSaldo` (transaction ledger; links to SetorSampah via `referensiId`)
+- `Nasabah` → `MutasiSaldo` (point transaction ledger; links to SetorSampah via `referensiId`)
 - `Ekpedisi` (delivery drivers) → assigned to `SetorSampah`
-- `Produk` (waste types) + `HargaSampah` (monthly pricing)
+- `Produk` (waste types) + `HargaSampah` (monthly pricing & points)
 
-**SetorSampah Workflow** (7 stages — core business logic):
+**SetorSampah Workflows** (Core Business Logic by `jenisSetor`):
 
-1. **MENUNGGU_VERIFIKASI** — Consumer submits waste details
-2. **TERVERIFIKASI** — Admin approves/validates submission
-3. **DITOLAK** — Admin rejects submission
-4. **DALAM_PENJEMPUTAN** — Driver assigned, en route to pickup
-5. **SUDAH_DISERAHKAN** — Consumer confirms handoff to driver
-6. **SAMPAH_DITERIMA** — Admin confirms arrival at waste center
-7. **SELESAI** — Balance credited; transaction complete
+### 1. Direct Drop-off (`LANGSUNG`) Workflow:
+* **MENUNGGU_VERIFIKASI** — Consumer submits waste details and drops it off directly at the center.
+* **SELESAI** (or **DITOLAK**) — Admin verifies the waste, records the actual weight (can use "Data Sudah Benar" auto-fill), calculates and credits the points directly to the consumer, and completes the transaction (direct jump from waiting to finished).
 
-**Critical Details**:
-- `MutasiSaldo.referensiId` → `SetorSampah.id` (audit trail)
-- Indexes on `(nasabahId, status)`, `status`, `selesaiAt` (query optimization)
-- Prisma client auto-generated at `prisma/generated/prisma/client`
+### 2. Courier Pickup (`EKSPEDISI`) Workflow:
+1. **MENUNGGU_VERIFIKASI** — Consumer registers a pickup request.
+2. **TERVERIFIKASI** (or **DITOLAK**) — Admin validates the request.
+3. **DALAM_PENJEMPUTAN** — Admin assigns an `Ekpedisi` driver to en route to pickup.
+4. **SUDAH_DISERAHKAN** — Consumer confirms they have handed over the waste to the driver.
+5. **SAMPAH_DITERIMA** — Admin confirms the waste arrived at the collection center.
+6. **SELESAI** — Admin weighs the waste, registers actual weight (can use "Data Sudah Benar" auto-fill), locks in monthly point rate from `HargaSampah`, and credits the points to complete the transaction.
 
 **Schema**: [prisma/schema.prisma](prisma/schema.prisma)
 
@@ -70,23 +90,6 @@ This is a **role-based, dual-dashboard application**:
 - `await getSession()` → reads JWT from cookie (Edge-compatible, no Prisma)
 - Returns `{ user: JwtPayload }` or `null`
 - **⚠️ CRITICAL**: Access user ID via `session.user.sub`, NOT `.user.id`
-
-**Auth Flow**:
-1. Login form submits username + password
-2. `loginAction` validates against bcrypt `Account.password`
-3. Checks user status is AKTIF
-4. Signs JWT + sets httpOnly cookie
-5. Returns role → frontend redirects to appropriate dashboard
-
-**Example Auth Check in Server Action**:
-```typescript
-async function checkAdminAuth() {
-  const session = await getSession();
-  if (!session || session.user.role === "KONSUMEN") {
-    throw new Error("Unauthorized: Admin or HRD access required");
-  }
-}
-```
 
 ---
 
@@ -126,22 +129,6 @@ export async function createEntity(data: FormData) {
 }
 ```
 
-### Components & Forms
-
-- **Pages**: Usually `"use client"` with `useState` + fetch data via Server Action
-- **Layouts**: Server Components; check auth and redirect unauthorized users
-- **Forms**: Use native `FormData` API:
-  ```typescript
-  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    await serverAction(formData);
-  }
-  ```
-- **Icons**: Lucide React (`lucide-react`)
-- **Toasts**: `react-hot-toast` for notifications
-- **Styling**: Tailwind CSS 4 + custom theme in [app/globals.css](app/globals.css)
-
 ### Key Patterns
 
 | Pattern | Usage | Location |
@@ -162,7 +149,7 @@ export async function createEntity(data: FormData) {
 2. **Async Cookie/Header APIs**: `await cookies()` and `await headers()` are required
 3. **FormData Instead of JSON**: Use native FormData API; React handles serialization
 4. **Edge-Compatible Auth**: `jose` library for HS256 signing (not Node.js `jsonwebtoken`)
-5. **Neon Adapter**: `@prisma/adapter-neon` for serverless connection pooling
+5. **Neon Adapter**: `@prisma/adapter-neon` for serverless connection pooling over HTTP/WS (port 443)
 6. **Middleware**: Project uses `proxy.ts` (verify wiring in `next.config.ts`)
 7. **Tailwind CSS 4**: `@theme inline` directives; `@tailwindcss/postcss` required
 8. **Biome Linting**: Single tool for format + lint; run `bun run lint` (writes fixes)
@@ -174,8 +161,8 @@ export async function createEntity(data: FormData) {
 ```bash
 # Development
 bun dev                    # Start dev server (http://localhost:3000)
-bun run db:seed           # Seed default data
-bun run db:push           # Sync Prisma schema to DB
+bun run db:seed           # Seed default data (updates points & mock data)
+bun run prisma/migrate.ts  # Push local schema changes to Neon DB via HTTP adapter (bypassing blocked TCP port 5432)
 bun run db:generate       # Regenerate Prisma client after schema changes
 bun run lint              # Format + lint with Biome (writes fixes)
 bun run format            # Format code only
@@ -198,18 +185,19 @@ bun start                 # Start production server
 | Prisma client out of sync | Schema changed without regeneration | Run `bun run db:generate` |
 | Type errors on enums | Wrong import | Import from `@/prisma/generated/prisma/client` |
 | Middleware not routing correctly | `proxy.ts` not wired | Check `next.config.ts` for middleware config |
+| `P1001: Can't reach database server` during `db:push` | TCP port 5432 is blocked by network | Run schema migrations using Neon HTTP serverless adapter: `bun run prisma/migrate.ts` |
 
 ---
 
 ## 📂 Directory Structure Guide
 
 - **`app/`** — Next.js App Router (pages, layouts, API routes)
-  - `dashboard-admin/` — Admin panel with master data CRUD and processing
-  - `dashboard-konsumen/` — Consumer panel for waste submission
+  - `dashboard-admin/` — Admin panel with master data CRUD, processing, reports, and ledgers
+  - `dashboard-konsumen/` — Consumer panel for waste submission and history tracking
   - `login/` — Authentication (pages, auth utilities)
 - **`prisma/`** — Prisma schema, migrations, seed scripts
   - `generated/` — Auto-generated Prisma client (read-only)
-- **`lib/`** — Shared utilities (Prisma client singleton)
+- **`lib/`** — Shared utilities (Prisma client singleton using `@prisma/adapter-neon` over port 443)
 - **`public/`** — Static assets
 
 ---
@@ -226,6 +214,7 @@ When implementing features, always:
 ✅ Handle errors gracefully — throw errors in actions; catch on client  
 ✅ Test linting — run `bun run lint` to check for style/type issues  
 ✅ Understand the SetorSampah workflow — it's the core business logic  
+✅ Remember rewards are Point-based — use `poin`, `totalPoin`, `poinPerKg`, and `point` instead of `saldo` or currency units  
 
 ---
 

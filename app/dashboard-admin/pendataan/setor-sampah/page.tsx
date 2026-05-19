@@ -52,7 +52,7 @@ interface SetorSampahItem {
   catatanAdmin: string | null;
   ekpedisiId: string | null;
   ekpedisi: { noTelp: string; alamat: string } | null;
-  totalSaldo: number | null;
+  totalPoin: number | null;
   createdAt: Date;
   nasabah: {
     id: string;
@@ -281,30 +281,51 @@ function PanelTerimaSampah({
 
 function PanelVerifikasiAkhir({
   id,
+  jenisSampah,
+  beratEstimasi,
   onActionSuccess,
 }: {
   id: string;
+  jenisSampah: string;
+  beratEstimasi: number;
   onActionSuccess: () => void;
 }) {
   const [beratAktual, setBeratAktual] = useState("");
-  const [hargaPerKg, setHargaPerKg] = useState("");
+  const [catatan, setCatatan] = useState("");
   const [loading, setLoading] = useState(false);
+  const [loadingHarga, setLoadingHarga] = useState(true);
+  const [hargaDB, setHargaDB] = useState<{
+    harga: number;
+    point: number;
+    bulan: Date;
+  } | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const preview =
-    beratAktual && hargaPerKg
-      ? formatRupiah(Number(beratAktual) * Number(hargaPerKg))
-      : null;
+  const poinPerKg = hargaDB ? hargaDB.point : 0;
+
+  // Auto-load harga terbaru dari DB saat panel dibuka
+  useEffect(() => {
+    getHargaTerbaru(jenisSampah).then((res) => {
+      if (res) setHargaDB(res as { harga: number; point: number; bulan: Date });
+      setLoadingHarga(false);
+    });
+  }, [jenisSampah]);
+
+  // Tombol "Data Sudah Benar" — pakai berat estimasi + harga DB
+  function handleDataSudahBenar() {
+    setBeratAktual(String(beratEstimasi));
+  }
 
   async function handle() {
-    if (!beratAktual || !hargaPerKg) return;
+    if (!beratAktual || !poinPerKg) return;
     setLoading(true);
     setError(null);
     try {
       await verifikasiAkhirDanKreditSaldo(
         id,
         Number(beratAktual),
-        Number(hargaPerKg),
+        poinPerKg,
+        catatan || undefined,
       );
       onActionSuccess();
     } catch (err) {
@@ -319,60 +340,101 @@ function PanelVerifikasiAkhir({
       {error && (
         <p className="text-red-600 text-xs bg-red-50 p-3 rounded-xl">{error}</p>
       )}
-      <div className="grid grid-cols-2 gap-3">
-        <div>
-          <label
-            htmlFor={`berat-${id}`}
-            className="block text-xs text-zinc-500 mb-1.5 font-medium">
-            Berat Aktual (kg)
-          </label>
-          <input
-            id={`berat-${id}`}
-            type="number"
-            min="0.1"
-            step="0.1"
-            value={beratAktual}
-            onChange={(e) => setBeratAktual(e.target.value)}
-            placeholder="0.0"
-            className="w-full px-4 py-3 text-sm bg-white border border-zinc-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/30 min-h-[48px]"
-          />
+
+      {/* Info harga dari DB */}
+      {loadingHarga ? (
+        <div className="flex items-center gap-2 px-3 py-2 bg-zinc-50 border border-zinc-100 rounded-lg">
+          <Loader2 size={12} className="animate-spin text-zinc-400" />
+          <span className="text-xs text-zinc-400">
+            Memuat harga referensi...
+          </span>
         </div>
-        <div>
-          <label
-            htmlFor={`harga-${id}`}
-            className="block text-xs text-zinc-500 mb-1.5 font-medium">
-            Harga/kg (Rp)
-          </label>
-          <input
-            id={`harga-${id}`}
-            type="number"
-            min="1"
-            value={hargaPerKg}
-            onChange={(e) => setHargaPerKg(e.target.value)}
-            placeholder="0"
-            className="w-full px-4 py-3 text-sm bg-white border border-zinc-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/30 min-h-[48px]"
-          />
+      ) : hargaDB ? (
+        <div className="space-y-2">
+          <div className="flex items-center justify-between px-3 py-2 bg-blue-50 border border-blue-100 rounded-lg">
+            <div>
+              <p className="text-[10px] font-bold text-blue-500 uppercase tracking-wider">
+                Poin Referensi DB
+              </p>
+              <p className="text-xs font-bold text-blue-800">
+                {hargaDB.point} poin/kg · Harga {formatRupiah(hargaDB.harga)}/kg
+                · Bulan{" "}
+                {new Date(hargaDB.bulan).toLocaleDateString("id-ID", {
+                  month: "long",
+                  year: "numeric",
+                })}
+              </p>
+            </div>
+          </div>
+          {/* Tombol Data Sudah Benar */}
+          <button
+            type="button"
+            onClick={handleDataSudahBenar}
+            disabled={loading}
+            className="w-full flex items-center justify-center gap-1.5 py-2.5 bg-zinc-900 text-white rounded-xl text-xs font-bold hover:bg-zinc-800 disabled:opacity-60 transition-colors">
+            <CheckCircle2 size={13} />
+            Data Sudah Benar (Berat: {beratEstimasi} kg · {hargaDB.point}{" "}
+            poin/kg)
+          </button>
         </div>
-      </div>
-      {preview && (
-        <div className="flex items-center gap-2 bg-green-50 border border-green-100 p-3 rounded-xl">
-          <Wallet size={16} className="text-green-600 shrink-0" />
-          <p className="text-sm font-bold text-green-700">
-            Total Saldo: {preview}
+      ) : (
+        <div className="px-3 py-2 bg-amber-50 border border-amber-100 rounded-lg">
+          <p className="text-xs text-amber-700 font-medium">
+            ⚠ Belum ada data harga referensi untuk jenis sampah ini. Input
+            manual di bawah.
           </p>
         </div>
       )}
+
+      <div>
+        <label
+          htmlFor={`berat-${id}`}
+          className="block text-xs text-zinc-500 mb-1.5 font-medium">
+          Berat Aktual (kg)
+        </label>
+        <input
+          id={`berat-${id}`}
+          type="number"
+          min="0.1"
+          step="0.1"
+          value={beratAktual}
+          onChange={(e) => setBeratAktual(e.target.value)}
+          placeholder="0.0"
+          className="w-full px-4 py-3 text-sm bg-white border border-zinc-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/30 min-h-[48px]"
+        />
+      </div>
+      {beratAktual && poinPerKg ? (
+        <div className="px-3 py-2.5 bg-green-50 border border-green-100 rounded-lg space-y-0.5">
+          <p className="text-[10px] text-green-500 font-bold uppercase tracking-wider">
+            Perhitungan Poin
+          </p>
+          <p className="text-xs text-green-700">
+            {beratAktual} kg × {poinPerKg} poin/kg
+            {" = "}
+            <span className="font-black text-green-800">
+              {Math.round(Number(beratAktual) * poinPerKg)} poin
+            </span>
+          </p>
+        </div>
+      ) : null}
+      <input
+        type="text"
+        value={catatan}
+        onChange={(e) => setCatatan(e.target.value)}
+        placeholder="Catatan (opsional)"
+        className="w-full px-4 py-3 text-sm bg-white border border-zinc-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-zinc-200 min-h-[48px]"
+      />
       <button
         type="button"
         onClick={handle}
-        disabled={loading || !beratAktual || !hargaPerKg}
+        disabled={loading || !beratAktual || !hargaDB}
         className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-green-600 text-white rounded-xl font-bold text-sm hover:bg-green-700 active:scale-[0.98] disabled:opacity-40 transition-all min-h-[48px]">
         {loading ? (
           <Loader2 size={16} className="animate-spin" />
         ) : (
           <CheckCircle size={16} />
         )}
-        {loading ? "Memproses..." : "Selesaikan & Kreditkan Saldo"}
+        {loading ? "Memproses..." : "Selesaikan & Kreditkan Poin"}
       </button>
     </div>
   );
@@ -520,38 +582,34 @@ function PanelVerifikasiLangsung({
 }) {
   const [loading, setLoading] = useState(false);
   const [loadingHarga, setLoadingHarga] = useState(true);
-  const [hargaDB, setHargaDB] = useState<{ harga: number; bulan: Date } | null>(
-    null,
-  );
+  const [hargaDB, setHargaDB] = useState<{
+    harga: number;
+    point: number;
+    bulan: Date;
+  } | null>(null);
   const [form, setForm] = useState({
     beratAktual: "",
-    hargaPerKg: "",
     catatan: "",
   });
+
+  const poinPerKg = hargaDB ? hargaDB.point : 0;
 
   // Auto-load harga terbaru dari DB saat panel dibuka
   useEffect(() => {
     getHargaTerbaru(jenisSampah).then((res) => {
-      if (res) {
-        setHargaDB(res as { harga: number; bulan: Date });
-        setForm((f) => ({ ...f, hargaPerKg: String(res.harga) }));
-      }
+      if (res) setHargaDB(res as { harga: number; point: number; bulan: Date });
       setLoadingHarga(false);
     });
   }, [jenisSampah]);
 
-  // Tombol "Data Sudah Benar" — pakai berat estimasi + harga DB
+  // Tombol "Data Sudah Benar" — pakai berat estimasi
   function handleDataSudahBenar() {
-    setForm((f) => ({
-      ...f,
-      beratAktual: String(beratEstimasi),
-      hargaPerKg: hargaDB ? String(hargaDB.harga) : f.hargaPerKg,
-    }));
+    setForm((f) => ({ ...f, beratAktual: String(beratEstimasi) }));
   }
 
   async function handleApprove() {
-    if (!form.beratAktual || !form.hargaPerKg) {
-      alert("Isi berat aktual dan harga per kg terlebih dahulu");
+    if (!form.beratAktual || !poinPerKg) {
+      alert("Isi berat aktual terlebih dahulu dan pastikan data poin tersedia");
       return;
     }
     setLoading(true);
@@ -559,7 +617,7 @@ function PanelVerifikasiLangsung({
       await verifikasiSetorLangsungDanKreditSaldo(
         id,
         Number(form.beratAktual),
-        Number(form.hargaPerKg),
+        poinPerKg,
         form.catatan || undefined,
       );
       onActionSuccess();
@@ -599,10 +657,11 @@ function PanelVerifikasiLangsung({
           <div className="flex items-center justify-between px-3 py-2 bg-blue-50 border border-blue-100 rounded-lg">
             <div>
               <p className="text-[10px] font-bold text-blue-500 uppercase tracking-wider">
-                Harga Referensi DB
+                Poin Referensi DB
               </p>
               <p className="text-xs font-bold text-blue-800">
-                {formatRupiah(hargaDB.harga)}/kg · Bulan{" "}
+                {hargaDB.point} poin/kg · Harga {formatRupiah(hargaDB.harga)}/kg
+                · Bulan{" "}
                 {new Date(hargaDB.bulan).toLocaleDateString("id-ID", {
                   month: "long",
                   year: "numeric",
@@ -617,8 +676,8 @@ function PanelVerifikasiLangsung({
             disabled={loading}
             className="w-full flex items-center justify-center gap-1.5 py-2.5 bg-zinc-900 text-white rounded-xl text-xs font-bold hover:bg-zinc-800 disabled:opacity-60 transition-colors">
             <CheckCircle2 size={13} />
-            Data Sudah Benar (Berat: {beratEstimasi} kg · Harga:{" "}
-            {formatRupiah(hargaDB.harga)}/kg)
+            Data Sudah Benar (Berat: {beratEstimasi} kg · {hargaDB.point}{" "}
+            poin/kg)
           </button>
         </div>
       ) : (
@@ -647,22 +706,20 @@ function PanelVerifikasiLangsung({
           className="w-full px-3 py-2 bg-white border border-zinc-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-200"
         />
       </div>
-      {form.beratAktual && form.hargaPerKg && (
+      {form.beratAktual && poinPerKg ? (
         <div className="px-3 py-2.5 bg-green-50 border border-green-100 rounded-lg space-y-0.5">
           <p className="text-[10px] text-green-500 font-bold uppercase tracking-wider">
-            Perhitungan Saldo
+            Perhitungan Poin
           </p>
           <p className="text-xs text-green-700">
-            {form.beratAktual} kg × {formatRupiah(Number(form.hargaPerKg))}/kg
+            {form.beratAktual} kg × {poinPerKg} poin/kg
             {" = "}
             <span className="font-black text-green-800">
-              {formatRupiah(
-                Math.round(Number(form.beratAktual) * Number(form.hargaPerKg)),
-              )}
+              {Math.round(Number(form.beratAktual) * poinPerKg)} poin
             </span>
           </p>
         </div>
-      )}
+      ) : null}
       <input
         type="text"
         value={form.catatan}
@@ -674,14 +731,14 @@ function PanelVerifikasiLangsung({
         <button
           type="button"
           onClick={handleApprove}
-          disabled={loading}
+          disabled={loading || !form.beratAktual || !hargaDB}
           className="flex-1 flex items-center justify-center gap-1.5 py-2 bg-green-600 text-white rounded-xl text-xs font-bold hover:bg-green-700 disabled:opacity-60 transition-colors">
           {loading ? (
             <Loader2 size={12} className="animate-spin" />
           ) : (
             <CheckCircle size={12} />
           )}
-          Verifikasi & Kreditkan Saldo
+          Verifikasi & Kreditkan Poin
         </button>
         <button
           type="button"
@@ -801,11 +858,11 @@ function SetorCard({
           )}
         </div>
 
-        {item.totalSaldo != null && (
+        {item.totalPoin != null && (
           <div className="flex items-center gap-2 bg-green-50 border border-green-100 rounded-xl p-3">
             <Wallet size={16} className="text-green-600 shrink-0" />
             <span className="text-sm font-bold text-green-700">
-              Saldo Dikreditkan: {formatRupiah(item.totalSaldo)}
+              Poin Dikreditkan: {item.totalPoin} poin
             </span>
           </div>
         )}
@@ -817,7 +874,7 @@ function SetorCard({
         {/* Action panels */}
         {item.status === "MENUNGGU_VERIFIKASI" &&
           item.jenisSetor === "LANGSUNG" && (
-            <ActionSection title="Verifikasi & Kreditkan Saldo (Setor Langsung)">
+            <ActionSection title="Verifikasi & Kreditkan Poin (Setor Langsung)">
               <PanelVerifikasiLangsung
                 id={item.id}
                 jenisSampah={item.jenisSampah}
@@ -847,9 +904,11 @@ function SetorCard({
           </ActionSection>
         )}
         {item.status === "SAMPAH_DITERIMA" && (
-          <ActionSection title="Verifikasi Akhir & Kreditkan Saldo">
+          <ActionSection title="Verifikasi Akhir & Kreditkan Poin">
             <PanelVerifikasiAkhir
               id={item.id}
+              jenisSampah={item.jenisSampah}
+              beratEstimasi={item.beratEstimasi}
               onActionSuccess={onActionSuccess}
             />
           </ActionSection>

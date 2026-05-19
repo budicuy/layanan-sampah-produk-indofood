@@ -60,21 +60,13 @@ const STATUS_STEPS: {
   {
     key: "SELESAI",
     label: "Selesai",
-    desc: "Saldo telah dikreditkan ke akun Anda",
+    desc: "Poin telah dikreditkan ke akun Anda",
   },
 ];
 
 function getStepIndex(status: StatusSetorSampah): number {
   if (status === "DITOLAK") return -1;
   return STATUS_STEPS.findIndex((s) => s.key === status);
-}
-
-function formatRupiah(n: number) {
-  return new Intl.NumberFormat("id-ID", {
-    style: "currency",
-    currency: "IDR",
-    maximumFractionDigits: 0,
-  }).format(n);
 }
 
 function StatusBadge({ status }: { status: StatusSetorSampah }) {
@@ -354,7 +346,7 @@ function FormSetorLangsung({
 }: {
   onBack: () => void;
   onSuccess: () => void;
-  nasabah: { saldo: number } | null;
+  nasabah: { poin: number } | null;
   riwayat?: SetorSampah[];
 }) {
   const [loading, setLoading] = useState(false);
@@ -414,14 +406,10 @@ function FormSetorLangsung({
             <div className="bg-zinc-900 rounded-[28px] p-6 text-white flex items-center justify-between shadow-xl relative overflow-hidden">
               <div className="relative z-10">
                 <p className="text-white/60 text-sm font-medium">
-                  Saldo Tabungan Anda
+                  Poin Tabungan Anda
                 </p>
                 <p className="text-3xl font-heading font-bold mt-1">
-                  {new Intl.NumberFormat("id-ID", {
-                    style: "currency",
-                    currency: "IDR",
-                    maximumFractionDigits: 0,
-                  }).format(nasabah.saldo)}
+                  {nasabah.poin} Poin
                 </p>
               </div>
               <Wallet size={40} className="text-white/20 relative z-10" />
@@ -454,8 +442,8 @@ function FormSetorLangsung({
                 },
                 {
                   n: "4",
-                  t: "Saldo Masuk",
-                  d: "Saldo dikreditkan setelah proses selesai",
+                  t: "Poin Masuk",
+                  d: "Poin dikreditkan setelah proses selesai",
                 },
               ].map((s) => (
                 <div key={s.n} className="flex gap-3 items-start">
@@ -691,14 +679,9 @@ function FormSetorLangsung({
                       className={`px-3 py-1 rounded-full text-xs font-bold ${cls}`}>
                       {label}
                     </span>
-                    {item.totalSaldo != null && (
+                    {item.totalPoin != null && (
                       <span className="text-xs font-bold text-green-600">
-                        +
-                        {new Intl.NumberFormat("id-ID", {
-                          style: "currency",
-                          currency: "IDR",
-                          maximumFractionDigits: 0,
-                        }).format(item.totalSaldo)}
+                        +{item.totalPoin} poin
                       </span>
                     )}
                   </div>
@@ -729,14 +712,14 @@ type SetorSampah = {
   status: StatusSetorSampah;
   catatanAdmin: string | null;
   ekpedisi: Ekpedisi | null;
-  totalSaldo: number | null;
+  totalPoin: number | null;
   createdAt: Date;
 };
 
 type Nasabah = {
   id: string;
   alamat: string;
-  saldo: number;
+  poin: number;
   setorSampah: SetorSampah[];
 };
 
@@ -939,10 +922,10 @@ export default function SetorSampahPage() {
         <div className="bg-primary rounded-[28px] p-6 text-white flex items-center justify-between shadow-xl shadow-primary/20 relative overflow-hidden">
           <div className="relative z-10">
             <p className="text-white/70 text-sm font-medium">
-              Saldo Tabungan Anda
+              Poin Tabungan Anda
             </p>
             <p className="text-3xl font-heading font-bold mt-1">
-              {formatRupiah(nasabah.saldo)}
+              {nasabah.poin} Poin
             </p>
           </div>
           <Wallet size={40} className="text-white/20 relative z-10" />
@@ -1011,8 +994,8 @@ export default function SetorSampahPage() {
               },
               {
                 n: "5",
-                t: "Verifikasi & Saldo",
-                d: "Saldo masuk setelah sampah diterima",
+                t: "Verifikasi & Poin",
+                d: "Poin masuk setelah sampah diterima",
               },
             ].map((s) => (
               <div key={s.n} className="flex gap-4 items-start">
@@ -1082,13 +1065,11 @@ export default function SetorSampahPage() {
                     </div>
                   )}
 
-                  {/* Info saldo jika selesai */}
-                  {isSelesai && item.totalSaldo != null && (
+                  {isSelesai && item.totalPoin != null && (
                     <div className="flex items-center gap-3 p-3 bg-green-50 border border-green-100 rounded-xl">
                       <Wallet size={16} className="text-green-600 shrink-0" />
                       <p className="text-green-700 text-sm font-bold">
-                        +{formatRupiah(item.totalSaldo)} dikreditkan ke saldo
-                        Anda
+                        +{item.totalPoin} poin dikreditkan ke poin Anda
                       </p>
                     </div>
                   )}

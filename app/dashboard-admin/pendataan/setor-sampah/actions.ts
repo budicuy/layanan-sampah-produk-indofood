@@ -39,7 +39,7 @@ export async function verifikasiSetorSampah(
 export async function verifikasiSetorLangsungDanKreditSaldo(
   setorSampahId: string,
   beratAktual: number,
-  hargaPerKg: number,
+  poinPerKg: number,
   catatan?: string,
 ) {
   const session = await getSession();
@@ -55,7 +55,7 @@ export async function verifikasiSetorLangsungDanKreditSaldo(
     throw new Error("Status harus MENUNGGU_VERIFIKASI");
   }
 
-  const totalSaldo = Math.round(beratAktual * hargaPerKg);
+  const totalPoin = Math.round(beratAktual * poinPerKg);
   const now = new Date();
 
   await prisma.$transaction([
@@ -64,8 +64,8 @@ export async function verifikasiSetorLangsungDanKreditSaldo(
       data: {
         status: "SELESAI",
         beratAktual,
-        hargaPerKg,
-        totalSaldo,
+        poinPerKg,
+        totalPoin,
         catatanAdmin: catatan,
         verifikasiAt: now,
         selesaiAt: now,
@@ -73,12 +73,12 @@ export async function verifikasiSetorLangsungDanKreditSaldo(
     }),
     prisma.nasabah.update({
       where: { id: setor.nasabahId },
-      data: { saldo: { increment: totalSaldo } },
+      data: { poin: { increment: totalPoin } },
     }),
     prisma.mutasiSaldo.create({
       data: {
         nasabahId: setor.nasabahId,
-        jumlah: totalSaldo,
+        jumlah: totalPoin,
         keterangan: `Setor langsung ${setor.jenisSampah} ${beratAktual} kg`,
         referensiId: setorSampahId,
       },
@@ -146,7 +146,8 @@ export async function konfirmasiSampahDiterima(setorSampahId: string) {
 export async function verifikasiAkhirDanKreditSaldo(
   setorSampahId: string,
   beratAktual: number,
-  hargaPerKg: number,
+  poinPerKg: number,
+  catatan?: string,
 ) {
   const session = await getSession();
   if (!session || session.user.role === "KONSUMEN")
@@ -161,28 +162,28 @@ export async function verifikasiAkhirDanKreditSaldo(
     throw new Error("Sampah belum dikonfirmasi diterima");
   }
 
-  const totalSaldo = Math.round(beratAktual * hargaPerKg);
+  const totalPoin = Math.round(beratAktual * poinPerKg);
 
-  // Pakai transaction agar saldo dan mutasi atomic
   await prisma.$transaction([
     prisma.setorSampah.update({
       where: { id: setorSampahId },
       data: {
         status: "SELESAI",
         beratAktual,
-        hargaPerKg,
-        totalSaldo,
+        poinPerKg,
+        totalPoin,
+        catatanAdmin: catatan ?? null,
         selesaiAt: new Date(),
       },
     }),
     prisma.nasabah.update({
       where: { id: setor.nasabahId },
-      data: { saldo: { increment: totalSaldo } },
+      data: { poin: { increment: totalPoin } },
     }),
     prisma.mutasiSaldo.create({
       data: {
         nasabahId: setor.nasabahId,
-        jumlah: totalSaldo,
+        jumlah: totalPoin,
         keterangan: `Setor sampah ${setor.jenisSampah} ${beratAktual} kg`,
         referensiId: setorSampahId,
       },
@@ -228,6 +229,6 @@ export async function getHargaTerbaru(jenisSampah: string) {
   return await prisma.hargaSampah.findFirst({
     where: { jenisSampah: jenisSampah as never },
     orderBy: { bulan: "desc" },
-    select: { harga: true, bulan: true },
+    select: { harga: true, point: true, bulan: true },
   });
 }

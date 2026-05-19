@@ -38,7 +38,7 @@ export default async function DashboardPage() {
     prisma.nasabah.count(),
     prisma.setorSampah.findMany({
       where: { status: "SELESAI" },
-      select: { beratAktual: true, totalSaldo: true },
+      select: { beratAktual: true, totalPoin: true },
     }),
     prisma.setorSampah.findMany({
       orderBy: { createdAt: "desc" },
@@ -83,16 +83,9 @@ export default async function DashboardPage() {
     0,
   );
   const totalPayout = setoranSelesai.reduce(
-    (acc, s) => acc + (s.totalSaldo || 0),
+    (acc, s) => acc + (s.totalPoin || 0),
     0,
   );
-
-  const formatRupiah = (val: number) =>
-    new Intl.NumberFormat("id-ID", {
-      style: "currency",
-      currency: "IDR",
-      maximumFractionDigits: 0,
-    }).format(val);
 
   const stats = [
     {
@@ -109,9 +102,9 @@ export default async function DashboardPage() {
     },
     {
       icon: Wallet,
-      label: "Saldo Terbayar",
-      value: formatRupiah(totalPayout),
-      subValue: "Dana tersalurkan",
+      label: "Poin Terbayar",
+      value: `${totalPayout} Poin`,
+      subValue: "Poin tersalurkan",
     },
   ];
 
@@ -256,7 +249,7 @@ export default async function DashboardPage() {
                 </div>
                 <div className="text-right">
                   <p className="font-bold text-zinc-900 text-sm">
-                    {act.totalSaldo ? formatRupiah(act.totalSaldo) : "Pending"}
+                    {act.totalPoin ? `${act.totalPoin} Poin` : "Pending"}
                   </p>
                   <p className="text-[10px] font-medium text-zinc-400 uppercase">
                     {new Date(act.createdAt).toLocaleDateString("id-ID", {

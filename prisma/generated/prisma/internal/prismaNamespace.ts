@@ -1086,7 +1086,7 @@ export const NasabahScalarFieldEnum = {
   jenisBank: 'jenisBank',
   titikLokasi: 'titikLokasi',
   status: 'status',
-  saldo: 'saldo',
+  poin: 'poin',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -1121,6 +1121,7 @@ export type EkpedisiScalarFieldEnum = (typeof EkpedisiScalarFieldEnum)[keyof typ
 export const HargaSampahScalarFieldEnum = {
   id: 'id',
   harga: 'harga',
+  point: 'point',
   bulan: 'bulan',
   jenisSampah: 'jenisSampah',
   berat: 'berat',
@@ -1146,8 +1147,8 @@ export const SetorSampahScalarFieldEnum = {
   ekpedisiId: 'ekpedisiId',
   penjemputanAt: 'penjemputanAt',
   diserahkanAt: 'diserahkanAt',
-  hargaPerKg: 'hargaPerKg',
-  totalSaldo: 'totalSaldo',
+  poinPerKg: 'poinPerKg',
+  totalPoin: 'totalPoin',
   selesaiAt: 'selesaiAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'

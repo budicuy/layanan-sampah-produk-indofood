@@ -14,6 +14,7 @@ async function checkAdminAuth() {
 
 export async function createHargaSampah(data: {
   harga: number;
+  point: number;
   bulan: Date;
   jenisSampah: JenisSampah;
   berat: number;
@@ -35,6 +36,7 @@ export async function updateHargaSampah(
   id: string,
   data: {
     harga: number;
+    point: number;
     bulan: Date;
     jenisSampah: JenisSampah;
     berat: number;

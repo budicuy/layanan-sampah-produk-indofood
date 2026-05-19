@@ -108,7 +108,7 @@ model Nasabah {
   jenisBank   String
   titikLokasi String?
   status      StatusNasabah   @default(AKTIF)
-  saldo       Int             @default(0)
+  poin        Int             @default(0)
   createdAt   DateTime        @default(now())
   updatedAt   DateTime        @updatedAt
 
@@ -147,6 +147,7 @@ model Ekpedisi {
 model HargaSampah {
   id          String      @id @default(cuid())
   harga       Int
+  point       Int         @default(0)
   bulan       DateTime
   jenisSampah JenisSampah
   berat       Float
@@ -184,8 +185,8 @@ model SetorSampah {
   diserahkanAt DateTime?
 
   // Verifikasi akhir & pencairan
-  hargaPerKg Int? // Rp per kg
-  totalSaldo Int? // Total dikreditkan ke nasabah
+  poinPerKg  Int? // Point per kg yang diberikan
+  totalPoin  Int? // Total poin dikreditkan ke nasabah
   selesaiAt  DateTime?
 
   createdAt DateTime @default(now())

@@ -17,14 +17,6 @@ import {
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
-function formatRupiah(n: number) {
-  return new Intl.NumberFormat("id-ID", {
-    style: "currency",
-    currency: "IDR",
-    maximumFractionDigits: 0,
-  }).format(n);
-}
-
 function formatDate(d: Date) {
   return new Date(d).toLocaleDateString("id-ID", {
     day: "numeric",
@@ -64,7 +56,7 @@ export default async function ConsumerDashboardPage() {
     ? await prisma.nasabah.findUnique({
         where: { userId: user.sub },
         select: {
-          saldo: true,
+          poin: true,
           noRek: true,
           alamat: true,
           setorSampah: {
@@ -75,7 +67,7 @@ export default async function ConsumerDashboardPage() {
               jenisSampah: true,
               beratEstimasi: true,
               beratAktual: true,
-              totalSaldo: true,
+              totalPoin: true,
               status: true,
               selesaiAt: true,
               createdAt: true,
@@ -93,7 +85,7 @@ export default async function ConsumerDashboardPage() {
     (a, s) => a + (s.beratAktual ?? s.beratEstimasi),
     0,
   );
-  const totalSaldo = nasabah?.saldo ?? 0;
+  const totalPoin = nasabah?.poin ?? 0;
   const totalSetoran = setoran.length;
   const selesaiCount = setoranSelesai.length;
 
@@ -135,8 +127,8 @@ export default async function ConsumerDashboardPage() {
     },
     {
       icon: Wallet,
-      label: "Saldo Tabungan",
-      value: formatRupiah(totalSaldo),
+      label: "Total Poin",
+      value: `${totalPoin} Poin`,
       sub: nasabah ? `Rek: ${nasabah.noRek}` : "Belum terdaftar",
       color: "text-green-600",
       bg: "bg-green-50 border-green-100",
@@ -275,9 +267,9 @@ export default async function ConsumerDashboardPage() {
                     </div>
                   </div>
                   <div className="text-right shrink-0">
-                    {s.status === "SELESAI" && s.totalSaldo != null ? (
+                    {s.status === "SELESAI" && s.totalPoin != null ? (
                       <p className="font-bold text-green-600 text-sm flex items-center gap-1">
-                        <CheckCircle2 size={14} />+{formatRupiah(s.totalSaldo)}
+                        <CheckCircle2 size={14} />+{s.totalPoin} poin
                       </p>
                     ) : (
                       <p className="text-xs text-zinc-400">{st.label}</p>

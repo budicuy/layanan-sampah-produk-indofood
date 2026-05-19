@@ -25,6 +25,7 @@ import {
 export type HargaSampahData = {
   id: string;
   harga: number;
+  point: number;
   bulan: Date;
   jenisSampah: JenisSampah;
   berat: number;
@@ -71,6 +72,7 @@ export default function HargaSampahPage() {
     const formData = new FormData(e.currentTarget);
     const data = {
       harga: parseInt(formData.get("harga") as string, 10),
+      point: parseInt(formData.get("point") as string, 10),
       bulan: new Date(formData.get("bulan") as string),
       jenisSampah: formData.get("jenisSampah") as JenisSampah,
       berat: parseFloat(formData.get("berat") as string),
@@ -267,6 +269,9 @@ export default function HargaSampahPage() {
                   Harga (Rp)
                 </th>
                 <th className="px-4 md:px-8 py-4 text-xs font-bold text-zinc-400 uppercase tracking-widest">
+                  Point/kg
+                </th>
+                <th className="px-4 md:px-8 py-4 text-xs font-bold text-zinc-400 uppercase tracking-widest">
                   Berat (Kg)
                 </th>
                 <th className="px-4 md:px-8 py-4 text-xs font-bold text-zinc-400 uppercase tracking-widest text-right">
@@ -311,6 +316,11 @@ export default function HargaSampahPage() {
                     </td>
                     <td className="px-4 md:px-8 py-4 md:py-6 font-bold text-zinc-900 text-sm md:text-base">
                       {formatRupiah(h.harga)}
+                    </td>
+                    <td className="px-4 md:px-8 py-4 md:py-6">
+                      <span className="inline-flex items-center gap-1 px-2 py-1 bg-amber-50 text-amber-700 rounded-lg text-xs font-bold">
+                        ⭐ {h.point} poin/kg
+                      </span>
                     </td>
                     <td className="px-4 md:px-8 py-4 md:py-6 text-xs md:text-sm text-zinc-600">
                       <div className="flex items-center gap-2">
@@ -418,6 +428,24 @@ export default function HargaSampahPage() {
                     className="w-full px-4 py-3 bg-zinc-50 border-none rounded-xl focus:ring-2 focus:ring-primary/20"
                   />
                 </div>
+              </div>
+
+              <div className="space-y-2">
+                <label
+                  htmlFor="point"
+                  className="text-sm font-bold text-zinc-700">
+                  Point/kg (reward konsumen)
+                </label>
+                <input
+                  id="point"
+                  required
+                  type="number"
+                  name="point"
+                  min="0"
+                  defaultValue={selectedHarga?.point ?? 0}
+                  placeholder="Contoh: 40"
+                  className="w-full px-4 py-3 bg-zinc-50 border-none rounded-xl focus:ring-2 focus:ring-primary/20"
+                />
               </div>
 
               <div className="space-y-2">

@@ -13,7 +13,7 @@ async function checkAdminAuth() {
 export async function getTabunganData() {
   await checkAdminAuth();
   return await prisma.nasabah.findMany({
-    orderBy: { saldo: "desc" },
+    orderBy: { poin: "desc" },
     include: {
       user: {
         select: { name: true },

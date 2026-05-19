@@ -28,17 +28,20 @@ export type AggregateHargaSampah = {
 
 export type HargaSampahAvgAggregateOutputType = {
   harga: number | null
+  point: number | null
   berat: number | null
 }
 
 export type HargaSampahSumAggregateOutputType = {
   harga: number | null
+  point: number | null
   berat: number | null
 }
 
 export type HargaSampahMinAggregateOutputType = {
   id: string | null
   harga: number | null
+  point: number | null
   bulan: Date | null
   jenisSampah: $Enums.JenisSampah | null
   berat: number | null
@@ -49,6 +52,7 @@ export type HargaSampahMinAggregateOutputType = {
 export type HargaSampahMaxAggregateOutputType = {
   id: string | null
   harga: number | null
+  point: number | null
   bulan: Date | null
   jenisSampah: $Enums.JenisSampah | null
   berat: number | null
@@ -59,6 +63,7 @@ export type HargaSampahMaxAggregateOutputType = {
 export type HargaSampahCountAggregateOutputType = {
   id: number
   harga: number
+  point: number
   bulan: number
   jenisSampah: number
   berat: number
@@ -70,17 +75,20 @@ export type HargaSampahCountAggregateOutputType = {
 
 export type HargaSampahAvgAggregateInputType = {
   harga?: true
+  point?: true
   berat?: true
 }
 
 export type HargaSampahSumAggregateInputType = {
   harga?: true
+  point?: true
   berat?: true
 }
 
 export type HargaSampahMinAggregateInputType = {
   id?: true
   harga?: true
+  point?: true
   bulan?: true
   jenisSampah?: true
   berat?: true
@@ -91,6 +99,7 @@ export type HargaSampahMinAggregateInputType = {
 export type HargaSampahMaxAggregateInputType = {
   id?: true
   harga?: true
+  point?: true
   bulan?: true
   jenisSampah?: true
   berat?: true
@@ -101,6 +110,7 @@ export type HargaSampahMaxAggregateInputType = {
 export type HargaSampahCountAggregateInputType = {
   id?: true
   harga?: true
+  point?: true
   bulan?: true
   jenisSampah?: true
   berat?: true
@@ -198,6 +208,7 @@ export type HargaSampahGroupByArgs<ExtArgs extends runtime.Types.Extensions.Inte
 export type HargaSampahGroupByOutputType = {
   id: string
   harga: number
+  point: number
   bulan: Date
   jenisSampah: $Enums.JenisSampah
   berat: number
@@ -231,6 +242,7 @@ export type HargaSampahWhereInput = {
   NOT?: Prisma.HargaSampahWhereInput | Prisma.HargaSampahWhereInput[]
   id?: Prisma.StringFilter<"HargaSampah"> | string
   harga?: Prisma.IntFilter<"HargaSampah"> | number
+  point?: Prisma.IntFilter<"HargaSampah"> | number
   bulan?: Prisma.DateTimeFilter<"HargaSampah"> | Date | string
   jenisSampah?: Prisma.EnumJenisSampahFilter<"HargaSampah"> | $Enums.JenisSampah
   berat?: Prisma.FloatFilter<"HargaSampah"> | number
@@ -241,6 +253,7 @@ export type HargaSampahWhereInput = {
 export type HargaSampahOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   harga?: Prisma.SortOrder
+  point?: Prisma.SortOrder
   bulan?: Prisma.SortOrder
   jenisSampah?: Prisma.SortOrder
   berat?: Prisma.SortOrder
@@ -254,6 +267,7 @@ export type HargaSampahWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.HargaSampahWhereInput[]
   NOT?: Prisma.HargaSampahWhereInput | Prisma.HargaSampahWhereInput[]
   harga?: Prisma.IntFilter<"HargaSampah"> | number
+  point?: Prisma.IntFilter<"HargaSampah"> | number
   bulan?: Prisma.DateTimeFilter<"HargaSampah"> | Date | string
   jenisSampah?: Prisma.EnumJenisSampahFilter<"HargaSampah"> | $Enums.JenisSampah
   berat?: Prisma.FloatFilter<"HargaSampah"> | number
@@ -264,6 +278,7 @@ export type HargaSampahWhereUniqueInput = Prisma.AtLeast<{
 export type HargaSampahOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   harga?: Prisma.SortOrder
+  point?: Prisma.SortOrder
   bulan?: Prisma.SortOrder
   jenisSampah?: Prisma.SortOrder
   berat?: Prisma.SortOrder
@@ -282,6 +297,7 @@ export type HargaSampahScalarWhereWithAggregatesInput = {
   NOT?: Prisma.HargaSampahScalarWhereWithAggregatesInput | Prisma.HargaSampahScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"HargaSampah"> | string
   harga?: Prisma.IntWithAggregatesFilter<"HargaSampah"> | number
+  point?: Prisma.IntWithAggregatesFilter<"HargaSampah"> | number
   bulan?: Prisma.DateTimeWithAggregatesFilter<"HargaSampah"> | Date | string
   jenisSampah?: Prisma.EnumJenisSampahWithAggregatesFilter<"HargaSampah"> | $Enums.JenisSampah
   berat?: Prisma.FloatWithAggregatesFilter<"HargaSampah"> | number
@@ -292,6 +308,7 @@ export type HargaSampahScalarWhereWithAggregatesInput = {
 export type HargaSampahCreateInput = {
   id?: string
   harga: number
+  point?: number
   bulan: Date | string
   jenisSampah: $Enums.JenisSampah
   berat: number
@@ -302,6 +319,7 @@ export type HargaSampahCreateInput = {
 export type HargaSampahUncheckedCreateInput = {
   id?: string
   harga: number
+  point?: number
   bulan: Date | string
   jenisSampah: $Enums.JenisSampah
   berat: number
@@ -312,6 +330,7 @@ export type HargaSampahUncheckedCreateInput = {
 export type HargaSampahUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   harga?: Prisma.IntFieldUpdateOperationsInput | number
+  point?: Prisma.IntFieldUpdateOperationsInput | number
   bulan?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   jenisSampah?: Prisma.EnumJenisSampahFieldUpdateOperationsInput | $Enums.JenisSampah
   berat?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -322,6 +341,7 @@ export type HargaSampahUpdateInput = {
 export type HargaSampahUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   harga?: Prisma.IntFieldUpdateOperationsInput | number
+  point?: Prisma.IntFieldUpdateOperationsInput | number
   bulan?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   jenisSampah?: Prisma.EnumJenisSampahFieldUpdateOperationsInput | $Enums.JenisSampah
   berat?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -332,6 +352,7 @@ export type HargaSampahUncheckedUpdateInput = {
 export type HargaSampahCreateManyInput = {
   id?: string
   harga: number
+  point?: number
   bulan: Date | string
   jenisSampah: $Enums.JenisSampah
   berat: number
@@ -342,6 +363,7 @@ export type HargaSampahCreateManyInput = {
 export type HargaSampahUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   harga?: Prisma.IntFieldUpdateOperationsInput | number
+  point?: Prisma.IntFieldUpdateOperationsInput | number
   bulan?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   jenisSampah?: Prisma.EnumJenisSampahFieldUpdateOperationsInput | $Enums.JenisSampah
   berat?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -352,6 +374,7 @@ export type HargaSampahUpdateManyMutationInput = {
 export type HargaSampahUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   harga?: Prisma.IntFieldUpdateOperationsInput | number
+  point?: Prisma.IntFieldUpdateOperationsInput | number
   bulan?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   jenisSampah?: Prisma.EnumJenisSampahFieldUpdateOperationsInput | $Enums.JenisSampah
   berat?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -362,6 +385,7 @@ export type HargaSampahUncheckedUpdateManyInput = {
 export type HargaSampahCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   harga?: Prisma.SortOrder
+  point?: Prisma.SortOrder
   bulan?: Prisma.SortOrder
   jenisSampah?: Prisma.SortOrder
   berat?: Prisma.SortOrder
@@ -371,12 +395,14 @@ export type HargaSampahCountOrderByAggregateInput = {
 
 export type HargaSampahAvgOrderByAggregateInput = {
   harga?: Prisma.SortOrder
+  point?: Prisma.SortOrder
   berat?: Prisma.SortOrder
 }
 
 export type HargaSampahMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   harga?: Prisma.SortOrder
+  point?: Prisma.SortOrder
   bulan?: Prisma.SortOrder
   jenisSampah?: Prisma.SortOrder
   berat?: Prisma.SortOrder
@@ -387,6 +413,7 @@ export type HargaSampahMaxOrderByAggregateInput = {
 export type HargaSampahMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   harga?: Prisma.SortOrder
+  point?: Prisma.SortOrder
   bulan?: Prisma.SortOrder
   jenisSampah?: Prisma.SortOrder
   berat?: Prisma.SortOrder
@@ -396,6 +423,7 @@ export type HargaSampahMinOrderByAggregateInput = {
 
 export type HargaSampahSumOrderByAggregateInput = {
   harga?: Prisma.SortOrder
+  point?: Prisma.SortOrder
   berat?: Prisma.SortOrder
 }
 
@@ -412,6 +440,7 @@ export type FloatFieldUpdateOperationsInput = {
 export type HargaSampahSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   harga?: boolean
+  point?: boolean
   bulan?: boolean
   jenisSampah?: boolean
   berat?: boolean
@@ -422,6 +451,7 @@ export type HargaSampahSelect<ExtArgs extends runtime.Types.Extensions.InternalA
 export type HargaSampahSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   harga?: boolean
+  point?: boolean
   bulan?: boolean
   jenisSampah?: boolean
   berat?: boolean
@@ -432,6 +462,7 @@ export type HargaSampahSelectCreateManyAndReturn<ExtArgs extends runtime.Types.E
 export type HargaSampahSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   harga?: boolean
+  point?: boolean
   bulan?: boolean
   jenisSampah?: boolean
   berat?: boolean
@@ -442,6 +473,7 @@ export type HargaSampahSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.E
 export type HargaSampahSelectScalar = {
   id?: boolean
   harga?: boolean
+  point?: boolean
   bulan?: boolean
   jenisSampah?: boolean
   berat?: boolean
@@ -449,7 +481,7 @@ export type HargaSampahSelectScalar = {
   updatedAt?: boolean
 }
 
-export type HargaSampahOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "harga" | "bulan" | "jenisSampah" | "berat" | "createdAt" | "updatedAt", ExtArgs["result"]["hargaSampah"]>
+export type HargaSampahOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "harga" | "point" | "bulan" | "jenisSampah" | "berat" | "createdAt" | "updatedAt", ExtArgs["result"]["hargaSampah"]>
 
 export type $HargaSampahPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "HargaSampah"
@@ -457,6 +489,7 @@ export type $HargaSampahPayload<ExtArgs extends runtime.Types.Extensions.Interna
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     harga: number
+    point: number
     bulan: Date
     jenisSampah: $Enums.JenisSampah
     berat: number
@@ -887,6 +920,7 @@ export interface Prisma__HargaSampahClient<T, Null = never, ExtArgs extends runt
 export interface HargaSampahFieldRefs {
   readonly id: Prisma.FieldRef<"HargaSampah", 'String'>
   readonly harga: Prisma.FieldRef<"HargaSampah", 'Int'>
+  readonly point: Prisma.FieldRef<"HargaSampah", 'Int'>
   readonly bulan: Prisma.FieldRef<"HargaSampah", 'DateTime'>
   readonly jenisSampah: Prisma.FieldRef<"HargaSampah", 'JenisSampah'>
   readonly berat: Prisma.FieldRef<"HargaSampah", 'Float'>
