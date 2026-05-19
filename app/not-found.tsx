@@ -30,7 +30,7 @@ export default function NotFound() {
       </div>
 
       <div className="mt-20 text-zinc-400 text-sm font-medium uppercase tracking-widest">
-        BANK SAMPAH INDOFOOD
+        SICUAN INDOFOOD
       </div>
     </div>
   );

@@ -15,9 +15,9 @@ const nunitoSans = Nunito_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "BANK SAMPAH - Solusi Pengelolaan Sampah Modern",
+  title: "SICUAN - Sistem Informasi Cerdas Ubah Anorganik Jadi Nilai",
   description:
-    "Layanan pengelolaan sampah terintegrasi untuk masa depan yang lebih bersih.",
+    "Layanan digital pengelolaan sampah anorganik terintegrasi untuk masa depan yang lebih bersih dan bernilai.",
 };
 
 export default function RootLayout({

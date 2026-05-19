@@ -14,7 +14,7 @@ const MENU_GROUPS = [
       {
         icon: LayoutDashboard,
         label: "Dashboard",
-        href: "/dashboard-konsumen",
+        href: "/dashboard-bank-sampah",
       },
     ],
   },
@@ -24,7 +24,7 @@ const MENU_GROUPS = [
       {
         icon: Recycle,
         label: "Setor Sampah",
-        href: "/dashboard-konsumen/setor-sampah",
+        href: "/dashboard-bank-sampah/setor-sampah",
       },
     ],
   },

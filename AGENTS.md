@@ -5,7 +5,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 <!-- END:nextjs-agent-rules -->
 
-# 🏦 Bank Sampah (Waste Management Platform) — AI Coding Agent Guide
+# 🏦 SICUAN (Sistem Informasi Cerdas Ubah Anorganik Jadi Nilai) — AI Coding Agent Guide
 
 **Project**: Dual-dashboard waste bank service using Next.js 16, TypeScript, Prisma, PostgreSQL (Neon), JWT Auth, and Biome linting.
 

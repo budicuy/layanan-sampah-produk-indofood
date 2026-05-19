@@ -395,7 +395,7 @@ function FormSetorLangsung({
           Setor <span className="text-zinc-700">Langsung ke Pusat</span>
         </h1>
         <p className="text-zinc-500 mt-1 font-medium">
-          Input data sampah yang akan Anda bawa langsung ke pusat Bank Sampah.
+          Input data sampah yang akan Anda bawa langsung ke pusat SICUAN.
         </p>
       </div>
 
@@ -433,7 +433,7 @@ function FormSetorLangsung({
                 {
                   n: "2",
                   t: "Datang ke Pusat",
-                  d: "Bawa sampah ke titik drop-off Bank Sampah kami",
+                  d: "Bawa sampah ke titik drop-off SICUAN kami",
                 },
                 {
                   n: "3",

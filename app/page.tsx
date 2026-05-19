@@ -166,8 +166,8 @@ export default function Home() {
                 className="object-contain"
               />
             </div>
-            <span className="font-heading text-2xl font-bold tracking-tighter text-zinc-900 uppercase">
-              BANK <span className="text-primary">SAMPAH</span>
+            <span className="font-heading text-2xl font-black tracking-tight bg-gradient-to-r from-red-600 to-amber-500 bg-clip-text text-transparent uppercase">
+              SICUAN
             </span>
           </div>
 
@@ -310,8 +310,8 @@ export default function Home() {
                   Langkah Sekali.
                 </h2>
                 <p className="text-lg text-zinc-600 leading-relaxed">
-                  <strong>BANK SAMPAH</strong> lahir dari keinginan untuk
-                  mengatasi krisis sampah di lingkungan operasional PT Indofood
+                  <strong>SICUAN</strong> lahir dari keinginan untuk mengatasi
+                  krisis sampah di lingkungan operasional PT Indofood
                   Banjarmasin. Bukan sekadar tempat pembuangan, kami adalah
                   ekosistem yang mengubah limbah menjadi nilai ekonomi sambil
                   menjaga kelestarian alam.
@@ -548,8 +548,8 @@ export default function Home() {
                     className="object-contain"
                   />
                 </div>
-                <span className="font-heading text-xl font-bold text-zinc-900 uppercase tracking-tighter">
-                  BANK <span className="text-primary">SAMPAH</span>
+                <span className="font-heading text-xl font-black tracking-tight bg-gradient-to-r from-red-600 to-amber-500 bg-clip-text text-transparent uppercase">
+                  SICUAN
                 </span>
               </div>
               <p className="text-zinc-500 max-w-sm mb-8 leading-relaxed">
@@ -606,7 +606,7 @@ export default function Home() {
           </div>
 
           <div className="border-t border-zinc-100 pt-10 text-center text-zinc-400 text-sm">
-            © {new Date().getFullYear()} BANK SAMPAH. All rights reserved.
+            © {new Date().getFullYear()} SICUAN. All rights reserved.
           </div>
         </div>
       </footer>

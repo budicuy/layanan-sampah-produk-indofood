@@ -68,7 +68,7 @@ const MENU_GROUPS = [
     ],
   },
   {
-    group: "Pendataan Bank Sampah",
+    group: "Pendataan SICUAN",
     items: [
       {
         icon: Recycle,
@@ -170,8 +170,8 @@ export default function Sidebar({ user }: { user: UserProps }) {
                   className="object-contain"
                 />
               </div>
-              <span className="font-heading text-lg font-bold tracking-tighter text-zinc-900 uppercase">
-                BANK <span className="text-primary">SAMPAH</span>
+              <span className="font-heading text-lg font-black tracking-tight bg-gradient-to-r from-red-600 to-amber-500 bg-clip-text text-transparent uppercase">
+                SICUAN
               </span>
             </div>
           </div>

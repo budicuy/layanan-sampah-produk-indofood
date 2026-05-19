@@ -78,7 +78,7 @@ export default function LoginPage() {
           </h1>
           <p className="text-zinc-300 text-lg max-w-md">
             Masuk ke akun Anda untuk mulai berkontribusi dalam menjaga
-            kelestarian lingkungan bersama Bank Sampah.
+            kelestarian lingkungan bersama SICUAN.
           </p>
         </div>
       </div>

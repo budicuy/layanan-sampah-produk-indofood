@@ -1,4 +1,4 @@
-# 🏦 Bank Sampah (Waste Management Platform)
+# 🏦 SICUAN (Sistem Informasi Cerdas Ubah Anorganik Jadi Nilai)
 
 Platform digital pengelolaan sampah modern berbasis web, dibangun untuk membantu masyarakat mengelola sampah secara efisien dan mendapatkan reward poin yang dapat ditabung.
 

@@ -117,7 +117,7 @@ export default async function DashboardPage() {
             Halo, {displayName}! 👋
           </h1>
           <p className="text-zinc-500 text-sm font-medium">
-            Ringkasan data operasional bank sampah hari ini.
+            Ringkasan data operasional SICUAN hari ini.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-3 self-start md:self-center">

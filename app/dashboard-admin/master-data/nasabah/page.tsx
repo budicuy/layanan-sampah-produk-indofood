@@ -186,7 +186,7 @@ export default function NasabahPage() {
             Data Nasabah Bank
           </h1>
           <p className="text-zinc-500 mt-1">
-            Manajemen dan monitoring seluruh nasabah bank sampah.
+            Manajemen dan monitoring seluruh nasabah SICUAN.
           </p>
         </div>
         <button
@@ -277,7 +277,7 @@ export default function NasabahPage() {
           <p className="text-3xl font-heading font-extrabold text-zinc-900">
             {initialData.filter((n) => n.kategori === "BANK_SAMPAH").length}
           </p>
-          <p className="text-xs text-zinc-500 mt-1">Unit Bank Sampah</p>
+          <p className="text-xs text-zinc-500 mt-1">Unit SICUAN</p>
         </div>
       </div>
 
@@ -630,7 +630,7 @@ export default function NasabahPage() {
                     defaultValue={selectedNasabah?.kategori}
                     className="w-full px-4 py-3 bg-zinc-50 border-none rounded-xl focus:ring-2 focus:ring-primary/20">
                     <option value="PERORANGAN">Perorangan</option>
-                    <option value="BANK_SAMPAH">Bank Sampah</option>
+                    <option value="BANK_SAMPAH">SICUAN</option>
                     <option value="WARMIENDO">Warmiendo</option>
                   </select>
                 </div>
