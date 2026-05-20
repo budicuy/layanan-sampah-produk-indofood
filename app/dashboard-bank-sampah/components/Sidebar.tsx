@@ -86,7 +86,7 @@ export default function Sidebar({ user }: { user: UserProps }) {
                   className="object-contain"
                 />
               </div>
-              <span className="font-heading text-lg font-black tracking-tight bg-gradient-to-r from-red-600 to-amber-500 bg-clip-text text-transparent uppercase">
+              <span className="font-heading text-lg font-black tracking-tight bg-linear-to-r from-red-600 to-amber-500 bg-clip-text text-transparent uppercase">
                 SICUAN
               </span>
             </div>

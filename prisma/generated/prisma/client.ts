@@ -81,3 +81,13 @@ export type SetorSampah = Prisma.SetorSampahModel
  * Riwayat mutasi saldo nasabah
  */
 export type MutasiSaldo = Prisma.MutasiSaldoModel
+/**
+ * Model Kupon
+ * 
+ */
+export type Kupon = Prisma.KuponModel
+/**
+ * Model TierKupon
+ * 
+ */
+export type TierKupon = Prisma.TierKuponModel

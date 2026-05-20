@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "biome check --write",
+    "lint": "tsc --noEmit && biome check --write",
     "format": "biome format --write",
     "db:push": "bun prisma db push",
     "db:seed": "bun run prisma/seed.ts",

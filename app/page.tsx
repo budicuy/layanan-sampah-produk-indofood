@@ -166,7 +166,7 @@ export default function Home() {
                 className="object-contain"
               />
             </div>
-            <span className="font-heading text-2xl font-black tracking-tight bg-gradient-to-r from-red-600 to-amber-500 bg-clip-text text-transparent uppercase">
+            <span className="font-heading text-2xl font-black tracking-tight bg-linear-to-r from-red-600 to-amber-500 bg-clip-text text-transparent uppercase">
               SICUAN
             </span>
           </div>
@@ -548,7 +548,7 @@ export default function Home() {
                     className="object-contain"
                   />
                 </div>
-                <span className="font-heading text-xl font-black tracking-tight bg-gradient-to-r from-red-600 to-amber-500 bg-clip-text text-transparent uppercase">
+                <span className="font-heading text-xl font-black tracking-tight bg-linear-to-r from-red-600 to-amber-500 bg-clip-text text-transparent uppercase">
                   SICUAN
                 </span>
               </div>

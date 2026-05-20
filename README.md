@@ -10,9 +10,10 @@ Platform digital pengelolaan sampah modern berbasis web, dibangun untuk membantu
    - **Setor Langsung (`LANGSUNG`)**: Pengguna mengantar sendiri sampah ke pusat pengumpulan. Proses verifikasi langsung menyelesaikan transaksi (Status: `MENUNGGU_VERIFIKASI` $\rightarrow$ `SELESAI`) dan mengkreditkan poin.
    - **Layanan Kurir / Pickup (`EKSPEDISI`)**: Penjemputan terjadwal oleh driver dengan status pelacakan 7 tahap terintegrasi (menunggu verifikasi, terverifikasi, dalam penjemputan, sudah diserahkan, sampah diterima, hingga verifikasi berat aktual & selesai).
 4. **Verifikasi Instan ("Data Sudah Benar")**: Admin dapat memverifikasi setoran secara cepat menggunakan satu tombol yang menyamakan berat aktual dengan estimasi nasabah, menghitung perolehan poin otomatis, mencatat log, dan mengkreditkan poin secara real-time.
-5. **Dashboard Ganda dengan Proteksi Role (Role-based Dashboards)**:
+5. **Dashboard Multi-Role dengan Proteksi (Role-based Dashboards)**:
    - **Dashboard Admin & HRD** (`/dashboard-admin`): Kelola Master Data (Nasabah, Produk, Ekspedisi, Rate Harga), pemrosesan transaksi setoran, tabungan poin, riwayat mutasi, dan laporan analitik pendataan.
    - **Dashboard Konsumen** (`/dashboard-konsumen`): Ringkasan poin aktif, form pengajuan setoran baru (langsung/ekspedisi), timeline status aktif, dan daftar riwayat transaksi.
+   - **Dashboard Bank Sampah** (`/dashboard-bank-sampah`): Khusus untuk unit Bank Sampah terdaftar, dengan alur Setor Langsung saja (tanpa ekspedisi) dan reward berupa uang kredit/saldo rupiah langsung pada nasabah (bukan point).
 6. **Autentikasi Aman & Cepat**: Proteksi route menggunakan Custom JWT session di httpOnly cookie yang divalidasi pada tingkat Edge/Middleware (`proxy.ts`).
 
 ## Requirements
@@ -99,6 +100,13 @@ app/
       tabungan/
         actions.ts       # Aksi server pengambilan detail mutasi tabungan poin nasabah.
         page.tsx         # Buku tabungan nasabah beserta riwayat kredit/debit mutasi poin.
+    reward-poin/         # Pengelolaan reward poin & kupon klaim
+      tier/
+        actions.ts       # Server Actions untuk mengelola minimum poin & deskripsi tier kupon.
+        page.tsx         # Kelola konfigurasi tier kupon (Diamond, Gold, Platinum).
+      kupon/
+        actions.ts       # Server Actions untuk mengambil kupon terklaim & tandai digunakan.
+        page.tsx         # Daftar riwayat penukaran kupon oleh konsumen nasabah.
     page.tsx             # Halaman utama Admin (rekap ringkasan total setoran & nasabah aktif).
     layout.tsx           # Layout Panel Admin (navigasi & Sidebar).
   dashboard-konsumen/
@@ -108,8 +116,22 @@ app/
     setor-sampah/
       actions.ts         # Server Actions pengajuan setoran baru konsumen.
       page.tsx           # Form pendaftaran setoran baru (Langsung / Ekspedisi) & input estimasi.
+    tukar-kupon/
+      actions.ts         # Server Actions untuk alur penukaran kupon reward nasabah.
+      page.tsx           # Tampilan penukaran poin ke kupon, tiket kupon aktif & QR Code.
     page.tsx             # Halaman utama Konsumen (ringkasan poin aktif, timeline status aktif).
     layout.tsx           # Layout Panel Konsumen (navigasi & Sidebar).
+  dashboard-bank-sampah/
+    components/
+      Sidebar.tsx        # Navigasi dashboard panel Bank Sampah (Dashboard, Setor Sampah).
+    setor-sampah/
+      actions.ts         # Server Actions pengajuan setoran langsung & data nasabah Bank Sampah.
+      page.tsx           # Form pendaftaran setoran langsung, riwayat transaksi, & info saldo Rupiah.
+    page.tsx             # Halaman utama Bank Sampah (rekap saldo rupiah, setoran selesai & ringkasan).
+    layout.tsx           # Layout Panel Bank Sampah (navigasi & Sidebar).
+  kupon-validasi/[kode]/
+    actions.ts           # Server Actions validasi kupon & tandai kupon telah digunakan.
+    page.tsx             # Halaman publik validasi keaslian kupon & detail kupon.
   login/
     auth/
       index.ts           # Token utility JWT (signing & verify) menggunakan HS256 Jose.
@@ -117,7 +139,6 @@ app/
       session.ts         # Helper edge-compatible untuk parsing session JWT.
     actions.ts           # Server actions untuk autentikasi kredensial login & logout.
     page.tsx             # Halaman form Login admin, HRD, dan konsumen.
-  api/                   # API routes (kosong).
   layout.tsx             # Root layout (Html, Head, Body, & global Providers).
   page.tsx               # Halaman depan / Landing Page sistem Bank Sampah.
   globals.css            # Global styling framework Tailwind CSS v4.

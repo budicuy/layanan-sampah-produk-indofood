@@ -72,3 +72,12 @@ export const StatusSetorSampah = {
 } as const
 
 export type StatusSetorSampah = (typeof StatusSetorSampah)[keyof typeof StatusSetorSampah]
+
+
+export const KuponStatus = {
+  AKTIF: 'AKTIF',
+  DIGUNAKAN: 'DIGUNAKAN',
+  EXPIRED: 'EXPIRED'
+} as const
+
+export type KuponStatus = (typeof KuponStatus)[keyof typeof KuponStatus]

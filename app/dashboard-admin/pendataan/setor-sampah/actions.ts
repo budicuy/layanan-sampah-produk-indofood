@@ -48,38 +48,49 @@ export async function verifikasiSetorLangsungDanKreditSaldo(
 
   const setor = await prisma.setorSampah.findUnique({
     where: { id: setorSampahId },
-    include: { nasabah: true },
+    include: { nasabah: { include: { user: true } } },
   });
   if (!setor) throw new Error("Data tidak ditemukan");
   if (setor.status !== "MENUNGGU_VERIFIKASI") {
     throw new Error("Status harus MENUNGGU_VERIFIKASI");
   }
 
-  const totalPoin = Math.round(beratAktual * poinPerKg);
+  const isBankSampah = setor.nasabah.user.role === "BANK_SAMPAH";
+  const totalValue = Math.round(beratAktual * poinPerKg);
   const now = new Date();
+
+  const setorUpdateData = {
+    status: "SELESAI" as const,
+    beratAktual,
+    catatanAdmin: catatan,
+    verifikasiAt: now,
+    selesaiAt: now,
+    hargaPerKg: isBankSampah ? poinPerKg : undefined,
+    totalHarga: isBankSampah ? totalValue : undefined,
+    poinPerKg: isBankSampah ? undefined : poinPerKg,
+    totalPoin: isBankSampah ? undefined : totalValue,
+  };
+
+  const nasabahUpdateData = isBankSampah
+    ? { saldo: { increment: totalValue } }
+    : { poin: { increment: totalValue } };
 
   await prisma.$transaction([
     prisma.setorSampah.update({
       where: { id: setorSampahId },
-      data: {
-        status: "SELESAI",
-        beratAktual,
-        poinPerKg,
-        totalPoin,
-        catatanAdmin: catatan,
-        verifikasiAt: now,
-        selesaiAt: now,
-      },
+      data: setorUpdateData,
     }),
     prisma.nasabah.update({
       where: { id: setor.nasabahId },
-      data: { poin: { increment: totalPoin } },
+      data: nasabahUpdateData,
     }),
     prisma.mutasiSaldo.create({
       data: {
         nasabahId: setor.nasabahId,
-        jumlah: totalPoin,
-        keterangan: `Setor langsung ${setor.jenisSampah} ${beratAktual} kg`,
+        jumlah: totalValue,
+        keterangan: isBankSampah
+          ? `Setor langsung (Cash) ${setor.jenisSampah} ${beratAktual} kg`
+          : `Setor langsung ${setor.jenisSampah} ${beratAktual} kg`,
         referensiId: setorSampahId,
       },
     }),
@@ -205,7 +216,7 @@ export async function getSetorSampahData() {
           alamat: true,
           nik: true,
           user: {
-            select: { name: true },
+            select: { name: true, role: true },
           },
         },
       },

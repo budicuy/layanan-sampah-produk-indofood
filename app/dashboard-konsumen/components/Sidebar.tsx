@@ -1,6 +1,13 @@
 "use client";
 
-import { LayoutDashboard, LogOut, Menu, Recycle, X } from "lucide-react";
+import {
+  LayoutDashboard,
+  LogOut,
+  Menu,
+  Recycle,
+  Ticket,
+  X,
+} from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -25,6 +32,16 @@ const MENU_GROUPS = [
         icon: Recycle,
         label: "Setor Sampah",
         href: "/dashboard-konsumen/setor-sampah",
+      },
+    ],
+  },
+  {
+    group: "Reward",
+    items: [
+      {
+        icon: Ticket,
+        label: "Tukar Kupon",
+        href: "/dashboard-konsumen/tukar-kupon",
       },
     ],
   },

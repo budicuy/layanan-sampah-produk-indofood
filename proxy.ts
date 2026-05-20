@@ -7,7 +7,8 @@ export async function proxy(request: NextRequest) {
   // Paths that require authentication
   const isProtected =
     pathname.startsWith("/dashboard-admin") ||
-    pathname.startsWith("/dashboard-konsumen");
+    pathname.startsWith("/dashboard-konsumen") ||
+    pathname.startsWith("/dashboard-bank-sampah");
   const isAuthPage = pathname === "/login";
 
   if (!isProtected && !isAuthPage) {
@@ -28,26 +29,54 @@ export async function proxy(request: NextRequest) {
 
   // If authenticated, prevent access to login page
   if (isAuthPage) {
-    const target =
-      payload.role === "KONSUMEN" ? "/dashboard-konsumen" : "/dashboard-admin";
+    let target = "/dashboard-admin";
+    if (payload.role === "KONSUMEN") {
+      target = "/dashboard-konsumen";
+    } else if (payload.role === "BANK_SAMPAH") {
+      target = "/dashboard-bank-sampah";
+    }
     return NextResponse.redirect(new URL(target, request.url));
   }
 
   // Role-based access control
-  if (pathname.startsWith("/dashboard-admin") && payload.role === "KONSUMEN") {
-    return NextResponse.redirect(new URL("/dashboard-konsumen", request.url));
+  if (pathname.startsWith("/dashboard-admin")) {
+    if (payload.role !== "ADMIN" && payload.role !== "HRD") {
+      const target =
+        payload.role === "KONSUMEN"
+          ? "/dashboard-konsumen"
+          : "/dashboard-bank-sampah";
+      return NextResponse.redirect(new URL(target, request.url));
+    }
   }
 
-  if (
-    pathname.startsWith("/dashboard-konsumen") &&
-    payload.role !== "KONSUMEN"
-  ) {
-    return NextResponse.redirect(new URL("/dashboard-admin", request.url));
+  if (pathname.startsWith("/dashboard-konsumen")) {
+    if (payload.role !== "KONSUMEN") {
+      const target =
+        payload.role === "BANK_SAMPAH"
+          ? "/dashboard-bank-sampah"
+          : "/dashboard-admin";
+      return NextResponse.redirect(new URL(target, request.url));
+    }
+  }
+
+  if (pathname.startsWith("/dashboard-bank-sampah")) {
+    if (payload.role !== "BANK_SAMPAH") {
+      const target =
+        payload.role === "KONSUMEN"
+          ? "/dashboard-konsumen"
+          : "/dashboard-admin";
+      return NextResponse.redirect(new URL(target, request.url));
+    }
   }
 
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/dashboard-admin/:path*", "/dashboard-konsumen/:path*", "/login"],
+  matcher: [
+    "/dashboard-admin/:path*",
+    "/dashboard-konsumen/:path*",
+    "/dashboard-bank-sampah/:path*",
+    "/login",
+  ],
 };

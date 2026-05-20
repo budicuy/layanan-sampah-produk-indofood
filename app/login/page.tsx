@@ -16,8 +16,12 @@ export default function LoginPage() {
     if (!state.msg) return;
     if (state.ok) {
       toast.success(state.msg);
-      const targetPath =
-        state.role === "KONSUMEN" ? "/dashboard-konsumen" : "/dashboard-admin";
+      let targetPath = "/dashboard-admin";
+      if (state.role === "KONSUMEN") {
+        targetPath = "/dashboard-konsumen";
+      } else if (state.role === "BANK_SAMPAH") {
+        targetPath = "/dashboard-bank-sampah";
+      }
       setTimeout(() => router.push(targetPath), 1000);
     } else {
       toast.error(state.msg);

@@ -31,6 +31,8 @@ export type SetorSampahAvgAggregateOutputType = {
   beratAktual: number | null
   poinPerKg: number | null
   totalPoin: number | null
+  hargaPerKg: number | null
+  totalHarga: number | null
 }
 
 export type SetorSampahSumAggregateOutputType = {
@@ -38,6 +40,8 @@ export type SetorSampahSumAggregateOutputType = {
   beratAktual: number | null
   poinPerKg: number | null
   totalPoin: number | null
+  hargaPerKg: number | null
+  totalHarga: number | null
 }
 
 export type SetorSampahMinAggregateOutputType = {
@@ -57,6 +61,8 @@ export type SetorSampahMinAggregateOutputType = {
   diserahkanAt: Date | null
   poinPerKg: number | null
   totalPoin: number | null
+  hargaPerKg: number | null
+  totalHarga: number | null
   selesaiAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -79,6 +85,8 @@ export type SetorSampahMaxAggregateOutputType = {
   diserahkanAt: Date | null
   poinPerKg: number | null
   totalPoin: number | null
+  hargaPerKg: number | null
+  totalHarga: number | null
   selesaiAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -101,6 +109,8 @@ export type SetorSampahCountAggregateOutputType = {
   diserahkanAt: number
   poinPerKg: number
   totalPoin: number
+  hargaPerKg: number
+  totalHarga: number
   selesaiAt: number
   createdAt: number
   updatedAt: number
@@ -113,6 +123,8 @@ export type SetorSampahAvgAggregateInputType = {
   beratAktual?: true
   poinPerKg?: true
   totalPoin?: true
+  hargaPerKg?: true
+  totalHarga?: true
 }
 
 export type SetorSampahSumAggregateInputType = {
@@ -120,6 +132,8 @@ export type SetorSampahSumAggregateInputType = {
   beratAktual?: true
   poinPerKg?: true
   totalPoin?: true
+  hargaPerKg?: true
+  totalHarga?: true
 }
 
 export type SetorSampahMinAggregateInputType = {
@@ -139,6 +153,8 @@ export type SetorSampahMinAggregateInputType = {
   diserahkanAt?: true
   poinPerKg?: true
   totalPoin?: true
+  hargaPerKg?: true
+  totalHarga?: true
   selesaiAt?: true
   createdAt?: true
   updatedAt?: true
@@ -161,6 +177,8 @@ export type SetorSampahMaxAggregateInputType = {
   diserahkanAt?: true
   poinPerKg?: true
   totalPoin?: true
+  hargaPerKg?: true
+  totalHarga?: true
   selesaiAt?: true
   createdAt?: true
   updatedAt?: true
@@ -183,6 +201,8 @@ export type SetorSampahCountAggregateInputType = {
   diserahkanAt?: true
   poinPerKg?: true
   totalPoin?: true
+  hargaPerKg?: true
+  totalHarga?: true
   selesaiAt?: true
   createdAt?: true
   updatedAt?: true
@@ -292,6 +312,8 @@ export type SetorSampahGroupByOutputType = {
   diserahkanAt: Date | null
   poinPerKg: number | null
   totalPoin: number | null
+  hargaPerKg: number | null
+  totalHarga: number | null
   selesaiAt: Date | null
   createdAt: Date
   updatedAt: Date
@@ -337,6 +359,8 @@ export type SetorSampahWhereInput = {
   diserahkanAt?: Prisma.DateTimeNullableFilter<"SetorSampah"> | Date | string | null
   poinPerKg?: Prisma.IntNullableFilter<"SetorSampah"> | number | null
   totalPoin?: Prisma.IntNullableFilter<"SetorSampah"> | number | null
+  hargaPerKg?: Prisma.IntNullableFilter<"SetorSampah"> | number | null
+  totalHarga?: Prisma.IntNullableFilter<"SetorSampah"> | number | null
   selesaiAt?: Prisma.DateTimeNullableFilter<"SetorSampah"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"SetorSampah"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"SetorSampah"> | Date | string
@@ -361,6 +385,8 @@ export type SetorSampahOrderByWithRelationInput = {
   diserahkanAt?: Prisma.SortOrderInput | Prisma.SortOrder
   poinPerKg?: Prisma.SortOrderInput | Prisma.SortOrder
   totalPoin?: Prisma.SortOrderInput | Prisma.SortOrder
+  hargaPerKg?: Prisma.SortOrderInput | Prisma.SortOrder
+  totalHarga?: Prisma.SortOrderInput | Prisma.SortOrder
   selesaiAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -388,6 +414,8 @@ export type SetorSampahWhereUniqueInput = Prisma.AtLeast<{
   diserahkanAt?: Prisma.DateTimeNullableFilter<"SetorSampah"> | Date | string | null
   poinPerKg?: Prisma.IntNullableFilter<"SetorSampah"> | number | null
   totalPoin?: Prisma.IntNullableFilter<"SetorSampah"> | number | null
+  hargaPerKg?: Prisma.IntNullableFilter<"SetorSampah"> | number | null
+  totalHarga?: Prisma.IntNullableFilter<"SetorSampah"> | number | null
   selesaiAt?: Prisma.DateTimeNullableFilter<"SetorSampah"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"SetorSampah"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"SetorSampah"> | Date | string
@@ -412,6 +440,8 @@ export type SetorSampahOrderByWithAggregationInput = {
   diserahkanAt?: Prisma.SortOrderInput | Prisma.SortOrder
   poinPerKg?: Prisma.SortOrderInput | Prisma.SortOrder
   totalPoin?: Prisma.SortOrderInput | Prisma.SortOrder
+  hargaPerKg?: Prisma.SortOrderInput | Prisma.SortOrder
+  totalHarga?: Prisma.SortOrderInput | Prisma.SortOrder
   selesaiAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -442,6 +472,8 @@ export type SetorSampahScalarWhereWithAggregatesInput = {
   diserahkanAt?: Prisma.DateTimeNullableWithAggregatesFilter<"SetorSampah"> | Date | string | null
   poinPerKg?: Prisma.IntNullableWithAggregatesFilter<"SetorSampah"> | number | null
   totalPoin?: Prisma.IntNullableWithAggregatesFilter<"SetorSampah"> | number | null
+  hargaPerKg?: Prisma.IntNullableWithAggregatesFilter<"SetorSampah"> | number | null
+  totalHarga?: Prisma.IntNullableWithAggregatesFilter<"SetorSampah"> | number | null
   selesaiAt?: Prisma.DateTimeNullableWithAggregatesFilter<"SetorSampah"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"SetorSampah"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"SetorSampah"> | Date | string
@@ -462,6 +494,8 @@ export type SetorSampahCreateInput = {
   diserahkanAt?: Date | string | null
   poinPerKg?: number | null
   totalPoin?: number | null
+  hargaPerKg?: number | null
+  totalHarga?: number | null
   selesaiAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -486,6 +520,8 @@ export type SetorSampahUncheckedCreateInput = {
   diserahkanAt?: Date | string | null
   poinPerKg?: number | null
   totalPoin?: number | null
+  hargaPerKg?: number | null
+  totalHarga?: number | null
   selesaiAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -506,6 +542,8 @@ export type SetorSampahUpdateInput = {
   diserahkanAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   poinPerKg?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   totalPoin?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  hargaPerKg?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  totalHarga?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   selesaiAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -530,6 +568,8 @@ export type SetorSampahUncheckedUpdateInput = {
   diserahkanAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   poinPerKg?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   totalPoin?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  hargaPerKg?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  totalHarga?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   selesaiAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -552,6 +592,8 @@ export type SetorSampahCreateManyInput = {
   diserahkanAt?: Date | string | null
   poinPerKg?: number | null
   totalPoin?: number | null
+  hargaPerKg?: number | null
+  totalHarga?: number | null
   selesaiAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -572,6 +614,8 @@ export type SetorSampahUpdateManyMutationInput = {
   diserahkanAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   poinPerKg?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   totalPoin?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  hargaPerKg?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  totalHarga?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   selesaiAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -594,6 +638,8 @@ export type SetorSampahUncheckedUpdateManyInput = {
   diserahkanAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   poinPerKg?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   totalPoin?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  hargaPerKg?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  totalHarga?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   selesaiAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -626,6 +672,8 @@ export type SetorSampahCountOrderByAggregateInput = {
   diserahkanAt?: Prisma.SortOrder
   poinPerKg?: Prisma.SortOrder
   totalPoin?: Prisma.SortOrder
+  hargaPerKg?: Prisma.SortOrder
+  totalHarga?: Prisma.SortOrder
   selesaiAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -636,6 +684,8 @@ export type SetorSampahAvgOrderByAggregateInput = {
   beratAktual?: Prisma.SortOrder
   poinPerKg?: Prisma.SortOrder
   totalPoin?: Prisma.SortOrder
+  hargaPerKg?: Prisma.SortOrder
+  totalHarga?: Prisma.SortOrder
 }
 
 export type SetorSampahMaxOrderByAggregateInput = {
@@ -655,6 +705,8 @@ export type SetorSampahMaxOrderByAggregateInput = {
   diserahkanAt?: Prisma.SortOrder
   poinPerKg?: Prisma.SortOrder
   totalPoin?: Prisma.SortOrder
+  hargaPerKg?: Prisma.SortOrder
+  totalHarga?: Prisma.SortOrder
   selesaiAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -677,6 +729,8 @@ export type SetorSampahMinOrderByAggregateInput = {
   diserahkanAt?: Prisma.SortOrder
   poinPerKg?: Prisma.SortOrder
   totalPoin?: Prisma.SortOrder
+  hargaPerKg?: Prisma.SortOrder
+  totalHarga?: Prisma.SortOrder
   selesaiAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -687,6 +741,8 @@ export type SetorSampahSumOrderByAggregateInput = {
   beratAktual?: Prisma.SortOrder
   poinPerKg?: Prisma.SortOrder
   totalPoin?: Prisma.SortOrder
+  hargaPerKg?: Prisma.SortOrder
+  totalHarga?: Prisma.SortOrder
 }
 
 export type SetorSampahCreateNestedManyWithoutNasabahInput = {
@@ -816,6 +872,8 @@ export type SetorSampahCreateWithoutNasabahInput = {
   diserahkanAt?: Date | string | null
   poinPerKg?: number | null
   totalPoin?: number | null
+  hargaPerKg?: number | null
+  totalHarga?: number | null
   selesaiAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -838,6 +896,8 @@ export type SetorSampahUncheckedCreateWithoutNasabahInput = {
   diserahkanAt?: Date | string | null
   poinPerKg?: number | null
   totalPoin?: number | null
+  hargaPerKg?: number | null
+  totalHarga?: number | null
   selesaiAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -889,6 +949,8 @@ export type SetorSampahScalarWhereInput = {
   diserahkanAt?: Prisma.DateTimeNullableFilter<"SetorSampah"> | Date | string | null
   poinPerKg?: Prisma.IntNullableFilter<"SetorSampah"> | number | null
   totalPoin?: Prisma.IntNullableFilter<"SetorSampah"> | number | null
+  hargaPerKg?: Prisma.IntNullableFilter<"SetorSampah"> | number | null
+  totalHarga?: Prisma.IntNullableFilter<"SetorSampah"> | number | null
   selesaiAt?: Prisma.DateTimeNullableFilter<"SetorSampah"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"SetorSampah"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"SetorSampah"> | Date | string
@@ -909,6 +971,8 @@ export type SetorSampahCreateWithoutEkpedisiInput = {
   diserahkanAt?: Date | string | null
   poinPerKg?: number | null
   totalPoin?: number | null
+  hargaPerKg?: number | null
+  totalHarga?: number | null
   selesaiAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -931,6 +995,8 @@ export type SetorSampahUncheckedCreateWithoutEkpedisiInput = {
   diserahkanAt?: Date | string | null
   poinPerKg?: number | null
   totalPoin?: number | null
+  hargaPerKg?: number | null
+  totalHarga?: number | null
   selesaiAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -978,6 +1044,8 @@ export type SetorSampahCreateManyNasabahInput = {
   diserahkanAt?: Date | string | null
   poinPerKg?: number | null
   totalPoin?: number | null
+  hargaPerKg?: number | null
+  totalHarga?: number | null
   selesaiAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -998,6 +1066,8 @@ export type SetorSampahUpdateWithoutNasabahInput = {
   diserahkanAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   poinPerKg?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   totalPoin?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  hargaPerKg?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  totalHarga?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   selesaiAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1020,6 +1090,8 @@ export type SetorSampahUncheckedUpdateWithoutNasabahInput = {
   diserahkanAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   poinPerKg?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   totalPoin?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  hargaPerKg?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  totalHarga?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   selesaiAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1041,6 +1113,8 @@ export type SetorSampahUncheckedUpdateManyWithoutNasabahInput = {
   diserahkanAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   poinPerKg?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   totalPoin?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  hargaPerKg?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  totalHarga?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   selesaiAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1062,6 +1136,8 @@ export type SetorSampahCreateManyEkpedisiInput = {
   diserahkanAt?: Date | string | null
   poinPerKg?: number | null
   totalPoin?: number | null
+  hargaPerKg?: number | null
+  totalHarga?: number | null
   selesaiAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1082,6 +1158,8 @@ export type SetorSampahUpdateWithoutEkpedisiInput = {
   diserahkanAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   poinPerKg?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   totalPoin?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  hargaPerKg?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  totalHarga?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   selesaiAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1104,6 +1182,8 @@ export type SetorSampahUncheckedUpdateWithoutEkpedisiInput = {
   diserahkanAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   poinPerKg?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   totalPoin?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  hargaPerKg?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  totalHarga?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   selesaiAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1125,6 +1205,8 @@ export type SetorSampahUncheckedUpdateManyWithoutEkpedisiInput = {
   diserahkanAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   poinPerKg?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   totalPoin?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  hargaPerKg?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  totalHarga?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   selesaiAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1149,6 +1231,8 @@ export type SetorSampahSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   diserahkanAt?: boolean
   poinPerKg?: boolean
   totalPoin?: boolean
+  hargaPerKg?: boolean
+  totalHarga?: boolean
   selesaiAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -1173,6 +1257,8 @@ export type SetorSampahSelectCreateManyAndReturn<ExtArgs extends runtime.Types.E
   diserahkanAt?: boolean
   poinPerKg?: boolean
   totalPoin?: boolean
+  hargaPerKg?: boolean
+  totalHarga?: boolean
   selesaiAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -1197,6 +1283,8 @@ export type SetorSampahSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.E
   diserahkanAt?: boolean
   poinPerKg?: boolean
   totalPoin?: boolean
+  hargaPerKg?: boolean
+  totalHarga?: boolean
   selesaiAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -1221,12 +1309,14 @@ export type SetorSampahSelectScalar = {
   diserahkanAt?: boolean
   poinPerKg?: boolean
   totalPoin?: boolean
+  hargaPerKg?: boolean
+  totalHarga?: boolean
   selesaiAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type SetorSampahOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "nasabahId" | "jenisSampah" | "beratEstimasi" | "beratAktual" | "keterangan" | "alamatPenjemputan" | "jenisSetor" | "status" | "catatanAdmin" | "verifikasiAt" | "ekpedisiId" | "penjemputanAt" | "diserahkanAt" | "poinPerKg" | "totalPoin" | "selesaiAt" | "createdAt" | "updatedAt", ExtArgs["result"]["setorSampah"]>
+export type SetorSampahOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "nasabahId" | "jenisSampah" | "beratEstimasi" | "beratAktual" | "keterangan" | "alamatPenjemputan" | "jenisSetor" | "status" | "catatanAdmin" | "verifikasiAt" | "ekpedisiId" | "penjemputanAt" | "diserahkanAt" | "poinPerKg" | "totalPoin" | "hargaPerKg" | "totalHarga" | "selesaiAt" | "createdAt" | "updatedAt", ExtArgs["result"]["setorSampah"]>
 export type SetorSampahInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   nasabah?: boolean | Prisma.NasabahDefaultArgs<ExtArgs>
   ekpedisi?: boolean | Prisma.SetorSampah$ekpedisiArgs<ExtArgs>
@@ -1263,6 +1353,8 @@ export type $SetorSampahPayload<ExtArgs extends runtime.Types.Extensions.Interna
     diserahkanAt: Date | null
     poinPerKg: number | null
     totalPoin: number | null
+    hargaPerKg: number | null
+    totalHarga: number | null
     selesaiAt: Date | null
     createdAt: Date
     updatedAt: Date
@@ -1707,6 +1799,8 @@ export interface SetorSampahFieldRefs {
   readonly diserahkanAt: Prisma.FieldRef<"SetorSampah", 'DateTime'>
   readonly poinPerKg: Prisma.FieldRef<"SetorSampah", 'Int'>
   readonly totalPoin: Prisma.FieldRef<"SetorSampah", 'Int'>
+  readonly hargaPerKg: Prisma.FieldRef<"SetorSampah", 'Int'>
+  readonly totalHarga: Prisma.FieldRef<"SetorSampah", 'Int'>
   readonly selesaiAt: Prisma.FieldRef<"SetorSampah", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"SetorSampah", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"SetorSampah", 'DateTime'>

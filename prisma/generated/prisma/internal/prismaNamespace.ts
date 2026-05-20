@@ -391,7 +391,9 @@ export const ModelName = {
   Ekpedisi: 'Ekpedisi',
   HargaSampah: 'HargaSampah',
   SetorSampah: 'SetorSampah',
-  MutasiSaldo: 'MutasiSaldo'
+  MutasiSaldo: 'MutasiSaldo',
+  Kupon: 'Kupon',
+  TierKupon: 'TierKupon'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -407,7 +409,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "account" | "nasabah" | "produk" | "ekpedisi" | "hargaSampah" | "setorSampah" | "mutasiSaldo"
+    modelProps: "user" | "account" | "nasabah" | "produk" | "ekpedisi" | "hargaSampah" | "setorSampah" | "mutasiSaldo" | "kupon" | "tierKupon"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1003,6 +1005,154 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    Kupon: {
+      payload: Prisma.$KuponPayload<ExtArgs>
+      fields: Prisma.KuponFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.KuponFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KuponPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.KuponFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KuponPayload>
+        }
+        findFirst: {
+          args: Prisma.KuponFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KuponPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.KuponFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KuponPayload>
+        }
+        findMany: {
+          args: Prisma.KuponFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KuponPayload>[]
+        }
+        create: {
+          args: Prisma.KuponCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KuponPayload>
+        }
+        createMany: {
+          args: Prisma.KuponCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.KuponCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KuponPayload>[]
+        }
+        delete: {
+          args: Prisma.KuponDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KuponPayload>
+        }
+        update: {
+          args: Prisma.KuponUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KuponPayload>
+        }
+        deleteMany: {
+          args: Prisma.KuponDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.KuponUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.KuponUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KuponPayload>[]
+        }
+        upsert: {
+          args: Prisma.KuponUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KuponPayload>
+        }
+        aggregate: {
+          args: Prisma.KuponAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateKupon>
+        }
+        groupBy: {
+          args: Prisma.KuponGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.KuponGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.KuponCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.KuponCountAggregateOutputType> | number
+        }
+      }
+    }
+    TierKupon: {
+      payload: Prisma.$TierKuponPayload<ExtArgs>
+      fields: Prisma.TierKuponFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.TierKuponFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TierKuponPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.TierKuponFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TierKuponPayload>
+        }
+        findFirst: {
+          args: Prisma.TierKuponFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TierKuponPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.TierKuponFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TierKuponPayload>
+        }
+        findMany: {
+          args: Prisma.TierKuponFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TierKuponPayload>[]
+        }
+        create: {
+          args: Prisma.TierKuponCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TierKuponPayload>
+        }
+        createMany: {
+          args: Prisma.TierKuponCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.TierKuponCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TierKuponPayload>[]
+        }
+        delete: {
+          args: Prisma.TierKuponDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TierKuponPayload>
+        }
+        update: {
+          args: Prisma.TierKuponUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TierKuponPayload>
+        }
+        deleteMany: {
+          args: Prisma.TierKuponDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.TierKuponUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.TierKuponUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TierKuponPayload>[]
+        }
+        upsert: {
+          args: Prisma.TierKuponUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TierKuponPayload>
+        }
+        aggregate: {
+          args: Prisma.TierKuponAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateTierKupon>
+        }
+        groupBy: {
+          args: Prisma.TierKuponGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TierKuponGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.TierKuponCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TierKuponCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -1087,6 +1237,7 @@ export const NasabahScalarFieldEnum = {
   titikLokasi: 'titikLokasi',
   status: 'status',
   poin: 'poin',
+  saldo: 'saldo',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -1149,6 +1300,8 @@ export const SetorSampahScalarFieldEnum = {
   diserahkanAt: 'diserahkanAt',
   poinPerKg: 'poinPerKg',
   totalPoin: 'totalPoin',
+  hargaPerKg: 'hargaPerKg',
+  totalHarga: 'totalHarga',
   selesaiAt: 'selesaiAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -1167,6 +1320,35 @@ export const MutasiSaldoScalarFieldEnum = {
 } as const
 
 export type MutasiSaldoScalarFieldEnum = (typeof MutasiSaldoScalarFieldEnum)[keyof typeof MutasiSaldoScalarFieldEnum]
+
+
+export const KuponScalarFieldEnum = {
+  id: 'id',
+  kode: 'kode',
+  nama: 'nama',
+  deskripsi: 'deskripsi',
+  poinCost: 'poinCost',
+  status: 'status',
+  nasabahId: 'nasabahId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  digunakanAt: 'digunakanAt'
+} as const
+
+export type KuponScalarFieldEnum = (typeof KuponScalarFieldEnum)[keyof typeof KuponScalarFieldEnum]
+
+
+export const TierKuponScalarFieldEnum = {
+  id: 'id',
+  tier: 'tier',
+  poinMin: 'poinMin',
+  nama: 'nama',
+  deskripsi: 'deskripsi',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type TierKuponScalarFieldEnum = (typeof TierKuponScalarFieldEnum)[keyof typeof TierKuponScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -1352,6 +1534,20 @@ export type EnumStatusSetorSampahFieldRefInput<$PrismaModel> = FieldRefInputType
 export type ListEnumStatusSetorSampahFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StatusSetorSampah[]'>
     
 
+
+/**
+ * Reference to a field of type 'KuponStatus'
+ */
+export type EnumKuponStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'KuponStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'KuponStatus[]'
+ */
+export type ListEnumKuponStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'KuponStatus[]'>
+    
+
 /**
  * Batch Payload for updateMany & deleteMany & createMany
  */
@@ -1470,6 +1666,8 @@ export type GlobalOmitConfig = {
   hargaSampah?: Prisma.HargaSampahOmit
   setorSampah?: Prisma.SetorSampahOmit
   mutasiSaldo?: Prisma.MutasiSaldoOmit
+  kupon?: Prisma.KuponOmit
+  tierKupon?: Prisma.TierKuponOmit
 }
 
 /* Types for Logging */

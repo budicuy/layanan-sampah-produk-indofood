@@ -45,6 +45,7 @@ enum Role {
   KONSUMEN
   ADMIN
   HRD
+  BANK_SAMPAH
 }
 
 enum StatusUser {
@@ -109,11 +110,13 @@ model Nasabah {
   titikLokasi String?
   status      StatusNasabah   @default(AKTIF)
   poin        Int             @default(0)
+  saldo       Int             @default(0)
   createdAt   DateTime        @default(now())
   updatedAt   DateTime        @updatedAt
 
   setorSampah SetorSampah[]
   mutasiSaldo MutasiSaldo[]
+  kupons      Kupon[]
 
   @@map("nasabah")
 }
@@ -187,6 +190,8 @@ model SetorSampah {
   // Verifikasi akhir & pencairan
   poinPerKg  Int? // Point per kg yang diberikan
   totalPoin  Int? // Total poin dikreditkan ke nasabah
+  hargaPerKg Int? // Rupiah per kg yang diberikan
+  totalHarga Int? // Total Rupiah dikreditkan ke nasabah
   selesaiAt  DateTime?
 
   createdAt DateTime @default(now())
@@ -210,4 +215,39 @@ model MutasiSaldo {
 
   @@index([nasabahId])
   @@map("mutasi_saldo")
+}
+
+model Kupon {
+  id          String      @id @default(cuid())
+  kode        String      @unique // Kode acak kupon untuk QR code
+  nama        String      // Nama reward, e.g. "Kupon Sembako Rp 10.000"
+  deskripsi   String?
+  poinCost    Int         // Biaya poin
+  status      KuponStatus @default(AKTIF)
+  nasabahId   String
+  nasabah     Nasabah     @relation(fields: [nasabahId], references: [id], onDelete: Cascade)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  digunakanAt DateTime?
+
+  @@index([nasabahId])
+  @@map("kupon")
+}
+
+enum KuponStatus {
+  AKTIF
+  DIGUNAKAN
+  EXPIRED
+}
+
+model TierKupon {
+  id        String   @id @default(cuid())
+  tier      String   @unique // "DIAMOND", "GOLD", "PLATINUM"
+  poinMin   Int
+  nama      String   // E.g. "Diamond", "Gold", "Platinum"
+  deskripsi String   // E.g. "Dapat ditukarkan dengan..."
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("tier_kupon")
 }

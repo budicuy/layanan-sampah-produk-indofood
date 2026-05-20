@@ -8,6 +8,7 @@ import {
   LogOut,
   Menu,
   Recycle,
+  Ticket,
   Truck,
   UserCircle,
   Users,
@@ -68,6 +69,21 @@ const MENU_GROUPS = [
     ],
   },
   {
+    group: "Reward Poin & Kupon",
+    items: [
+      {
+        icon: Ticket,
+        label: "Kelola Tier Poin",
+        href: "/dashboard-admin/reward-poin/tier",
+      },
+      {
+        icon: Ticket,
+        label: "Kupon Terklaim",
+        href: "/dashboard-admin/reward-poin/kupon",
+      },
+    ],
+  },
+  {
     group: "Pendataan SICUAN",
     items: [
       {
@@ -82,36 +98,6 @@ const MENU_GROUPS = [
       },
     ],
   },
-  // {
-  //   group: "Omzet",
-  //   items: [
-  //     {
-  //       icon: BarChart3,
-  //       label: "History Omzet (Coming soon)",
-  //       href: "/dashboard/history-omzet",
-  //     },
-  //     {
-  //       icon: Landmark,
-  //       label: "Mutasi Bank Sampah (Coming soon)",
-  //       href: "/dashboard/mutasi",
-  //     },
-  //   ],
-  // },
-  // {
-  //   group: "Buku Tabungan Sampah",
-  //   items: [
-  //     {
-  //       icon: ClipboardList,
-  //       label: "Laporan Vendor (Coming soon)",
-  //       href: "/dashboard/laporan-vendor",
-  //     },
-  //     {
-  //       icon: Wallet,
-  //       label: "Total Tabungan Vendor (Coming soon)",
-  //       href: "/dashboard/total-tabungan",
-  //     },
-  //   ],
-  // },
 ];
 
 interface UserProps {

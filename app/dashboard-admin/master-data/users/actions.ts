@@ -31,12 +31,8 @@ export async function createUser(data: {
         email: data.email,
         role: data.role,
         status: data.status,
-        emailVerified: true,
         accounts: {
           create: {
-            id: `acc-${Date.now()}`,
-            accountId: data.username,
-            providerId: "credential",
             password: hashedPassword,
           },
         },
@@ -94,7 +90,7 @@ export async function resetPassword(id: string) {
     const hashedPassword = await hash("password", 12);
 
     await prisma.account.updateMany({
-      where: { userId: id, providerId: "credential" },
+      where: { userId: id },
       data: { password: hashedPassword },
     });
     return { success: true };

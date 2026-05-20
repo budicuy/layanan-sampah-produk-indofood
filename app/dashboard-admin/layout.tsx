@@ -17,6 +17,10 @@ export default async function DashboardLayout({
     redirect("/dashboard-konsumen");
   }
 
+  if (user.role === "BANK_SAMPAH") {
+    redirect("/dashboard-bank-sampah");
+  }
+
   return (
     <div className="flex min-h-screen bg-zinc-50 overflow-hidden">
       <Sidebar user={user} />

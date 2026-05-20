@@ -58,7 +58,9 @@ export const ModelName = {
   Ekpedisi: 'Ekpedisi',
   HargaSampah: 'HargaSampah',
   SetorSampah: 'SetorSampah',
-  MutasiSaldo: 'MutasiSaldo'
+  MutasiSaldo: 'MutasiSaldo',
+  Kupon: 'Kupon',
+  TierKupon: 'TierKupon'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -122,6 +124,7 @@ export const NasabahScalarFieldEnum = {
   titikLokasi: 'titikLokasi',
   status: 'status',
   poin: 'poin',
+  saldo: 'saldo',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -184,6 +187,8 @@ export const SetorSampahScalarFieldEnum = {
   diserahkanAt: 'diserahkanAt',
   poinPerKg: 'poinPerKg',
   totalPoin: 'totalPoin',
+  hargaPerKg: 'hargaPerKg',
+  totalHarga: 'totalHarga',
   selesaiAt: 'selesaiAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -202,6 +207,35 @@ export const MutasiSaldoScalarFieldEnum = {
 } as const
 
 export type MutasiSaldoScalarFieldEnum = (typeof MutasiSaldoScalarFieldEnum)[keyof typeof MutasiSaldoScalarFieldEnum]
+
+
+export const KuponScalarFieldEnum = {
+  id: 'id',
+  kode: 'kode',
+  nama: 'nama',
+  deskripsi: 'deskripsi',
+  poinCost: 'poinCost',
+  status: 'status',
+  nasabahId: 'nasabahId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  digunakanAt: 'digunakanAt'
+} as const
+
+export type KuponScalarFieldEnum = (typeof KuponScalarFieldEnum)[keyof typeof KuponScalarFieldEnum]
+
+
+export const TierKuponScalarFieldEnum = {
+  id: 'id',
+  tier: 'tier',
+  poinMin: 'poinMin',
+  nama: 'nama',
+  deskripsi: 'deskripsi',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type TierKuponScalarFieldEnum = (typeof TierKuponScalarFieldEnum)[keyof typeof TierKuponScalarFieldEnum]
 
 
 export const SortOrder = {

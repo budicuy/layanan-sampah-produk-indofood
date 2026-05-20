@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { getSession } from "@/app/login/auth/session";
 import Sidebar from "./components/Sidebar";
 
-export default async function ConsumerLayout({
+export default async function BankSampahLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -13,12 +13,10 @@ export default async function ConsumerLayout({
 
   const { user } = session;
 
-  // Protect route - only allow KONSUMEN
-  if (user.role !== "KONSUMEN") {
+  // Protect route - only allow BANK_SAMPAH
+  if (user.role !== "BANK_SAMPAH") {
     const target =
-      user.role === "BANK_SAMPAH"
-        ? "/dashboard-bank-sampah"
-        : "/dashboard-admin";
+      user.role === "KONSUMEN" ? "/dashboard-konsumen" : "/dashboard-admin";
     redirect(target);
   }
 

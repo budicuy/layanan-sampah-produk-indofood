@@ -362,6 +362,23 @@ export type IntNullableWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedIntNullableFilter<$PrismaModel>
 }
 
+export type EnumKuponStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.KuponStatus | Prisma.EnumKuponStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.KuponStatus[] | Prisma.ListEnumKuponStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.KuponStatus[] | Prisma.ListEnumKuponStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumKuponStatusFilter<$PrismaModel> | $Enums.KuponStatus
+}
+
+export type EnumKuponStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.KuponStatus | Prisma.EnumKuponStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.KuponStatus[] | Prisma.ListEnumKuponStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.KuponStatus[] | Prisma.ListEnumKuponStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumKuponStatusWithAggregatesFilter<$PrismaModel> | $Enums.KuponStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumKuponStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumKuponStatusFilter<$PrismaModel>
+}
+
 export type NestedStringFilter<$PrismaModel = never> = {
   equals?: string | Prisma.StringFieldRefInput<$PrismaModel>
   in?: string[] | Prisma.ListStringFieldRefInput<$PrismaModel>
@@ -699,6 +716,23 @@ export type NestedIntNullableWithAggregatesFilter<$PrismaModel = never> = {
   _sum?: Prisma.NestedIntNullableFilter<$PrismaModel>
   _min?: Prisma.NestedIntNullableFilter<$PrismaModel>
   _max?: Prisma.NestedIntNullableFilter<$PrismaModel>
+}
+
+export type NestedEnumKuponStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.KuponStatus | Prisma.EnumKuponStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.KuponStatus[] | Prisma.ListEnumKuponStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.KuponStatus[] | Prisma.ListEnumKuponStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumKuponStatusFilter<$PrismaModel> | $Enums.KuponStatus
+}
+
+export type NestedEnumKuponStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.KuponStatus | Prisma.EnumKuponStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.KuponStatus[] | Prisma.ListEnumKuponStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.KuponStatus[] | Prisma.ListEnumKuponStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumKuponStatusWithAggregatesFilter<$PrismaModel> | $Enums.KuponStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumKuponStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumKuponStatusFilter<$PrismaModel>
 }
 
 

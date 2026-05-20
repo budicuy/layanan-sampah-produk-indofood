@@ -312,7 +312,9 @@ export default function UsersPage() {
                             ? "bg-purple-100 text-purple-700"
                             : u.role === "HRD"
                               ? "bg-blue-100 text-blue-700"
-                              : "bg-amber-100 text-amber-700"
+                              : u.role === "BANK_SAMPAH"
+                                ? "bg-emerald-100 text-emerald-700"
+                                : "bg-amber-100 text-amber-700"
                         }`}>
                         <Shield size={12} /> {u.role}
                       </span>
@@ -444,6 +446,7 @@ export default function UsersPage() {
                     defaultValue={selectedUser?.role || "KONSUMEN"}
                     className="w-full px-4 py-3 bg-zinc-50 border-none rounded-xl focus:ring-2 focus:ring-primary/20">
                     <option value="KONSUMEN">Konsumen</option>
+                    <option value="BANK_SAMPAH">Bank Sampah</option>
                     <option value="ADMIN">Admin</option>
                     <option value="HRD">HRD</option>
                   </select>

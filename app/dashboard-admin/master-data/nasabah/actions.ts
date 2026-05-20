@@ -91,7 +91,7 @@ export async function getAvailableUsers() {
   await checkAdminAuth();
   const users = await prisma.user.findMany({
     where: {
-      role: "KONSUMEN",
+      role: { in: ["KONSUMEN", "BANK_SAMPAH"] },
       nasabah: null,
     },
     select: {

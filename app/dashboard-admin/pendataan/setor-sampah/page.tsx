@@ -53,6 +53,7 @@ interface SetorSampahItem {
   ekpedisiId: string | null;
   ekpedisi: { noTelp: string; alamat: string } | null;
   totalPoin: number | null;
+  totalHarga: number | null;
   createdAt: Date;
   nasabah: {
     id: string;
@@ -61,6 +62,7 @@ interface SetorSampahItem {
     nik: string;
     user: {
       name: string;
+      role: string;
     };
   };
 }
@@ -573,11 +575,13 @@ function PanelVerifikasiLangsung({
   id,
   jenisSampah,
   beratEstimasi,
+  role,
   onActionSuccess,
 }: {
   id: string;
   jenisSampah: string;
   beratEstimasi: number;
+  role: string;
   onActionSuccess: () => void;
 }) {
   const [loading, setLoading] = useState(false);
@@ -592,7 +596,12 @@ function PanelVerifikasiLangsung({
     catatan: "",
   });
 
-  const poinPerKg = hargaDB ? hargaDB.point : 0;
+  const isBankSampah = role === "BANK_SAMPAH";
+  const ratePerKg = hargaDB
+    ? isBankSampah
+      ? hargaDB.harga
+      : hargaDB.point
+    : 0;
 
   // Auto-load harga terbaru dari DB saat panel dibuka
   useEffect(() => {
@@ -608,8 +617,10 @@ function PanelVerifikasiLangsung({
   }
 
   async function handleApprove() {
-    if (!form.beratAktual || !poinPerKg) {
-      alert("Isi berat aktual terlebih dahulu dan pastikan data poin tersedia");
+    if (!form.beratAktual || !ratePerKg) {
+      alert(
+        "Isi berat aktual terlebih dahulu dan pastikan data tarif tersedia",
+      );
       return;
     }
     setLoading(true);
@@ -617,7 +628,7 @@ function PanelVerifikasiLangsung({
       await verifikasiSetorLangsungDanKreditSaldo(
         id,
         Number(form.beratAktual),
-        poinPerKg,
+        ratePerKg,
         form.catatan || undefined,
       );
       onActionSuccess();
@@ -657,11 +668,11 @@ function PanelVerifikasiLangsung({
           <div className="flex items-center justify-between px-3 py-2 bg-blue-50 border border-blue-100 rounded-lg">
             <div>
               <p className="text-[10px] font-bold text-blue-500 uppercase tracking-wider">
-                Poin Referensi DB
+                Tarif Referensi DB
               </p>
               <p className="text-xs font-bold text-blue-800">
-                {hargaDB.point} poin/kg · Harga {formatRupiah(hargaDB.harga)}/kg
-                · Bulan{" "}
+                Poin: {hargaDB.point} poin/kg · Harga:{" "}
+                {formatRupiah(hargaDB.harga)}/kg · Bulan{" "}
                 {new Date(hargaDB.bulan).toLocaleDateString("id-ID", {
                   month: "long",
                   year: "numeric",
@@ -676,15 +687,17 @@ function PanelVerifikasiLangsung({
             disabled={loading}
             className="w-full flex items-center justify-center gap-1.5 py-2.5 bg-zinc-900 text-white rounded-xl text-xs font-bold hover:bg-zinc-800 disabled:opacity-60 transition-colors">
             <CheckCircle2 size={13} />
-            Data Sudah Benar (Berat: {beratEstimasi} kg · {hargaDB.point}{" "}
-            poin/kg)
+            Data Sudah Benar (Berat: {beratEstimasi} kg ·{" "}
+            {isBankSampah
+              ? `${formatRupiah(ratePerKg)}/kg`
+              : `${ratePerKg} poin/kg`}
+            )
           </button>
         </div>
       ) : (
         <div className="px-3 py-2 bg-amber-50 border border-amber-100 rounded-lg">
           <p className="text-xs text-amber-700 font-medium">
-            ⚠ Belum ada data harga referensi untuk jenis sampah ini. Input
-            manual di bawah.
+            ⚠ Belum ada data harga referensi untuk jenis sampah ini.
           </p>
         </div>
       )}
@@ -706,16 +719,21 @@ function PanelVerifikasiLangsung({
           className="w-full px-3 py-2 bg-white border border-zinc-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-200"
         />
       </div>
-      {form.beratAktual && poinPerKg ? (
+      {form.beratAktual && ratePerKg ? (
         <div className="px-3 py-2.5 bg-green-50 border border-green-100 rounded-lg space-y-0.5">
           <p className="text-[10px] text-green-500 font-bold uppercase tracking-wider">
-            Perhitungan Poin
+            Perhitungan {isBankSampah ? "Saldo Rupiah" : "Poin"}
           </p>
           <p className="text-xs text-green-700">
-            {form.beratAktual} kg × {poinPerKg} poin/kg
+            {form.beratAktual} kg ×{" "}
+            {isBankSampah
+              ? `${formatRupiah(ratePerKg)}/kg`
+              : `${ratePerKg} poin/kg`}
             {" = "}
             <span className="font-black text-green-800">
-              {Math.round(Number(form.beratAktual) * poinPerKg)} poin
+              {isBankSampah
+                ? formatRupiah(Math.round(Number(form.beratAktual) * ratePerKg))
+                : `${Math.round(Number(form.beratAktual) * ratePerKg)} poin`}
             </span>
           </p>
         </div>
@@ -738,7 +756,7 @@ function PanelVerifikasiLangsung({
           ) : (
             <CheckCircle size={12} />
           )}
-          Verifikasi & Kreditkan Poin
+          Verifikasi & Kreditkan {isBankSampah ? "Saldo" : "Poin"}
         </button>
         <button
           type="button"
@@ -867,6 +885,15 @@ function SetorCard({
           </div>
         )}
 
+        {item.totalHarga != null && (
+          <div className="flex items-center gap-2 bg-green-50 border border-green-100 rounded-xl p-3">
+            <Wallet size={16} className="text-green-600 shrink-0" />
+            <span className="text-sm font-bold text-green-700">
+              Saldo Rupiah Dikreditkan: {formatRupiah(item.totalHarga)}
+            </span>
+          </div>
+        )}
+
         <p className="text-[11px] text-zinc-400">
           {formatDate(item.createdAt)} · {formatTime(item.createdAt)}
         </p>
@@ -874,11 +901,17 @@ function SetorCard({
         {/* Action panels */}
         {item.status === "MENUNGGU_VERIFIKASI" &&
           item.jenisSetor === "LANGSUNG" && (
-            <ActionSection title="Verifikasi & Kreditkan Poin (Setor Langsung)">
+            <ActionSection
+              title={
+                item.nasabah.user.role === "BANK_SAMPAH"
+                  ? "Verifikasi & Kreditkan Saldo (Setor Langsung)"
+                  : "Verifikasi & Kreditkan Poin (Setor Langsung)"
+              }>
               <PanelVerifikasiLangsung
                 id={item.id}
                 jenisSampah={item.jenisSampah}
                 beratEstimasi={item.beratEstimasi}
+                role={item.nasabah.user.role}
                 onActionSuccess={onActionSuccess}
               />
             </ActionSection>
