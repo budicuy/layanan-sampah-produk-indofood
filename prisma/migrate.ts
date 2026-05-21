@@ -5,6 +5,15 @@ async function main() {
 
   console.log("🚀 Starting database migration via neon serverless adapter...");
 
+  // 0. Drop Produk table if exists
+  try {
+    await prisma.$executeRawUnsafe('DROP TABLE IF EXISTS "produk" CASCADE');
+    console.log("✅ Table 'produk' dropped successfully (if it existed).");
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.log("ℹ️ Error dropping 'produk' table:", msg);
+  }
+
   // 1. Alter Nasabah table: Rename saldo to poin
   try {
     await prisma.$executeRawUnsafe(
@@ -206,6 +215,57 @@ async function main() {
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     console.log("ℹ️ Skipping default tiers seeding:", msg);
+  }
+
+  // 8. Create raw_material table
+  try {
+    await prisma.$executeRawUnsafe(`
+      CREATE TABLE IF NOT EXISTS "raw_material" (
+        "id" TEXT NOT NULL,
+        "periode" TIMESTAMP(3) NOT NULL,
+        "kategori" TEXT NOT NULL,
+        "klasifikasi" TEXT NOT NULL,
+        "beratGr" DOUBLE PRECISION NOT NULL,
+        "beratKg" DOUBLE PRECISION NOT NULL,
+        "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        CONSTRAINT "raw_material_pkey" PRIMARY KEY ("id")
+      )
+    `);
+    await prisma.$executeRawUnsafe(`
+      CREATE UNIQUE INDEX IF NOT EXISTS "raw_material_periode_kategori_klasifikasi_key" 
+      ON "raw_material"("periode", "kategori", "klasifikasi")
+    `);
+    console.log("✅ Table 'raw_material' and its unique constraint ensured.");
+
+    // Seeding mock raw materials
+    const countResult = await prisma.$queryRawUnsafe<Record<string, number>[]>(
+      'SELECT COUNT(*)::integer as count FROM "raw_material"',
+    );
+    const count = countResult[0]?.count ?? 0;
+    if (count === 0) {
+      await prisma.$executeRawUnsafe(`
+        INSERT INTO "raw_material" ("id", "periode", "kategori", "klasifikasi", "beratGr", "beratKg", "createdAt", "updatedAt") VALUES
+          ('rm1', '2026-01-01 00:00:00', 'Etiket', 'NN', 1.7, 0.0017, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+          ('rm2', '2026-01-01 00:00:00', 'Etiket', 'GN', 1.6, 0.0016, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+          ('rm3', '2026-01-01 00:00:00', 'Etiket', 'CN', 1.5, 0.0015, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+          ('rm4', '2026-01-01 00:00:00', 'Karton', 'NN', 500.0, 0.5000, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+          ('rm5', '2026-01-01 00:00:00', 'Karton', 'GN', 480.0, 0.4800, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+          ('rm6', '2026-01-01 00:00:00', 'Karton', 'CN', 450.0, 0.4500, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+          ('rm7', '2026-01-01 00:00:00', 'Cup', 'CN', 200.0, 0.2000, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+          ('rm8', '2026-02-01 00:00:00', 'Etiket', 'NN', 1.8, 0.0018, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+          ('rm9', '2026-02-01 00:00:00', 'Etiket', 'GN', 1.7, 0.0017, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+          ('rm10', '2026-02-01 00:00:00', 'Etiket', 'CN', 1.6, 0.0016, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+          ('rm11', '2026-02-01 00:00:00', 'Karton', 'NN', 510.0, 0.5100, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+          ('rm12', '2026-02-01 00:00:00', 'Karton', 'GN', 490.0, 0.4900, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+          ('rm13', '2026-02-01 00:00:00', 'Karton', 'CN', 460.0, 0.4600, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+          ('rm14', '2026-02-01 00:00:00', 'Cup', 'CN', 210.0, 0.2100, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+      `);
+      console.log("✅ Mock raw material seeded successfully.");
+    }
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.log("❌ Error ensuring/seeding 'raw_material' table:", msg);
   }
 
   console.log("🎉 Migration script finished successfully!");

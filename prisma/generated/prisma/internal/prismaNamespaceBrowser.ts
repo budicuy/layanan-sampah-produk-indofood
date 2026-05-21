@@ -54,13 +54,13 @@ export const ModelName = {
   User: 'User',
   Account: 'Account',
   Nasabah: 'Nasabah',
-  Produk: 'Produk',
   Ekpedisi: 'Ekpedisi',
   HargaSampah: 'HargaSampah',
   SetorSampah: 'SetorSampah',
   MutasiSaldo: 'MutasiSaldo',
   Kupon: 'Kupon',
-  TierKupon: 'TierKupon'
+  TierKupon: 'TierKupon',
+  RawMaterial: 'RawMaterial'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -130,18 +130,6 @@ export const NasabahScalarFieldEnum = {
 } as const
 
 export type NasabahScalarFieldEnum = (typeof NasabahScalarFieldEnum)[keyof typeof NasabahScalarFieldEnum]
-
-
-export const ProdukScalarFieldEnum = {
-  id: 'id',
-  kode: 'kode',
-  nama: 'nama',
-  jenis: 'jenis',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type ProdukScalarFieldEnum = (typeof ProdukScalarFieldEnum)[keyof typeof ProdukScalarFieldEnum]
 
 
 export const EkpedisiScalarFieldEnum = {
@@ -236,6 +224,20 @@ export const TierKuponScalarFieldEnum = {
 } as const
 
 export type TierKuponScalarFieldEnum = (typeof TierKuponScalarFieldEnum)[keyof typeof TierKuponScalarFieldEnum]
+
+
+export const RawMaterialScalarFieldEnum = {
+  id: 'id',
+  periode: 'periode',
+  kategori: 'kategori',
+  klasifikasi: 'klasifikasi',
+  beratGr: 'beratGr',
+  beratKg: 'beratKg',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type RawMaterialScalarFieldEnum = (typeof RawMaterialScalarFieldEnum)[keyof typeof RawMaterialScalarFieldEnum]
 
 
 export const SortOrder = {

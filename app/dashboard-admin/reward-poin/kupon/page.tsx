@@ -89,7 +89,7 @@ export default function ClaimedCouponsPage() {
   );
 
   return (
-    <div className="space-y-8 p-6 max-w-7xl mx-auto">
+    <div className="space-y-8 animate-in fade-in duration-500">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-black tracking-tight text-zinc-900 font-heading">
@@ -174,7 +174,7 @@ export default function ClaimedCouponsPage() {
                       key={coupon.id}
                       className="hover:bg-zinc-50/50 transition-colors">
                       <td className="p-4">
-                        <span className="font-mono text-xs font-black text-orange-600 bg-orange-50 px-2.5 py-1 rounded-lg border border-orange-100/50">
+                        <span className="font-mono text-xs font-black text-orange-600 bg-orange-50 px-2.5 py-1 rounded-lg border border-orange-100/50 whitespace-nowrap">
                           {coupon.kode}
                         </span>
                       </td>

@@ -212,16 +212,6 @@ export type EnumJenisSampahFilter<$PrismaModel = never> = {
   not?: Prisma.NestedEnumJenisSampahFilter<$PrismaModel> | $Enums.JenisSampah
 }
 
-export type EnumJenisSampahWithAggregatesFilter<$PrismaModel = never> = {
-  equals?: $Enums.JenisSampah | Prisma.EnumJenisSampahFieldRefInput<$PrismaModel>
-  in?: $Enums.JenisSampah[] | Prisma.ListEnumJenisSampahFieldRefInput<$PrismaModel>
-  notIn?: $Enums.JenisSampah[] | Prisma.ListEnumJenisSampahFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumJenisSampahWithAggregatesFilter<$PrismaModel> | $Enums.JenisSampah
-  _count?: Prisma.NestedIntFilter<$PrismaModel>
-  _min?: Prisma.NestedEnumJenisSampahFilter<$PrismaModel>
-  _max?: Prisma.NestedEnumJenisSampahFilter<$PrismaModel>
-}
-
 export type FloatFilter<$PrismaModel = never> = {
   equals?: number | Prisma.FloatFieldRefInput<$PrismaModel>
   in?: number[] | Prisma.ListFloatFieldRefInput<$PrismaModel>
@@ -231,6 +221,16 @@ export type FloatFilter<$PrismaModel = never> = {
   gt?: number | Prisma.FloatFieldRefInput<$PrismaModel>
   gte?: number | Prisma.FloatFieldRefInput<$PrismaModel>
   not?: Prisma.NestedFloatFilter<$PrismaModel> | number
+}
+
+export type EnumJenisSampahWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.JenisSampah | Prisma.EnumJenisSampahFieldRefInput<$PrismaModel>
+  in?: $Enums.JenisSampah[] | Prisma.ListEnumJenisSampahFieldRefInput<$PrismaModel>
+  notIn?: $Enums.JenisSampah[] | Prisma.ListEnumJenisSampahFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumJenisSampahWithAggregatesFilter<$PrismaModel> | $Enums.JenisSampah
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumJenisSampahFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumJenisSampahFilter<$PrismaModel>
 }
 
 export type FloatWithAggregatesFilter<$PrismaModel = never> = {

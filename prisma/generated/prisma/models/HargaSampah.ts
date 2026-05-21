@@ -427,6 +427,10 @@ export type HargaSampahSumOrderByAggregateInput = {
   berat?: Prisma.SortOrder
 }
 
+export type EnumJenisSampahFieldUpdateOperationsInput = {
+  set?: $Enums.JenisSampah
+}
+
 export type FloatFieldUpdateOperationsInput = {
   set?: number
   increment?: number

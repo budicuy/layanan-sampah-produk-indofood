@@ -123,7 +123,7 @@ export default function KuponValidasiPage({ params }: PageProps) {
               className="object-contain"
             />
           </div>
-          <span className="font-heading text-base font-black tracking-tight bg-gradient-to-r from-red-500 to-amber-500 bg-clip-text text-transparent uppercase">
+          <span className="font-heading text-base font-black tracking-tight bg-linear-to-r from-red-500 to-amber-500 bg-clip-text text-transparent uppercase">
             SICUAN VALIDATOR
           </span>
         </Link>
@@ -186,7 +186,7 @@ export default function KuponValidasiPage({ params }: PageProps) {
           /* STATE 2: KUPON ASLI & AKTIF (HIJAU/GOLD) */
           <div className="bg-zinc-900/60 border border-green-500/30 rounded-[32px] p-6 md:p-8 w-full space-y-6 shadow-2xl backdrop-blur-md relative overflow-hidden">
             {/* Glowing top line */}
-            <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-green-500 via-emerald-400 to-green-600" />
+            <div className="absolute top-0 left-0 right-0 h-1.5 bg-linear-to-r from-green-500 via-emerald-400 to-green-600" />
 
             <div className="text-center space-y-3">
               <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-500/10 text-green-400 mb-2">
@@ -267,7 +267,7 @@ export default function KuponValidasiPage({ params }: PageProps) {
                 type="button"
                 disabled={updating}
                 onClick={handleUseCoupon}
-                className="w-full py-4 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 disabled:from-zinc-800 disabled:to-zinc-800 text-white text-xs font-bold rounded-2xl flex items-center justify-center gap-2 shadow-lg shadow-green-600/10 active:scale-[0.98] transition-all">
+                className="w-full py-4 bg-linear-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 disabled:from-zinc-800 disabled:to-zinc-800 text-white text-xs font-bold rounded-2xl flex items-center justify-center gap-2 shadow-lg shadow-green-600/10 active:scale-[0.98] transition-all">
                 {updating ? (
                   <>
                     <RefreshCw className="w-4 h-4 animate-spin" />

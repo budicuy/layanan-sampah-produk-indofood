@@ -121,17 +121,6 @@ model Nasabah {
   @@map("nasabah")
 }
 
-model Produk {
-  id        String      @id @default(cuid())
-  kode      String      @unique
-  nama      String
-  jenis     JenisSampah
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt
-
-  @@map("produk")
-}
-
 /// Data kurir / ekspedisi penjemputan
 model Ekpedisi {
   id        String   @id @default(cuid())
@@ -250,4 +239,18 @@ model TierKupon {
   updatedAt DateTime @updatedAt
 
   @@map("tier_kupon")
+}
+
+model RawMaterial {
+  id          String   @id @default(cuid())
+  periode     DateTime // Bulan dan tahun data dimasukkan (representasi tanggal awal bulan)
+  kategori    String   // "Etiket", "Karton", "Cup"
+  klasifikasi String   // "NN", "CN", "GN"
+  beratGr     Float    // Berat dalam satuan Gram
+  beratKg     Float    // Berat dalam satuan Kilogram (konversi beratGr / 1000)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([periode, kategori, klasifikasi])
+  @@map("raw_material")
 }

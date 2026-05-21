@@ -9,7 +9,6 @@ import type {
 import { EkpedisiSeed } from "./seeder/seed_ekspedisi";
 import { HargaSampahSeed } from "./seeder/seed_harga_sampah";
 import { NasabahsSeed } from "./seeder/seed_nasabah";
-import { ProdukSeed } from "./seeder/seed_produk";
 
 async function main() {
   const { prisma } = await import("../lib/prisma");
@@ -22,7 +21,6 @@ async function main() {
   await prisma.ekpedisi.deleteMany();
   await prisma.account.deleteMany();
   await prisma.user.deleteMany();
-  await prisma.produk.deleteMany();
   await prisma.hargaSampah.deleteMany();
   console.log("✅ Cleanup complete.");
 
@@ -75,15 +73,6 @@ async function main() {
     });
   }
   console.log(`✅ ${NasabahsSeed.length} nasabah + user berhasil dibuat.`);
-
-  console.log("📦 Seeding dummy Produk data...");
-  await prisma.produk.createMany({
-    data: ProdukSeed.map((p) => ({
-      kode: p.kode,
-      nama: p.nama,
-      jenis: p.jenis as JenisSampah,
-    })),
-  });
 
   console.log("🚚 Seeding dummy Ekpedisi data...");
   await prisma.ekpedisi.createMany({

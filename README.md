@@ -83,12 +83,12 @@ app/
       nasabah/
         actions.ts       # Server Actions kelola nasabah & penambahan saldo poin awal.
         page.tsx         # Kelola status keanggotaan nasabah (aktif/nonaktif) & verifikasi data.
-      produk/
-        actions.ts       # Server Actions CRUD data kode dan jenis sampah produk Indofood.
-        page.tsx         # Kelola daftar metadata produk (kode unik, jenis, nama).
       users/
         actions.ts       # Server Actions CRUD user login sistem (Admin, HRD, Konsumen).
         page.tsx         # Kelola otentikasi login pengguna sistem.
+      raw-material/
+        actions.ts       # Server Actions CRUD master data raw material (Bahan Baku).
+        page.tsx         # Kelola standar berat kemasan produk (Etiket, Karton, Cup).
     pendataan/           # Modul administrasi timbangan masuk dan pelaporan.
       laporan-pendataan/
         actions.ts       # Aksi server penarikan data rekap bulanan & statistik.

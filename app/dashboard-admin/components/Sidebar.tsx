@@ -1,9 +1,9 @@
 "use client";
 
 import {
-  Box,
   Coins,
   FileText,
+  Layers,
   LayoutDashboard,
   LogOut,
   Menu,
@@ -37,11 +37,6 @@ const MENU_GROUPS = [
         href: "/dashboard-admin/master-data/nasabah",
       },
       {
-        icon: Box,
-        label: "Produk",
-        href: "/dashboard-admin/master-data/produk",
-      },
-      {
         icon: Truck,
         label: "Ekpedisi",
         href: "/dashboard-admin/master-data/ekspedisi",
@@ -55,6 +50,11 @@ const MENU_GROUPS = [
         icon: Coins,
         label: "Harga Sampah",
         href: "/dashboard-admin/master-data/harga-sampah",
+      },
+      {
+        icon: Layers,
+        label: "Raw Material",
+        href: "/dashboard-admin/master-data/raw-material",
       },
     ],
   },
@@ -156,7 +156,7 @@ export default function Sidebar({ user }: { user: UserProps }) {
                   className="object-contain"
                 />
               </div>
-              <span className="font-heading text-lg font-black tracking-tight bg-gradient-to-r from-red-600 to-amber-500 bg-clip-text text-transparent uppercase">
+              <span className="font-heading text-lg font-black tracking-tight bg-linear-to-r from-red-600 to-amber-500 bg-clip-text text-transparent uppercase">
                 SICUAN
               </span>
             </div>

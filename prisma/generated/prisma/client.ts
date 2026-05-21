@@ -57,11 +57,6 @@ export type Account = Prisma.AccountModel
  */
 export type Nasabah = Prisma.NasabahModel
 /**
- * Model Produk
- * 
- */
-export type Produk = Prisma.ProdukModel
-/**
  * Model Ekpedisi
  * Data kurir / ekspedisi penjemputan
  */
@@ -91,3 +86,8 @@ export type Kupon = Prisma.KuponModel
  * 
  */
 export type TierKupon = Prisma.TierKuponModel
+/**
+ * Model RawMaterial
+ * 
+ */
+export type RawMaterial = Prisma.RawMaterialModel

@@ -93,7 +93,7 @@ export default function ManageTiersPage() {
   };
 
   return (
-    <div className="space-y-8 p-6 max-w-7xl mx-auto">
+    <div className="space-y-8 animate-in fade-in duration-500">
       <div>
         <h1 className="text-3xl font-black tracking-tight text-zinc-900 font-heading">
           KELOLA TIER & REWARD POIN
@@ -116,10 +116,10 @@ export default function ManageTiersPage() {
                 key={t.id}
                 className={`bg-white border rounded-3xl p-6 shadow-sm flex flex-col justify-between hover:shadow-md transition-all relative overflow-hidden ${
                   t.tier === "DIAMOND"
-                    ? "border-sky-500/20 bg-gradient-to-b from-sky-50/20 to-white"
+                    ? "border-sky-500/20 bg-linear-to-b from-sky-50/20 to-white"
                     : t.tier === "GOLD"
-                      ? "border-amber-500/20 bg-gradient-to-b from-amber-50/20 to-white"
-                      : "border-zinc-500/20 bg-gradient-to-b from-zinc-50/20 to-white"
+                      ? "border-amber-500/20 bg-linear-to-b from-amber-50/20 to-white"
+                      : "border-zinc-500/20 bg-linear-to-b from-zinc-50/20 to-white"
                 }`}>
                 {/* Visual Glow Header */}
                 <div
@@ -178,7 +178,7 @@ export default function ManageTiersPage() {
       {editingTier && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-950/60 backdrop-blur-sm">
           <div className="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl relative border border-zinc-100 overflow-hidden">
-            <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-orange-500 to-red-500" />
+            <div className="absolute top-0 left-0 right-0 h-1.5 bg-linear-to-r from-orange-500 to-red-500" />
 
             <div className="flex justify-between items-center mb-4">
               <div className="flex items-center gap-2">

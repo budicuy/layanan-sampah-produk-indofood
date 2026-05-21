@@ -387,13 +387,13 @@ export const ModelName = {
   User: 'User',
   Account: 'Account',
   Nasabah: 'Nasabah',
-  Produk: 'Produk',
   Ekpedisi: 'Ekpedisi',
   HargaSampah: 'HargaSampah',
   SetorSampah: 'SetorSampah',
   MutasiSaldo: 'MutasiSaldo',
   Kupon: 'Kupon',
-  TierKupon: 'TierKupon'
+  TierKupon: 'TierKupon',
+  RawMaterial: 'RawMaterial'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -409,7 +409,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "account" | "nasabah" | "produk" | "ekpedisi" | "hargaSampah" | "setorSampah" | "mutasiSaldo" | "kupon" | "tierKupon"
+    modelProps: "user" | "account" | "nasabah" | "ekpedisi" | "hargaSampah" | "setorSampah" | "mutasiSaldo" | "kupon" | "tierKupon" | "rawMaterial"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -632,80 +632,6 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.NasabahCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.NasabahCountAggregateOutputType> | number
-        }
-      }
-    }
-    Produk: {
-      payload: Prisma.$ProdukPayload<ExtArgs>
-      fields: Prisma.ProdukFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.ProdukFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProdukPayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.ProdukFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProdukPayload>
-        }
-        findFirst: {
-          args: Prisma.ProdukFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProdukPayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.ProdukFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProdukPayload>
-        }
-        findMany: {
-          args: Prisma.ProdukFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProdukPayload>[]
-        }
-        create: {
-          args: Prisma.ProdukCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProdukPayload>
-        }
-        createMany: {
-          args: Prisma.ProdukCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        createManyAndReturn: {
-          args: Prisma.ProdukCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProdukPayload>[]
-        }
-        delete: {
-          args: Prisma.ProdukDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProdukPayload>
-        }
-        update: {
-          args: Prisma.ProdukUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProdukPayload>
-        }
-        deleteMany: {
-          args: Prisma.ProdukDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.ProdukUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateManyAndReturn: {
-          args: Prisma.ProdukUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProdukPayload>[]
-        }
-        upsert: {
-          args: Prisma.ProdukUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProdukPayload>
-        }
-        aggregate: {
-          args: Prisma.ProdukAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateProduk>
-        }
-        groupBy: {
-          args: Prisma.ProdukGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.ProdukGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.ProdukCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.ProdukCountAggregateOutputType> | number
         }
       }
     }
@@ -1153,6 +1079,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    RawMaterial: {
+      payload: Prisma.$RawMaterialPayload<ExtArgs>
+      fields: Prisma.RawMaterialFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.RawMaterialFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RawMaterialPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.RawMaterialFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RawMaterialPayload>
+        }
+        findFirst: {
+          args: Prisma.RawMaterialFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RawMaterialPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.RawMaterialFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RawMaterialPayload>
+        }
+        findMany: {
+          args: Prisma.RawMaterialFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RawMaterialPayload>[]
+        }
+        create: {
+          args: Prisma.RawMaterialCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RawMaterialPayload>
+        }
+        createMany: {
+          args: Prisma.RawMaterialCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.RawMaterialCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RawMaterialPayload>[]
+        }
+        delete: {
+          args: Prisma.RawMaterialDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RawMaterialPayload>
+        }
+        update: {
+          args: Prisma.RawMaterialUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RawMaterialPayload>
+        }
+        deleteMany: {
+          args: Prisma.RawMaterialDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.RawMaterialUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.RawMaterialUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RawMaterialPayload>[]
+        }
+        upsert: {
+          args: Prisma.RawMaterialUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RawMaterialPayload>
+        }
+        aggregate: {
+          args: Prisma.RawMaterialAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateRawMaterial>
+        }
+        groupBy: {
+          args: Prisma.RawMaterialGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.RawMaterialGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.RawMaterialCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.RawMaterialCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -1243,18 +1243,6 @@ export const NasabahScalarFieldEnum = {
 } as const
 
 export type NasabahScalarFieldEnum = (typeof NasabahScalarFieldEnum)[keyof typeof NasabahScalarFieldEnum]
-
-
-export const ProdukScalarFieldEnum = {
-  id: 'id',
-  kode: 'kode',
-  nama: 'nama',
-  jenis: 'jenis',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type ProdukScalarFieldEnum = (typeof ProdukScalarFieldEnum)[keyof typeof ProdukScalarFieldEnum]
 
 
 export const EkpedisiScalarFieldEnum = {
@@ -1349,6 +1337,20 @@ export const TierKuponScalarFieldEnum = {
 } as const
 
 export type TierKuponScalarFieldEnum = (typeof TierKuponScalarFieldEnum)[keyof typeof TierKuponScalarFieldEnum]
+
+
+export const RawMaterialScalarFieldEnum = {
+  id: 'id',
+  periode: 'periode',
+  kategori: 'kategori',
+  klasifikasi: 'klasifikasi',
+  beratGr: 'beratGr',
+  beratKg: 'beratKg',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type RawMaterialScalarFieldEnum = (typeof RawMaterialScalarFieldEnum)[keyof typeof RawMaterialScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -1661,13 +1663,13 @@ export type GlobalOmitConfig = {
   user?: Prisma.UserOmit
   account?: Prisma.AccountOmit
   nasabah?: Prisma.NasabahOmit
-  produk?: Prisma.ProdukOmit
   ekpedisi?: Prisma.EkpedisiOmit
   hargaSampah?: Prisma.HargaSampahOmit
   setorSampah?: Prisma.SetorSampahOmit
   mutasiSaldo?: Prisma.MutasiSaldoOmit
   kupon?: Prisma.KuponOmit
   tierKupon?: Prisma.TierKuponOmit
+  rawMaterial?: Prisma.RawMaterialOmit
 }
 
 /* Types for Logging */

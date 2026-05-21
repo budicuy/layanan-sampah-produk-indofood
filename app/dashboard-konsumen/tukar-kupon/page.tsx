@@ -186,7 +186,7 @@ export default function TukarKuponPage() {
         </div>
 
         {/* Poin Card Premium */}
-        <div className="relative overflow-hidden bg-gradient-to-br from-amber-500 via-orange-600 to-red-600 rounded-3xl p-6 shadow-xl shadow-orange-500/20 text-white min-w-[280px] w-full md:w-auto">
+        <div className="relative overflow-hidden bg-linear-to-br from-amber-500 via-orange-600 to-red-600 rounded-3xl p-6 shadow-xl shadow-orange-500/20 text-white min-w-[280px] w-full md:w-auto">
           {/* Absolute Glow */}
           <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -mr-8 -mt-8" />
 
@@ -305,7 +305,7 @@ export default function TukarKuponPage() {
 
                   {/* Visual Background Glow */}
                   <div
-                    className={`absolute top-0 right-0 w-24 h-24 bg-gradient-to-br ${style.glow} rounded-full blur-2xl group-hover:scale-150 transition-all duration-500`}
+                    className={`absolute top-0 right-0 w-24 h-24 bg-linear-to-br ${style.glow} rounded-full blur-2xl group-hover:scale-150 transition-all duration-500`}
                   />
 
                   <div>
@@ -492,7 +492,7 @@ export default function TukarKuponPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-950/70 backdrop-blur-sm">
           <div className="bg-white rounded-[32px] max-w-lg w-full p-6 md:p-8 shadow-2xl relative border border-zinc-100 overflow-hidden max-h-[90vh] overflow-y-auto">
             {/* Background design elements */}
-            <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-orange-500 via-amber-500 to-red-600" />
+            <div className="absolute top-0 left-0 right-0 h-2 bg-linear-to-r from-orange-500 via-amber-500 to-red-600" />
 
             <div className="text-center space-y-4">
               <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-green-50 text-green-600 mb-2">
@@ -510,7 +510,7 @@ export default function TukarKuponPage() {
             </div>
 
             {/* Premium Ticket Card UI */}
-            <div className="relative mt-6 bg-gradient-to-br from-zinc-50 to-zinc-100 border border-zinc-200/60 rounded-3xl p-6 overflow-hidden">
+            <div className="relative mt-6 bg-linear-to-br from-zinc-50 to-zinc-100 border border-zinc-200/60 rounded-3xl p-6 overflow-hidden">
               {/* Ticket Jagged Cuts (Left & Right side circles) */}
               <div className="absolute left-0 top-1/2 -translate-y-1/2 w-6 h-6 bg-white border-r border-zinc-200/60 rounded-full -ml-3" />
               <div className="absolute right-0 top-1/2 -translate-y-1/2 w-6 h-6 bg-white border-l border-zinc-200/60 rounded-full -mr-3" />
