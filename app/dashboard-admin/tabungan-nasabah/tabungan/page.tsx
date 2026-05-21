@@ -30,6 +30,8 @@ type SetorSampah = {
   beratAktual: number | null;
   poinPerKg: number | null;
   totalPoin: number | null;
+  hargaPerKg: number | null;
+  totalHarga: number | null;
   status: string;
   createdAt: Date;
   ekpedisi: { alamat: string; noTelp: string } | null;
@@ -44,7 +46,7 @@ type MutasiSaldo = {
 
 type NasabahWithTabungan = {
   id: string;
-  user: { name: string };
+  user: { name: string; role: string };
   nik: string;
   kategori: string;
   noRek: string;
@@ -52,6 +54,7 @@ type NasabahWithTabungan = {
   noTelp: string;
   alamat: string;
   poin: number;
+  saldo: number;
   setorSampah: SetorSampah[];
   mutasiSaldo: MutasiSaldo[];
 };
@@ -114,6 +117,7 @@ export default function TabunganNasabahPage() {
   }, []);
 
   const totalPoinSemua = nasabahs.reduce((a, n) => a + n.poin, 0);
+  const totalSaldoSemua = nasabahs.reduce((a, n) => a + n.saldo, 0);
   const totalSetoranSelesai = nasabahs.reduce(
     (a, n) => a + n.setorSampah.filter((s) => s.status === "SELESAI").length,
     0,
@@ -141,7 +145,7 @@ export default function TabunganNasabahPage() {
       </div>
 
       {/* Stat cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {[
           {
             icon: Users,
@@ -164,6 +168,13 @@ export default function TabunganNasabahPage() {
             sub: "Total poin diberikan",
             color: "text-green-600 bg-green-50",
           },
+          {
+            icon: CreditCard,
+            label: "Total Kredit Bank Sampah",
+            value: `Rp ${totalSaldoSemua.toLocaleString("id-ID")}`,
+            sub: "Total uang ditarik nasabah",
+            color: "text-amber-600 bg-amber-50",
+          },
         ].map(({ icon: Icon, label, value, sub, color }) => (
           <div
             key={label}
@@ -182,7 +193,7 @@ export default function TabunganNasabahPage() {
       </div>
 
       {/* Daftar Tabel via Client Component */}
-      <div className="bg-white rounded-4xlrder border-zinc-100 shadow-sm overflow-hidden">
+      <div className="bg-white rounded-4xl border border-zinc-100 shadow-sm overflow-hidden">
         <div className="p-5 md:p-8 border-b border-zinc-100">
           <h2 className="text-xl font-heading font-bold text-zinc-900">
             Daftar Nasabah & Tabungan
@@ -204,6 +215,7 @@ export default function TabunganNasabahPage() {
                   "Total Setoran",
                   "Total Berat",
                   "Poin",
+                  "Kredit",
                   "Aksi",
                 ].map((h) => (
                   <th
@@ -218,7 +230,7 @@ export default function TabunganNasabahPage() {
               {nasabahs.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={8}
+                    colSpan={9}
                     className="px-4 md:px-8 py-14 text-center text-zinc-400 text-sm">
                     Belum ada nasabah terdaftar.
                   </td>
@@ -231,6 +243,9 @@ export default function TabunganNasabahPage() {
                       a + (s.beratAktual ?? s.beratEstimasi),
                     0,
                   );
+                  const isBankSampah =
+                    nasabah.user?.role === "BANK_SAMPAH" ||
+                    nasabah.kategori === "BANK_SAMPAH";
 
                   return (
                     <tr
@@ -306,11 +321,31 @@ export default function TabunganNasabahPage() {
                           />
                           <span
                             className={`font-bold text-[13px] md:text-sm ${
-                              nasabah.poin > 0
+                              !isBankSampah && nasabah.poin > 0
                                 ? "text-green-700"
                                 : "text-zinc-400"
                             }`}>
-                            {nasabah.poin} poin
+                            {isBankSampah ? "-" : `${nasabah.poin} poin`}
+                          </span>
+                        </div>
+                      </td>
+
+                      {/* Kredit */}
+                      <td className="px-4 md:px-8 py-4 md:py-5">
+                        <div className="flex items-center gap-1.5 whitespace-nowrap">
+                          <CreditCard
+                            size={13}
+                            className="text-amber-600 shrink-0"
+                          />
+                          <span
+                            className={`font-bold text-[13px] md:text-sm ${
+                              isBankSampah && nasabah.saldo > 0
+                                ? "text-amber-700"
+                                : "text-zinc-400"
+                            }`}>
+                            {isBankSampah
+                              ? `Rp ${nasabah.saldo.toLocaleString("id-ID")}`
+                              : "-"}
                           </span>
                         </div>
                       </td>
@@ -436,20 +471,31 @@ export default function TabunganNasabahPage() {
 
                   {/* Ringkasan poin & setoran */}
                   <div className="lg:col-span-2 grid grid-cols-2 gap-4">
-                    {/* Poin */}
+                    {/* Poin / Saldo */}
                     <div className="col-span-2 bg-primary rounded-[24px] p-6 text-white relative overflow-hidden shadow-xl shadow-primary/20">
                       <div className="relative z-10">
                         <p className="text-white/70 text-sm font-medium">
-                          Total Poin
+                          {selectedNasabah.kategori === "BANK_SAMPAH"
+                            ? "Total Kredit Uang"
+                            : "Total Poin"}
                         </p>
                         <p className="text-3xl md:text-4xl font-heading font-bold mt-2">
-                          {`${selectedNasabah.poin} poin`}
+                          {selectedNasabah.kategori === "BANK_SAMPAH"
+                            ? `Rp ${selectedNasabah.saldo.toLocaleString("id-ID")}`
+                            : `${selectedNasabah.poin} poin`}
                         </p>
                       </div>
-                      <Wallet
-                        size={64}
-                        className="absolute right-6 top-1/2 -translate-y-1/2 text-white/10"
-                      />
+                      {selectedNasabah.kategori === "BANK_SAMPAH" ? (
+                        <CreditCard
+                          size={64}
+                          className="absolute right-6 top-1/2 -translate-y-1/2 text-white/10"
+                        />
+                      ) : (
+                        <Wallet
+                          size={64}
+                          className="absolute right-6 top-1/2 -translate-y-1/2 text-white/10"
+                        />
+                      )}
                       <div className="absolute -bottom-8 -right-8 w-32 h-32 bg-white/10 rounded-full blur-2xl" />
                     </div>
 
@@ -485,15 +531,35 @@ export default function TabunganNasabahPage() {
                         color: "text-purple-600 bg-purple-50",
                       },
                       {
-                        icon: Wallet,
-                        label: "Total Poin Diberikan",
-                        value: `${selectedNasabah.setorSampah
-                          .filter((s: SetorSampah) => s.status === "SELESAI")
-                          .reduce(
-                            (a: number, s: SetorSampah) =>
-                              a + (s.totalPoin ?? 0),
-                            0,
-                          )} poin`,
+                        icon:
+                          selectedNasabah.kategori === "BANK_SAMPAH"
+                            ? CreditCard
+                            : Wallet,
+                        label:
+                          selectedNasabah.kategori === "BANK_SAMPAH"
+                            ? "Total Kredit Diberikan"
+                            : "Total Poin Diberikan",
+                        value:
+                          selectedNasabah.kategori === "BANK_SAMPAH"
+                            ? `Rp ${selectedNasabah.setorSampah
+                                .filter(
+                                  (s: SetorSampah) => s.status === "SELESAI",
+                                )
+                                .reduce(
+                                  (a: number, s: SetorSampah) =>
+                                    a + (s.totalHarga ?? 0),
+                                  0,
+                                )
+                                .toLocaleString("id-ID")}`
+                            : `${selectedNasabah.setorSampah
+                                .filter(
+                                  (s: SetorSampah) => s.status === "SELESAI",
+                                )
+                                .reduce(
+                                  (a: number, s: SetorSampah) =>
+                                    a + (s.totalPoin ?? 0),
+                                  0,
+                                )} poin`,
                         sub: "semua waktu",
                         color: "text-primary bg-red-50",
                       },
@@ -542,8 +608,12 @@ export default function TabunganNasabahPage() {
                               "Jenis",
                               "Berat Estimasi",
                               "Berat Aktual",
-                              "Harga/kg",
-                              "Poin Kredit",
+                              selectedNasabah.kategori === "BANK_SAMPAH"
+                                ? "Harga/kg"
+                                : "Poin/kg",
+                              selectedNasabah.kategori === "BANK_SAMPAH"
+                                ? "Kredit Uang"
+                                : "Poin Kredit",
                               "Kurir",
                               "Status",
                             ].map((h) => (
@@ -614,7 +684,20 @@ export default function TabunganNasabahPage() {
                                   )}
                                 </td>
                                 <td className="px-4 md:px-6 py-4 md:py-5">
-                                  {s.poinPerKg != null ? (
+                                  {selectedNasabah.kategori ===
+                                  "BANK_SAMPAH" ? (
+                                    s.hargaPerKg != null ? (
+                                      <span className="text-[13px] md:text-sm text-zinc-700 font-medium whitespace-nowrap">
+                                        Rp{" "}
+                                        {s.hargaPerKg.toLocaleString("id-ID")}
+                                        /kg
+                                      </span>
+                                    ) : (
+                                      <span className="text-zinc-400 text-sm whitespace-nowrap">
+                                        -
+                                      </span>
+                                    )
+                                  ) : s.poinPerKg != null ? (
                                     <span className="text-[13px] md:text-sm text-zinc-700 font-medium whitespace-nowrap">
                                       {s.poinPerKg} poin/kg
                                     </span>
@@ -625,7 +708,25 @@ export default function TabunganNasabahPage() {
                                   )}
                                 </td>
                                 <td className="px-4 md:px-6 py-4 md:py-5">
-                                  {s.totalPoin != null ? (
+                                  {selectedNasabah.kategori ===
+                                  "BANK_SAMPAH" ? (
+                                    s.totalHarga != null ? (
+                                      <div className="flex items-center gap-1.5 whitespace-nowrap">
+                                        <CreditCard
+                                          size={13}
+                                          className="text-amber-600 shrink-0"
+                                        />
+                                        <span className="font-bold text-amber-700 text-[13px] md:text-sm">
+                                          Rp{" "}
+                                          {s.totalHarga.toLocaleString("id-ID")}
+                                        </span>
+                                      </div>
+                                    ) : (
+                                      <span className="text-zinc-400 text-sm whitespace-nowrap">
+                                        -
+                                      </span>
+                                    )
+                                  ) : s.totalPoin != null ? (
                                     <div className="flex items-center gap-1.5 whitespace-nowrap">
                                       <Wallet
                                         size={13}
@@ -678,12 +779,14 @@ export default function TabunganNasabahPage() {
                   )}
                 </div>
 
-                {/* Riwayat mutasi poin */}
+                {/* Riwayat mutasi poin / saldo */}
                 {selectedNasabah.mutasiSaldo.length > 0 && (
                   <div className="bg-white rounded-[32px] border border-zinc-100 shadow-sm overflow-hidden">
                     <div className="p-5 md:p-8 border-b border-zinc-100">
                       <h3 className="text-lg md:text-xl font-heading font-bold text-zinc-900">
-                        Riwayat Mutasi Poin
+                        {selectedNasabah.kategori === "BANK_SAMPAH"
+                          ? "Riwayat Mutasi Uang"
+                          : "Riwayat Mutasi Poin"}
                       </h3>
                     </div>
                     <div className="divide-y divide-zinc-100">
@@ -695,10 +798,16 @@ export default function TabunganNasabahPage() {
                             <div
                               className={`w-8 h-8 md:w-9 md:h-9 rounded-xl flex items-center justify-center shrink-0 ${
                                 m.jumlah >= 0
-                                  ? "bg-green-100 text-green-600"
+                                  ? selectedNasabah.kategori === "BANK_SAMPAH"
+                                    ? "bg-amber-100 text-amber-600"
+                                    : "bg-green-100 text-green-600"
                                   : "bg-red-100 text-red-600"
                               }`}>
-                              <Wallet size={16} />
+                              {selectedNasabah.kategori === "BANK_SAMPAH" ? (
+                                <CreditCard size={16} />
+                              ) : (
+                                <Wallet size={16} />
+                              )}
                             </div>
                             <div className="min-w-0">
                               <p className="font-bold text-zinc-900 text-[13px] md:text-sm truncate">
@@ -711,10 +820,16 @@ export default function TabunganNasabahPage() {
                           </div>
                           <span
                             className={`font-bold text-[13px] md:text-sm shrink-0 whitespace-nowrap ${
-                              m.jumlah >= 0 ? "text-green-700" : "text-red-600"
+                              m.jumlah >= 0
+                                ? selectedNasabah.kategori === "BANK_SAMPAH"
+                                  ? "text-amber-700"
+                                  : "text-green-700"
+                                : "text-red-600"
                             }`}>
                             {m.jumlah >= 0 ? "+" : ""}
-                            {m.jumlah} poin
+                            {selectedNasabah.kategori === "BANK_SAMPAH"
+                              ? `Rp ${m.jumlah.toLocaleString("id-ID")}`
+                              : `${m.jumlah} poin`}
                           </span>
                         </div>
                       ))}

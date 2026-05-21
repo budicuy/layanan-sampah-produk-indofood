@@ -67,3 +67,8 @@ export type TierKupon = Prisma.TierKuponModel
  * 
  */
 export type RawMaterial = Prisma.RawMaterialModel
+/**
+ * Model Pencairan
+ * Pencairan dana untuk nasabah Bank Sampah
+ */
+export type Pencairan = Prisma.PencairanModel

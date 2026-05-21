@@ -366,7 +366,7 @@ export default function RawMaterialPage() {
       {isAddModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-950/60 backdrop-blur-sm">
           <div className="bg-white rounded-3xl max-w-2xl w-full p-6 md:p-8 shadow-2xl relative border border-zinc-100 max-h-[90vh] overflow-y-auto">
-            <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-orange-500 to-red-500" />
+            <div className="absolute top-0 left-0 right-0 h-1.5 bg-linear-to-r from-orange-500 to-red-500" />
 
             <div className="flex justify-between items-center mb-6">
               <div className="flex items-center gap-2">
@@ -590,7 +590,7 @@ export default function RawMaterialPage() {
       {isEditModalOpen && selectedMaterial && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-950/60 backdrop-blur-sm">
           <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl relative border border-zinc-100">
-            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-orange-500 to-red-500" />
+            <div className="absolute top-0 left-0 right-0 h-1 bg-linear-to-r from-orange-500 to-red-500" />
 
             <div className="flex justify-between items-center mb-4">
               <h3 className="font-heading font-black text-lg text-zinc-900">

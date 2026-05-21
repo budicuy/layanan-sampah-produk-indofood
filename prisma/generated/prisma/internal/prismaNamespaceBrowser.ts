@@ -60,7 +60,8 @@ export const ModelName = {
   MutasiSaldo: 'MutasiSaldo',
   Kupon: 'Kupon',
   TierKupon: 'TierKupon',
-  RawMaterial: 'RawMaterial'
+  RawMaterial: 'RawMaterial',
+  Pencairan: 'Pencairan'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -238,6 +239,24 @@ export const RawMaterialScalarFieldEnum = {
 } as const
 
 export type RawMaterialScalarFieldEnum = (typeof RawMaterialScalarFieldEnum)[keyof typeof RawMaterialScalarFieldEnum]
+
+
+export const PencairanScalarFieldEnum = {
+  id: 'id',
+  nasabahId: 'nasabahId',
+  jumlah: 'jumlah',
+  status: 'status',
+  catatan: 'catatan',
+  catatanAdmin: 'catatanAdmin',
+  buktiFoto: 'buktiFoto',
+  diajukanAt: 'diajukanAt',
+  diverifikasi: 'diverifikasi',
+  dicairkan: 'dicairkan',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type PencairanScalarFieldEnum = (typeof PencairanScalarFieldEnum)[keyof typeof PencairanScalarFieldEnum]
 
 
 export const SortOrder = {

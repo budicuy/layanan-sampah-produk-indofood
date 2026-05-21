@@ -16,7 +16,7 @@ export async function getTabunganData() {
     orderBy: { poin: "desc" },
     include: {
       user: {
-        select: { name: true },
+        select: { name: true, role: true },
       },
       setorSampah: {
         orderBy: { createdAt: "desc" },

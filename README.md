@@ -99,7 +99,7 @@ app/
     tabungan-nasabah/    # Pengelolaan point ledger & history point.
       tabungan/
         actions.ts       # Aksi server pengambilan detail mutasi tabungan poin nasabah.
-        page.tsx         # Buku tabungan nasabah beserta riwayat kredit/debit mutasi poin.
+        page.tsx         # Buku tabungan nasabah beserta riwayat kredit/debit mutasi poin/uang nasabah.
     reward-poin/         # Pengelolaan reward poin & kupon klaim
       tier/
         actions.ts       # Server Actions untuk mengelola minimum poin & deskripsi tier kupon.
@@ -149,10 +149,11 @@ prisma/
   generated/             # Generated Prisma Client (auto-generated).
   migrations/            # Kumpulan berkas database migration.
   seeder/                # Sub-seeder modular pemisah data dummy awal:
+    seed_admin.ts        # Data kredensial admin awal.
     seed_ekspedisi.ts    # Data dummy driver & kurir ekspedisi.
     seed_harga_sampah.ts # Data dummy rate harga/poin bulanan.
     seed_nasabah.ts      # Data dummy profil nasabah awal & username.
-    seed_produk.ts       # Data dummy metadata produk awal.
+    seed_setor_sampah.ts # Data dummy transaksi setoran sampah awal.
   migrate.ts             # Script migrasi custom via HTTP adapter (bypass port 5432 terblokir).
   schema.prisma          # Skema pemodelan database relational Prisma.
   seed.ts                # Main seeder untuk inisialisasi awal database.
@@ -173,14 +174,14 @@ Jalankan `bun run db:seed` untuk membuat akun-akun berikut (Konfigurasi lengkap 
 | Username | `admin` |
 | Password | `admin` |
 
-### 2. Akun Nasabah / Konsumen (Dummy)
-Terdapat beberapa akun nasabah bawaan untuk simulasi:
-| Nama | Kategori | Username | Password |
-|---|---|---|---|
-| Budi Santoso | PERORANGAN | `budi` | `123456` |
-| Warmiendo Berkah | WARMIENDO | `warmiendo` | `123456` |
-| Bank Sampah Hijau | BANK_SAMPAH | `banksampah` | `123456` |
-| Siti Aminah (Status: Nonaktif) | PERORANGAN | `siti` | `123456` |
+### 2. Akun Nasabah / Konsumen & Bank Sampah (Dummy)
+Terdapat beberapa akun bawaan untuk simulasi:
+| Nama | Kategori | Role | Username | Password |
+|---|---|---|---|---|
+| Budi Santoso | PERORANGAN | `KONSUMEN` | `budi` | `123456` |
+| Warmiendo Berkah | WARMIENDO | `KONSUMEN` | `warmiendo` | `123456` |
+| Bank Sampah Hijau | BANK_SAMPAH | `BANK_SAMPAH` | `banksampah` | `123456` |
+| Siti Aminah (Status: Nonaktif) | PERORANGAN | `KONSUMEN` | `siti` | `123456` |
 
 ## 🛠️ Perintah Pengembangan
 

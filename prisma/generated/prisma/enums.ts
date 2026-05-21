@@ -81,3 +81,13 @@ export const KuponStatus = {
 } as const
 
 export type KuponStatus = (typeof KuponStatus)[keyof typeof KuponStatus]
+
+
+export const StatusPencairan = {
+  DIAJUKAN: 'DIAJUKAN',
+  DIVERIFIKASI: 'DIVERIFIKASI',
+  DICAIRKAN: 'DICAIRKAN',
+  DITOLAK: 'DITOLAK'
+} as const
+
+export type StatusPencairan = (typeof StatusPencairan)[keyof typeof StatusPencairan]

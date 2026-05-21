@@ -379,6 +379,23 @@ export type EnumKuponStatusWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumKuponStatusFilter<$PrismaModel>
 }
 
+export type EnumStatusPencairanFilter<$PrismaModel = never> = {
+  equals?: $Enums.StatusPencairan | Prisma.EnumStatusPencairanFieldRefInput<$PrismaModel>
+  in?: $Enums.StatusPencairan[] | Prisma.ListEnumStatusPencairanFieldRefInput<$PrismaModel>
+  notIn?: $Enums.StatusPencairan[] | Prisma.ListEnumStatusPencairanFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumStatusPencairanFilter<$PrismaModel> | $Enums.StatusPencairan
+}
+
+export type EnumStatusPencairanWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.StatusPencairan | Prisma.EnumStatusPencairanFieldRefInput<$PrismaModel>
+  in?: $Enums.StatusPencairan[] | Prisma.ListEnumStatusPencairanFieldRefInput<$PrismaModel>
+  notIn?: $Enums.StatusPencairan[] | Prisma.ListEnumStatusPencairanFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumStatusPencairanWithAggregatesFilter<$PrismaModel> | $Enums.StatusPencairan
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumStatusPencairanFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumStatusPencairanFilter<$PrismaModel>
+}
+
 export type NestedStringFilter<$PrismaModel = never> = {
   equals?: string | Prisma.StringFieldRefInput<$PrismaModel>
   in?: string[] | Prisma.ListStringFieldRefInput<$PrismaModel>
@@ -733,6 +750,23 @@ export type NestedEnumKuponStatusWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumKuponStatusFilter<$PrismaModel>
   _max?: Prisma.NestedEnumKuponStatusFilter<$PrismaModel>
+}
+
+export type NestedEnumStatusPencairanFilter<$PrismaModel = never> = {
+  equals?: $Enums.StatusPencairan | Prisma.EnumStatusPencairanFieldRefInput<$PrismaModel>
+  in?: $Enums.StatusPencairan[] | Prisma.ListEnumStatusPencairanFieldRefInput<$PrismaModel>
+  notIn?: $Enums.StatusPencairan[] | Prisma.ListEnumStatusPencairanFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumStatusPencairanFilter<$PrismaModel> | $Enums.StatusPencairan
+}
+
+export type NestedEnumStatusPencairanWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.StatusPencairan | Prisma.EnumStatusPencairanFieldRefInput<$PrismaModel>
+  in?: $Enums.StatusPencairan[] | Prisma.ListEnumStatusPencairanFieldRefInput<$PrismaModel>
+  notIn?: $Enums.StatusPencairan[] | Prisma.ListEnumStatusPencairanFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumStatusPencairanWithAggregatesFilter<$PrismaModel> | $Enums.StatusPencairan
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumStatusPencairanFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumStatusPencairanFilter<$PrismaModel>
 }
 
 

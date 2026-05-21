@@ -117,6 +117,7 @@ model Nasabah {
   setorSampah SetorSampah[]
   mutasiSaldo MutasiSaldo[]
   kupons      Kupon[]
+  pencairan   Pencairan[]
 
   @@map("nasabah")
 }
@@ -254,3 +255,32 @@ model RawMaterial {
   @@unique([periode, kategori, klasifikasi])
   @@map("raw_material")
 }
+
+/// Pencairan dana untuk nasabah Bank Sampah
+model Pencairan {
+  id         String          @id @default(cuid())
+  nasabahId  String
+  nasabah    Nasabah         @relation(fields: [nasabahId], references: [id])
+  jumlah     Int             // Nominal pencairan (kelipatan 50rb, min 50rb)
+  status     StatusPencairan @default(DIAJUKAN)
+  catatan    String?         // Catatan dari bank sampah saat pengajuan
+  catatanAdmin String?       // Catatan verifikasi dari admin
+  buktiFoto  String?         // URL foto bukti pencairan di Cloudflare R2
+  diajukanAt DateTime        @default(now())
+  diverifikasi DateTime?
+  dicairkan  DateTime?
+  createdAt  DateTime        @default(now())
+  updatedAt  DateTime        @updatedAt
+
+  @@index([nasabahId, status])
+  @@index([status])
+  @@map("pencairan")
+}
+
+enum StatusPencairan {
+  DIAJUKAN
+  DIVERIFIKASI
+  DICAIRKAN
+  DITOLAK
+}
+

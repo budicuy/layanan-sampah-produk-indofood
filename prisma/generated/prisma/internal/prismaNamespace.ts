@@ -393,7 +393,8 @@ export const ModelName = {
   MutasiSaldo: 'MutasiSaldo',
   Kupon: 'Kupon',
   TierKupon: 'TierKupon',
-  RawMaterial: 'RawMaterial'
+  RawMaterial: 'RawMaterial',
+  Pencairan: 'Pencairan'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -409,7 +410,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "account" | "nasabah" | "ekpedisi" | "hargaSampah" | "setorSampah" | "mutasiSaldo" | "kupon" | "tierKupon" | "rawMaterial"
+    modelProps: "user" | "account" | "nasabah" | "ekpedisi" | "hargaSampah" | "setorSampah" | "mutasiSaldo" | "kupon" | "tierKupon" | "rawMaterial" | "pencairan"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1153,6 +1154,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    Pencairan: {
+      payload: Prisma.$PencairanPayload<ExtArgs>
+      fields: Prisma.PencairanFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.PencairanFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PencairanPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.PencairanFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PencairanPayload>
+        }
+        findFirst: {
+          args: Prisma.PencairanFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PencairanPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.PencairanFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PencairanPayload>
+        }
+        findMany: {
+          args: Prisma.PencairanFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PencairanPayload>[]
+        }
+        create: {
+          args: Prisma.PencairanCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PencairanPayload>
+        }
+        createMany: {
+          args: Prisma.PencairanCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.PencairanCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PencairanPayload>[]
+        }
+        delete: {
+          args: Prisma.PencairanDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PencairanPayload>
+        }
+        update: {
+          args: Prisma.PencairanUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PencairanPayload>
+        }
+        deleteMany: {
+          args: Prisma.PencairanDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.PencairanUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.PencairanUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PencairanPayload>[]
+        }
+        upsert: {
+          args: Prisma.PencairanUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PencairanPayload>
+        }
+        aggregate: {
+          args: Prisma.PencairanAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePencairan>
+        }
+        groupBy: {
+          args: Prisma.PencairanGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PencairanGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.PencairanCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PencairanCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -1353,6 +1428,24 @@ export const RawMaterialScalarFieldEnum = {
 export type RawMaterialScalarFieldEnum = (typeof RawMaterialScalarFieldEnum)[keyof typeof RawMaterialScalarFieldEnum]
 
 
+export const PencairanScalarFieldEnum = {
+  id: 'id',
+  nasabahId: 'nasabahId',
+  jumlah: 'jumlah',
+  status: 'status',
+  catatan: 'catatan',
+  catatanAdmin: 'catatanAdmin',
+  buktiFoto: 'buktiFoto',
+  diajukanAt: 'diajukanAt',
+  diverifikasi: 'diverifikasi',
+  dicairkan: 'dicairkan',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type PencairanScalarFieldEnum = (typeof PencairanScalarFieldEnum)[keyof typeof PencairanScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -1550,6 +1643,20 @@ export type EnumKuponStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$Pris
 export type ListEnumKuponStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'KuponStatus[]'>
     
 
+
+/**
+ * Reference to a field of type 'StatusPencairan'
+ */
+export type EnumStatusPencairanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StatusPencairan'>
+    
+
+
+/**
+ * Reference to a field of type 'StatusPencairan[]'
+ */
+export type ListEnumStatusPencairanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StatusPencairan[]'>
+    
+
 /**
  * Batch Payload for updateMany & deleteMany & createMany
  */
@@ -1670,6 +1777,7 @@ export type GlobalOmitConfig = {
   kupon?: Prisma.KuponOmit
   tierKupon?: Prisma.TierKuponOmit
   rawMaterial?: Prisma.RawMaterialOmit
+  pencairan?: Prisma.PencairanOmit
 }
 
 /* Types for Logging */

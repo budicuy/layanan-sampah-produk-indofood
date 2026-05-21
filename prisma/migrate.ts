@@ -268,6 +268,57 @@ async function main() {
     console.log("❌ Error ensuring/seeding 'raw_material' table:", msg);
   }
 
+  // 9. Create pencairan table
+  try {
+    await prisma.$executeRawUnsafe(`
+      CREATE TYPE IF NOT EXISTS "StatusPencairan" AS ENUM ('DIAJUKAN', 'DIVERIFIKASI', 'DICAIRKAN', 'DITOLAK')
+    `);
+    console.log("✅ Enum 'StatusPencairan' ensured.");
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.log("ℹ️ Skipping StatusPencairan enum:", msg);
+  }
+
+  try {
+    await prisma.$executeRawUnsafe(`
+      CREATE TABLE IF NOT EXISTS "pencairan" (
+        "id" TEXT NOT NULL,
+        "nasabahId" TEXT NOT NULL,
+        "jumlah" INTEGER NOT NULL,
+        "status" "StatusPencairan" NOT NULL DEFAULT 'DIAJUKAN',
+        "catatan" TEXT,
+        "catatanAdmin" TEXT,
+        "buktiFoto" TEXT,
+        "diajukanAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        "diverifikasi" TIMESTAMP(3),
+        "dicairkan" TIMESTAMP(3),
+        "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        CONSTRAINT "pencairan_pkey" PRIMARY KEY ("id")
+      )
+    `);
+    await prisma.$executeRawUnsafe(`
+      CREATE INDEX IF NOT EXISTS "pencairan_nasabahId_status_idx" ON "pencairan"("nasabahId", "status")
+    `);
+    await prisma.$executeRawUnsafe(`
+      CREATE INDEX IF NOT EXISTS "pencairan_status_idx" ON "pencairan"("status")
+    `);
+    await prisma.$executeRawUnsafe(`
+      DO $$ BEGIN
+        IF NOT EXISTS (
+          SELECT 1 FROM pg_constraint WHERE conname = 'pencairan_nasabahId_fkey'
+        ) THEN
+          ALTER TABLE "pencairan" ADD CONSTRAINT "pencairan_nasabahId_fkey"
+            FOREIGN KEY ("nasabahId") REFERENCES "nasabah"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+        END IF;
+      END $$
+    `);
+    console.log("✅ Table 'pencairan' and its constraints ensured.");
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.log("❌ Error ensuring 'pencairan' table:", msg);
+  }
+
   console.log("🎉 Migration script finished successfully!");
 }
 
