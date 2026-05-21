@@ -43,11 +43,13 @@ export default function PwaGate({ children }: { children: React.ReactNode }) {
       setIsInstalled(true);
     }
 
-    let promptReceived = false;
-
     const handleBeforeInstallPrompt = (e: Event) => {
+      // beforeinstallprompt ONLY fires when the PWA is NOT installed.
+      // This is the most reliable signal that the app was uninstalled.
+      // → Clear any stale "installed" flag from localStorage.
       e.preventDefault();
-      promptReceived = true;
+      localStorage.removeItem("sicuan_pwa_installed");
+      setIsInstalled(false);
       setDeferredPrompt(e as BeforeInstallPromptEvent);
     };
 
@@ -56,18 +58,6 @@ export default function PwaGate({ children }: { children: React.ReactNode }) {
       setDeferredPrompt(null);
       localStorage.setItem("sicuan_pwa_installed", "1");
     };
-
-    // If no beforeinstallprompt fires after 2.5s, the app is likely already installed
-    const installCheckTimer = setTimeout(() => {
-      if (
-        !promptReceived &&
-        localStorage.getItem("sicuan_pwa_installed") !== "1"
-      ) {
-        // PWA is installed but localStorage was cleared — mark it again
-        setIsInstalled(true);
-        localStorage.setItem("sicuan_pwa_installed", "1");
-      }
-    }, 2500);
 
     window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
     window.addEventListener("appinstalled", handleAppInstalled);
@@ -79,7 +69,6 @@ export default function PwaGate({ children }: { children: React.ReactNode }) {
     }
 
     return () => {
-      clearTimeout(installCheckTimer);
       window.removeEventListener(
         "beforeinstallprompt",
         handleBeforeInstallPrompt,
