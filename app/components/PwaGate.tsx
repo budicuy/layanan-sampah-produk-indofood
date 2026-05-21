@@ -36,6 +36,23 @@ export default function PwaGate({ children }: { children: React.ReactNode }) {
       (window.navigator as { standalone?: boolean }).standalone === true;
     setIsStandalone(isStandaloneMode);
 
+    // PWA cold-start fix: when opened in standalone mode on the root path,
+    // the old SW may have served a cached landing page. Immediately call the
+    // auth-check endpoint and redirect to the correct dashboard without waiting
+    // for a manual refresh.
+    if (isStandaloneMode && window.location.pathname === "/") {
+      fetch("/api/dashboard")
+        .then((res) => res.json())
+        .then((data: { url: string }) => {
+          if (data.url && data.url !== "/login") {
+            window.location.replace(data.url);
+          }
+        })
+        .catch(() => {
+          // Silently ignore — user stays on landing page if fetch fails
+        });
+    }
+
     setIsIos(/iphone|ipad|ipod/.test(userAgent.toLowerCase()));
 
     // Restore install state from localStorage (survives page reloads)
