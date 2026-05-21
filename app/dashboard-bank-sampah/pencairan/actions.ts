@@ -3,8 +3,6 @@
 import { revalidatePath } from "next/cache";
 import { getSession } from "@/app/login/auth/session";
 import { prisma } from "@/lib/prisma";
-import { uploadToR2 } from "@/lib/r2";
-import type { StatusPencairan } from "@/prisma/generated/prisma/enums";
 
 async function checkBankSampahAuth() {
   const session = await getSession();

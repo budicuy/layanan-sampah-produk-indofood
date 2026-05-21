@@ -15,8 +15,7 @@ Platform digital pengelolaan sampah modern berbasis web, dibangun untuk membantu
    - **Dashboard Admin**: Verifikasi → Cairkan (dengan upload foto bukti transfer ke Cloudflare R2, dikompres otomatis ≤ 50KB) → Tolak. Saldo nasabah dipotong otomatis & mutasi dibuat saat pencairan dikonfirmasi.
 6. **Dashboard Multi-Role dengan Proteksi (Role-based Dashboards)**:
    - **Dashboard Admin & HRD** (`/dashboard-admin`): Kelola Master Data (Nasabah, Produk, Ekspedisi, Rate Harga), pemrosesan transaksi setoran, tabungan poin, riwayat mutasi, dan laporan analitik pendataan.
-   - **Dashboard Konsumen** (`/dashboard-konsumen`): Ringkasan poin aktif, form pengajuan setoran baru (langsung/ekspedisi), timeline status aktif, dan daftar riwayat transaksi.
-   - **Dashboard Bank Sampah** (`/dashboard-bank-sampah`): Khusus untuk unit Bank Sampah terdaftar, dengan alur Setor Langsung saja (tanpa ekspedisi) dan reward berupa uang kredit/saldo rupiah langsung pada nasabah (bukan point). Termasuk fitur Pencairan Dana.
+   - **Dashboard Konsumen & Bank Sampah** (`/dashboard-konsumen` & `/dashboard-bank-sampah`): Mengusung desain **Pure Mobile-first** dengan navigasi bilah bawah (bottom navigation bar) yang dioptimalkan untuk perangkat seluler/smartphone, susunan kartu statistik (stats grid) yang presisi tanpa ada slot kosong, layout compact yang rapi tanpa scroll horizontal, form input minimalis, tracker alur setoran yang responsif, serta dialog konfirmasi interaktif untuk keluar (logout).
 7. **Autentikasi Aman & Cepat**: Proteksi route menggunakan Custom JWT session di httpOnly cookie yang divalidasi pada tingkat Edge/Middleware (`proxy.ts`).
 
 ## Requirements
@@ -126,12 +125,12 @@ app/
     layout.tsx           # Layout Panel Konsumen (navigasi & Sidebar).
   dashboard-bank-sampah/
     components/
-      Sidebar.tsx        # Navigasi dashboard panel Bank Sampah (Dashboard, Setor Sampah).
+      BottomNav.tsx      # Navigasi menu bawah mobile-first (Dashboard, Setor Sampah, Pencairan, Keluar).
     setor-sampah/
       actions.ts         # Server Actions pengajuan setoran langsung & data nasabah Bank Sampah.
       page.tsx           # Form pendaftaran setoran langsung, riwayat transaksi, & info saldo Rupiah.
     page.tsx             # Halaman utama Bank Sampah (rekap saldo rupiah, setoran selesai & ringkasan).
-    layout.tsx           # Layout Panel Bank Sampah (navigasi & Sidebar).
+    layout.tsx           # Layout Panel Bank Sampah (mobile-first container & BottomNav).
   kupon-validasi/[kode]/
     actions.ts           # Server Actions validasi kupon & tandai kupon telah digunakan.
     page.tsx             # Halaman publik validasi keaslian kupon & detail kupon.

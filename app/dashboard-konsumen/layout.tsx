@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { getSession } from "@/app/login/auth/session";
-import Sidebar from "./components/Sidebar";
+import BottomNav from "./components/BottomNav";
 
 export default async function ConsumerLayout({
   children,
@@ -23,10 +23,10 @@ export default async function ConsumerLayout({
   }
 
   return (
-    <div className="flex min-h-screen bg-zinc-50">
-      <Sidebar user={user} />
-      <div className="flex-1 lg:ml-72 flex flex-col min-h-screen">
-        <main className="flex-1 p-6 lg:p-10">{children}</main>
+    <div className="min-h-screen bg-zinc-100/50 flex justify-center">
+      <div className="max-w-md w-full min-h-screen bg-zinc-50 flex flex-col pb-20 relative border-x border-zinc-100 shadow-2xl">
+        <main className="flex-1 p-5 overflow-x-hidden">{children}</main>
+        <BottomNav />
       </div>
     </div>
   );

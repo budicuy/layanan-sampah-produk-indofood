@@ -1,13 +1,4 @@
-import {
-  Calendar,
-  CheckCircle2,
-  Clock,
-  Package,
-  Recycle,
-  Scale,
-  Tag,
-  Wallet,
-} from "lucide-react";
+import { Calendar, Clock, Package, Recycle, Scale, Wallet } from "lucide-react";
 import { getSession } from "@/app/login/auth/session";
 import { prisma } from "@/lib/prisma";
 import {
@@ -188,59 +179,60 @@ export default async function BankSampahDashboardPage() {
   ];
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-500">
+    <div className="space-y-5 animate-in fade-in duration-500">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="flex items-center justify-between gap-2">
         <div>
-          <h1 className="text-2xl md:text-3xl font-heading font-bold text-zinc-900">
+          <h1 className="text-xl font-heading font-bold text-zinc-900">
             Halo, {displayName}! 👋
           </h1>
-          <p className="text-zinc-500 mt-1 text-sm md:text-base">
+          <p className="text-zinc-400 text-xs mt-0.5">
             Pantau kontribusi lingkungan Anda hari ini.
           </p>
         </div>
-        <div className="flex items-center gap-3 bg-white p-2 px-4 rounded-2xl border border-zinc-100 shadow-sm">
-          <Calendar className="w-5 h-5 text-zinc-400" />
-          <span className="text-sm font-medium text-zinc-600">
+        <div className="bg-white p-1.5 px-3 rounded-xl border border-zinc-100 shadow-xs flex items-center gap-1.5 shrink-0 text-zinc-500">
+          <Calendar size={14} />
+          <span className="text-[10px] font-bold">
             {new Date().toLocaleDateString("id-ID", {
               day: "numeric",
-              month: "long",
-              year: "numeric",
+              month: "short",
             })}
           </span>
         </div>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 gap-3">
         {stats.map((s) => (
           <div
             key={s.label}
-            className={`rounded-2xl border p-5 md:p-6 ${s.bg} transition-all hover:shadow-md`}>
+            className={`rounded-2xl border p-4 ${s.bg} transition-all hover:shadow-md`}>
             <div
-              className={`w-10 h-10 rounded-xl ${s.iconBg} flex items-center justify-center mb-3`}>
-              <s.icon size={20} className={s.color} />
+              className={`w-8 h-8 rounded-lg ${s.iconBg} flex items-center justify-center mb-2`}>
+              <s.icon size={16} className={s.color} />
             </div>
             <p
-              className={`text-xl md:text-2xl font-heading font-bold ${s.color} leading-tight`}>
+              className={`text-base font-heading font-bold ${s.color} leading-tight truncate`}>
               {s.value}
             </p>
-            <p className="text-xs text-zinc-500 font-medium mt-1">{s.label}</p>
-            <p className="text-[10px] text-zinc-400 mt-0.5">{s.sub}</p>
+            <p className="text-[10px] text-zinc-500 font-medium mt-0.5">
+              {s.label}
+            </p>
+            <p className="text-[9px] text-zinc-400 mt-0.5 truncate">{s.sub}</p>
           </div>
         ))}
       </div>
 
       {/* Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white rounded-2xl border border-zinc-100 p-6 shadow-sm">
-          <h3 className="text-lg font-bold text-zinc-900 font-heading mb-4">
+      <div className="space-y-4">
+        <div className="bg-white rounded-2xl border border-zinc-100 p-4 shadow-xs">
+          <h3 className="text-sm font-bold text-zinc-900 font-heading mb-3">
             Statistik Setoran Anda
           </h3>
           <ConsumerLineChart data={monthlyData} />
         </div>
-        <div className="bg-white rounded-2xl border border-zinc-100 p-6 shadow-sm">
-          <h3 className="text-lg font-bold text-zinc-900 font-heading mb-4">
+        <div className="bg-white rounded-2xl border border-zinc-100 p-4 shadow-xs">
+          <h3 className="text-sm font-bold text-zinc-900 font-heading mb-3">
             Komposisi Sampah Anda
           </h3>
           <ConsumerDonutChart
@@ -254,14 +246,14 @@ export default async function BankSampahDashboardPage() {
       </div>
 
       {/* Recent Activity */}
-      <div className="bg-white rounded-2xl border border-zinc-100 p-6 shadow-sm">
-        <h3 className="text-lg font-bold text-zinc-900 font-heading mb-4">
+      <div className="bg-white rounded-2xl border border-zinc-100 p-4 shadow-xs">
+        <h3 className="text-sm font-bold text-zinc-900 font-heading mb-3">
           Aktivitas Setoran Terakhir
         </h3>
         {setoran.length === 0 ? (
           <div className="py-12 text-center text-zinc-400">
-            <Recycle size={40} className="mx-auto mb-3 opacity-30" />
-            <p className="text-sm">Belum ada setoran sampah</p>
+            <Recycle size={32} className="mx-auto mb-2 opacity-30" />
+            <p className="text-xs">Belum ada setoran sampah</p>
           </div>
         ) : (
           <div className="space-y-2">
@@ -273,21 +265,20 @@ export default async function BankSampahDashboardPage() {
               return (
                 <div
                   key={s.id}
-                  className="flex items-center gap-4 p-3 md:p-4 rounded-xl hover:bg-zinc-50 transition-colors">
+                  className="flex items-center gap-3 p-3 rounded-xl hover:bg-zinc-50 transition-colors">
                   <div
-                    className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
+                    className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${
                       s.jenisSampah === "PLASTIK"
                         ? "bg-red-50 text-red-500"
                         : s.jenisSampah === "KARTON"
                           ? "bg-orange-50 text-orange-500"
                           : "bg-blue-50 text-blue-500"
                     }`}>
-                    <Recycle size={20} />
+                    <Recycle size={18} />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <p className="font-bold text-zinc-900 text-sm">
-                        <Tag size={12} className="inline mr-1 text-zinc-400" />
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      <p className="font-bold text-zinc-900 text-xs">
                         {s.jenisSampah === "PLASTIK"
                           ? "Plastik"
                           : s.jenisSampah === "KARTON"
@@ -295,13 +286,13 @@ export default async function BankSampahDashboardPage() {
                             : "Paper Cup"}
                       </p>
                       <span
-                        className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${st.cls}`}>
+                        className={`px-1.5 py-0.5 rounded-full text-[9px] font-bold ${st.cls}`}>
                         {st.label}
                       </span>
                     </div>
-                    <div className="flex items-center gap-3 text-xs text-zinc-500 mt-1">
-                      <span className="flex items-center gap-1">
-                        <Scale size={11} />
+                    <div className="flex items-center gap-2 text-[10px] text-zinc-500 mt-0.5">
+                      <span className="flex items-center gap-0.5">
+                        <Scale size={10} />
                         {s.beratEstimasi} kg
                         {s.beratAktual != null && (
                           <span className="font-bold text-zinc-700">
@@ -309,19 +300,19 @@ export default async function BankSampahDashboardPage() {
                           </span>
                         )}
                       </span>
-                      <span className="flex items-center gap-1 text-zinc-400">
-                        <Clock size={11} />
+                      <span className="flex items-center gap-0.5 text-zinc-400">
+                        <Clock size={10} />
                         {formatDate(s.createdAt)}
                       </span>
                     </div>
                   </div>
                   <div className="text-right shrink-0">
                     {s.status === "SELESAI" && s.totalHarga != null ? (
-                      <p className="font-bold text-green-600 text-sm flex items-center gap-1">
-                        <CheckCircle2 size={14} />+{formatRupiah(s.totalHarga)}
+                      <p className="font-bold text-green-600 text-xs flex items-center gap-0.5 justify-end">
+                        +{formatRupiah(s.totalHarga)}
                       </p>
                     ) : (
-                      <p className="text-xs text-zinc-400">{st.label}</p>
+                      <p className="text-[10px] text-zinc-400">{st.label}</p>
                     )}
                   </div>
                 </div>

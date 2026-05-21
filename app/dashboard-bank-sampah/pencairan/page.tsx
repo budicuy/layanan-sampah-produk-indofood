@@ -127,20 +127,20 @@ export default function PencairanBankSampahPage() {
     }).format(n);
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-500">
+    <div className="space-y-5 animate-in fade-in duration-500">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-zinc-900">Pencairan Dana</h1>
-        <p className="text-sm text-zinc-500 mt-1">
+        <h1 className="text-xl font-bold text-zinc-900">Pencairan Dana</h1>
+        <p className="text-xs text-zinc-400 mt-0.5">
           Ajukan dan kelola pengajuan pencairan saldo bank sampah Anda
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="space-y-4">
         {/* Left Column: Saldo & Info */}
-        <div className="space-y-6 lg:col-span-1">
+        <div className="space-y-4">
           {/* Saldo Card */}
-          <div className="rounded-2xl bg-gradient-to-br from-emerald-600 to-emerald-800 p-6 text-white shadow-xl shadow-emerald-900/20 relative overflow-hidden">
+          <div className="rounded-2xl bg-gradient-to-br from-emerald-600 to-emerald-800 p-4 text-white shadow-lg shadow-emerald-900/20 relative overflow-hidden">
             <div
               className="absolute inset-0 opacity-10"
               style={{
@@ -150,48 +150,48 @@ export default function PencairanBankSampahPage() {
               }}
             />
             <div className="relative">
-              <div className="flex items-center gap-2 mb-3">
-                <Wallet size={18} className="text-emerald-200" />
-                <span className="text-sm text-emerald-200 font-medium">
+              <div className="flex items-center gap-2 mb-2">
+                <Wallet size={16} className="text-emerald-200" />
+                <span className="text-xs text-emerald-200 font-medium">
                   Saldo Tersedia
                 </span>
               </div>
-              <div className="text-3xl font-black tracking-tight mb-4">
+              <div className="text-2xl font-black tracking-tight mb-3">
                 {loading ? "—" : formatRupiah(saldo)}
               </div>
               <button
                 type="button"
                 onClick={() => setShowModal(true)}
                 disabled={saldo < 50000 || loading}
-                className="w-full inline-flex items-center justify-center gap-2 bg-white text-emerald-700 font-bold text-sm px-4 py-2.5 rounded-xl hover:bg-emerald-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-                <Plus size={16} />
+                className="w-full inline-flex items-center justify-center gap-1.5 bg-white text-emerald-700 font-bold text-xs px-4 py-2.5 rounded-xl hover:bg-emerald-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                <Plus size={14} />
                 Ajukan Pencairan
               </button>
             </div>
           </div>
 
           {/* Ketentuan Card */}
-          <div className="bg-white rounded-2xl border border-zinc-100 p-5 shadow-sm space-y-4">
-            <h3 className="text-sm font-bold text-zinc-800">
+          <div className="bg-white rounded-2xl border border-zinc-100 p-4 shadow-xs space-y-3">
+            <h3 className="text-xs font-bold text-zinc-800">
               Ketentuan Pencairan Dana
             </h3>
-            <ul className="text-xs text-zinc-500 space-y-2.5">
-              <li className="flex items-start gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-1.5 shrink-0" />
+            <ul className="text-[10px] text-zinc-500 space-y-2">
+              <li className="flex items-start gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-1 shrink-0" />
                 <span>
                   Minimal pencairan adalah{" "}
                   <strong>{formatRupiah(50000)}</strong>.
                 </span>
               </li>
-              <li className="flex items-start gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-1.5 shrink-0" />
+              <li className="flex items-start gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-1 shrink-0" />
                 <span>
                   Jumlah pencairan harus kelipatan{" "}
                   <strong>{formatRupiah(50000)}</strong>.
                 </span>
               </li>
-              <li className="flex items-start gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-1.5 shrink-0" />
+              <li className="flex items-start gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-1 shrink-0" />
                 <span>
                   Tiap transaksi sukses akan dilampirkan bukti transfer oleh
                   admin.
@@ -202,16 +202,16 @@ export default function PencairanBankSampahPage() {
         </div>
 
         {/* Right Column: Riwayat */}
-        <div className="lg:col-span-2 space-y-4">
-          <div className="flex items-center justify-between mb-2">
-            <h2 className="text-base font-bold text-zinc-800">
+        <div className="space-y-3">
+          <div className="flex items-center justify-between mb-1">
+            <h2 className="text-xs font-bold text-zinc-800">
               Riwayat Pengajuan
             </h2>
             <button
               type="button"
               onClick={fetchData}
-              className="text-zinc-400 hover:text-zinc-700 transition-colors p-1.5 hover:bg-zinc-100 rounded-lg">
-              <RefreshCw size={16} />
+              className="text-zinc-400 hover:text-zinc-700 transition-colors p-1 hover:bg-zinc-100 rounded-lg">
+              <RefreshCw size={14} />
             </button>
           </div>
 
@@ -220,61 +220,60 @@ export default function PencairanBankSampahPage() {
               {[1, 2, 3].map((i) => (
                 <div
                   key={i}
-                  className="h-24 bg-zinc-100 rounded-2xl animate-pulse"
+                  className="h-20 bg-zinc-100 rounded-xl animate-pulse"
                 />
               ))}
             </div>
           ) : list.length === 0 ? (
-            <div className="text-center py-16 text-zinc-400 bg-white rounded-2xl border border-zinc-100 shadow-sm">
-              <Banknote size={40} className="mx-auto mb-3 opacity-50" />
-              <p className="text-sm">Belum ada pengajuan pencairan</p>
+            <div className="text-center py-10 text-zinc-400 bg-white rounded-xl border border-zinc-100 shadow-xs">
+              <Banknote size={32} className="mx-auto mb-2 opacity-50" />
+              <p className="text-xs">Belum ada pengajuan pencairan</p>
             </div>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-2.5">
               {list.map((item) => {
                 const cfg = STATUS_CONFIG[item.status];
                 return (
                   <div
                     key={item.id}
-                    className="bg-white rounded-2xl border border-zinc-100 p-5 shadow-sm hover:shadow-md transition-shadow">
-                    <div className="flex items-center justify-between gap-4">
+                    className="bg-white rounded-xl border border-zinc-100 p-4 shadow-xs hover:shadow-xs transition-shadow">
+                    <div className="flex items-center justify-between gap-3">
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1 flex-wrap">
+                        <div className="flex items-center gap-1.5 mb-1 flex-wrap">
                           <span
-                            className={`inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full border ${cfg.color}`}>
+                            className={`inline-flex items-center gap-0.5 text-[9px] font-semibold px-1.5 py-0.5 rounded-full border ${cfg.color}`}>
                             {cfg.icon}
                             {cfg.label}
                           </span>
                         </div>
-                        <p className="text-lg font-black text-zinc-900">
+                        <p className="text-sm font-black text-zinc-900">
                           {formatRupiah(item.jumlah)}
                         </p>
-                        <p className="text-xs text-zinc-400 mt-0.5">
+                        <p className="text-[10px] text-zinc-400 mt-0.5">
                           Diajukan:{" "}
                           {new Date(item.diajukanAt).toLocaleDateString(
                             "id-ID",
                             {
                               day: "numeric",
-                              month: "long",
-                              year: "numeric",
+                              month: "short",
                             },
                           )}
                         </p>
                         {item.catatan && (
-                          <p className="text-xs text-zinc-500 mt-1 italic">
+                          <p className="text-[10px] text-zinc-500 mt-1 italic">
                             "{item.catatan}"
                           </p>
                         )}
                         {item.catatanAdmin && (
-                          <p className="text-xs text-blue-600 mt-1 bg-blue-50/50 px-2 py-0.5 rounded-lg inline-block">
+                          <p className="text-[9px] text-blue-600 mt-1 bg-blue-50/50 px-2 py-0.5 rounded-lg inline-block">
                             Admin: {item.catatanAdmin}
                           </p>
                         )}
                       </div>
-                      <div className="shrink-0 flex items-center gap-3">
+                      <div className="shrink-0 flex items-center gap-2">
                         <div className="text-right">
                           {item.dicairkan && (
-                            <p className="text-[10px] text-emerald-600 font-medium">
+                            <p className="text-[8px] text-emerald-600 font-medium">
                               Cair:{" "}
                               {new Date(item.dicairkan).toLocaleDateString(
                                 "id-ID",
@@ -288,9 +287,9 @@ export default function PencairanBankSampahPage() {
                             onClick={() =>
                               setSelectedPhoto(item.buktiFoto ?? "")
                             }
-                            className="p-2 text-blue-600 hover:bg-blue-50 rounded-xl transition-colors"
+                            className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                             title="Lihat Bukti Transfer">
-                            <Eye size={16} />
+                            <Eye size={14} />
                           </button>
                         )}
                       </div>
