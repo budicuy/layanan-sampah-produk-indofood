@@ -38,15 +38,36 @@ export default function PwaGate({ children }: { children: React.ReactNode }) {
 
     setIsIos(/iphone|ipad|ipod/.test(userAgent.toLowerCase()));
 
+    // Restore install state from localStorage (survives page reloads)
+    if (localStorage.getItem("sicuan_pwa_installed") === "1") {
+      setIsInstalled(true);
+    }
+
+    let promptReceived = false;
+
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
+      promptReceived = true;
       setDeferredPrompt(e as BeforeInstallPromptEvent);
     };
 
     const handleAppInstalled = () => {
       setIsInstalled(true);
       setDeferredPrompt(null);
+      localStorage.setItem("sicuan_pwa_installed", "1");
     };
+
+    // If no beforeinstallprompt fires after 2.5s, the app is likely already installed
+    const installCheckTimer = setTimeout(() => {
+      if (
+        !promptReceived &&
+        localStorage.getItem("sicuan_pwa_installed") !== "1"
+      ) {
+        // PWA is installed but localStorage was cleared — mark it again
+        setIsInstalled(true);
+        localStorage.setItem("sicuan_pwa_installed", "1");
+      }
+    }, 2500);
 
     window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
     window.addEventListener("appinstalled", handleAppInstalled);
@@ -58,6 +79,7 @@ export default function PwaGate({ children }: { children: React.ReactNode }) {
     }
 
     return () => {
+      clearTimeout(installCheckTimer);
       window.removeEventListener(
         "beforeinstallprompt",
         handleBeforeInstallPrompt,
