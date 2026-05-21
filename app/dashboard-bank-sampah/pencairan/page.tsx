@@ -140,7 +140,7 @@ export default function PencairanBankSampahPage() {
         {/* Left Column: Saldo & Info */}
         <div className="space-y-4">
           {/* Saldo Card */}
-          <div className="rounded-2xl bg-gradient-to-br from-emerald-600 to-emerald-800 p-4 text-white shadow-lg shadow-emerald-900/20 relative overflow-hidden">
+          <div className="rounded-2xl bg-linear-to-br from-emerald-600 to-emerald-800 p-4 text-white shadow-lg shadow-emerald-900/20 relative overflow-hidden">
             <div
               className="absolute inset-0 opacity-10"
               style={{

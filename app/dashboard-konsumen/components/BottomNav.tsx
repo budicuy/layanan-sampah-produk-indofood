@@ -68,7 +68,7 @@ export default function BottomNav() {
 
       {/* Confirmation Modal */}
       {showConfirm && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-zinc-900/60 backdrop-blur-xs animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-zinc-900/60 backdrop-blur-xs animate-in fade-in duration-200">
           <div className="bg-white rounded-3xl p-5 w-full max-w-xs shadow-2xl border border-zinc-100 text-center space-y-4 animate-in fade-in zoom-in-95 duration-200">
             <div className="w-12 h-12 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto">
               <LogOut size={22} className="stroke-[2.5px]" />
