@@ -17,6 +17,9 @@ Platform digital pengelolaan sampah modern berbasis web, dibangun untuk membantu
    - **Dashboard Admin & HRD** (`/dashboard-admin`): Kelola Master Data (Nasabah, Produk, Ekspedisi, Rate Harga), pemrosesan transaksi setoran, tabungan poin, riwayat mutasi, dan laporan analitik pendataan.
    - **Dashboard Konsumen & Bank Sampah** (`/dashboard-konsumen` & `/dashboard-bank-sampah`): Mengusung desain **Pure Mobile-first** dengan navigasi bilah bawah (bottom navigation bar) yang dioptimalkan untuk perangkat seluler/smartphone, susunan kartu statistik (stats grid) yang presisi tanpa ada slot kosong, layout compact yang rapi tanpa scroll horizontal, form input minimalis, tracker alur setoran yang responsif, serta dialog konfirmasi interaktif untuk keluar (logout).
 7. **Autentikasi Aman & Cepat**: Proteksi route menggunakan Custom JWT session di httpOnly cookie yang divalidasi pada tingkat Edge/Middleware (`proxy.ts`).
+8. **Dukungan Progressive Web App (PWA) & Mobile Installation Gate**:
+   - Mendukung instalasi aplikasi secara native di ponsel Android/iOS melalui file `manifest.ts` dan caching Service Worker (`sw.js`).
+   - Dilengkapi dengan fitur **PwaGate**: Ketika pengguna mengakses platform dari browser perangkat mobile, antarmuka akan terkunci oleh layar instruksi premium yang meminta mereka menginstal PWA terlebih dahulu sebelum dapat mengakses dashboard.
 
 ## Requirements
 

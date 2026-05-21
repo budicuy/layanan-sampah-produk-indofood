@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Nunito_Sans, Outfit } from "next/font/google";
 import "./globals.css";
 
+import PwaGate from "@/app/components/PwaGate";
 import Providers from "@/app/providers";
 
 const outfit = Outfit({
@@ -31,7 +32,9 @@ export default function RootLayout({
       data-scroll-behavior="smooth"
       className={`${outfit.variable} ${nunitoSans.variable} h-full antialiased scroll-smooth`}>
       <body className="min-h-full flex flex-col font-sans">
-        <Providers>{children}</Providers>
+        <Providers>
+          <PwaGate>{children}</PwaGate>
+        </Providers>
       </body>
     </html>
   );
