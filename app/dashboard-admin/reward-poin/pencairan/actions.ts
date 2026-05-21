@@ -8,7 +8,11 @@ import type { StatusPencairan } from "@/prisma/generated/prisma/enums";
 
 async function checkAdminAuth() {
   const session = await getSession();
-  if (!session || session.user.role === "KONSUMEN" || session.user.role === "BANK_SAMPAH") {
+  if (
+    !session ||
+    session.user.role === "KONSUMEN" ||
+    session.user.role === "BANK_SAMPAH"
+  ) {
     throw new Error("Unauthorized");
   }
 }
@@ -55,17 +59,19 @@ export async function cairkanPencairan(formData: FormData) {
 
   if (!pencairan) throw new Error("Pencairan tidak ditemukan");
 
-  let buktiFotoUrl: string | null = pencairan.buktiFoto ?? null;
-
-  // Upload foto jika ada
-  if (fotoFile && fotoFile.size > 0) {
-    // Validasi ukuran maksimal 50KB (sudah dikompres di sisi klien)
-    if (fotoFile.size > 51200) {
-      throw new Error("Ukuran foto melebihi 50KB. Harap kompres terlebih dahulu.");
-    }
-    const buffer = Buffer.from(await fotoFile.arrayBuffer());
-    buktiFotoUrl = await uploadToR2(buffer, fotoFile.type, "pencairan");
+  // Foto bukti WAJIB untuk pencairan
+  if (!fotoFile || fotoFile.size === 0) {
+    throw new Error("Foto bukti transfer wajib diupload sebelum mencairkan.");
   }
+
+  // Validasi ukuran maksimal 60KB (toleransi overhead encoding; kompresi dilakukan di client)
+  if (fotoFile.size > 61440) {
+    throw new Error(
+      `Ukuran foto ${(fotoFile.size / 1024).toFixed(0)}KB melebihi batas. Coba gunakan gambar yang lebih kecil.`,
+    );
+  }
+  const buffer = Buffer.from(await fotoFile.arrayBuffer());
+  const buktiFotoUrl = await uploadToR2(buffer, fotoFile.type, "pencairan");
 
   // Update pencairan menjadi DICAIRKAN dan kurangi saldo nasabah
   await prisma.$transaction([

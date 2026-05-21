@@ -1,5 +1,5 @@
-import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { randomUUID } from "node:crypto";
+import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 
 const r2Client = new S3Client({
   region: "auto",
@@ -8,12 +8,13 @@ const r2Client = new S3Client({
     accessKeyId: process.env.CLOUDFLARE_R2_ACCESS_KEY_ID!,
     secretAccessKey: process.env.CLOUDFLARE_R2_SECRET_ACCESS_KEY!,
   },
+  forcePathStyle: true, // Cloudflare R2 memerlukan path-style URLs
 });
 
 export async function uploadToR2(
   fileBuffer: Buffer,
   mimeType: string,
-  folder = "pencairan"
+  folder = "pencairan",
 ): Promise<string> {
   const ext = mimeType.split("/")[1] || "jpg";
   const key = `${folder}/${randomUUID()}.${ext}`;
@@ -24,7 +25,7 @@ export async function uploadToR2(
       Key: key,
       Body: fileBuffer,
       ContentType: mimeType,
-    })
+    }),
   );
 
   return `${process.env.CLOUDFLARE_R2_PUBLIC_URL}/${key}`;

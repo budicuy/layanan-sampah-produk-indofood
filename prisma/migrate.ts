@@ -270,13 +270,28 @@ async function main() {
 
   // 9. Create pencairan table
   try {
+    // Create enum type if it doesn't exist (IF NOT EXISTS not supported for TYPE in PG)
     await prisma.$executeRawUnsafe(`
-      CREATE TYPE IF NOT EXISTS "StatusPencairan" AS ENUM ('DIAJUKAN', 'DIVERIFIKASI', 'DICAIRKAN', 'DITOLAK')
+      DO $$ BEGIN
+        CREATE TYPE "StatusPencairan" AS ENUM ('DIAJUKAN', 'DIVERIFIKASI', 'DICAIRKAN', 'DITOLAK');
+      EXCEPTION WHEN duplicate_object THEN NULL;
+      END $$
     `);
     console.log("✅ Enum 'StatusPencairan' ensured.");
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     console.log("ℹ️ Skipping StatusPencairan enum:", msg);
+  }
+
+  // Ensure all enum values exist (handles enums created with missing values)
+  for (const val of ["DIAJUKAN", "DIVERIFIKASI", "DICAIRKAN", "DITOLAK"]) {
+    try {
+      await prisma.$executeRawUnsafe(
+        `ALTER TYPE "StatusPencairan" ADD VALUE IF NOT EXISTS '${val}'`,
+      );
+    } catch {
+      /* already exists */
+    }
   }
 
   try {
@@ -297,6 +312,15 @@ async function main() {
         CONSTRAINT "pencairan_pkey" PRIMARY KEY ("id")
       )
     `);
+    // Ensure all columns exist (handles tables created before full schema was in place)
+    for (const ddl of [
+      `ALTER TABLE "pencairan" ADD COLUMN IF NOT EXISTS "catatanAdmin" TEXT`,
+      `ALTER TABLE "pencairan" ADD COLUMN IF NOT EXISTS "diajukanAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP`,
+      `ALTER TABLE "pencairan" ADD COLUMN IF NOT EXISTS "diverifikasi" TIMESTAMP(3)`,
+      `ALTER TABLE "pencairan" ADD COLUMN IF NOT EXISTS "dicairkan" TIMESTAMP(3)`,
+    ]) {
+      await prisma.$executeRawUnsafe(ddl);
+    }
     await prisma.$executeRawUnsafe(`
       CREATE INDEX IF NOT EXISTS "pencairan_nasabahId_status_idx" ON "pencairan"("nasabahId", "status")
     `);

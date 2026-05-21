@@ -86,10 +86,11 @@ export function ConsumerLineChart({ data }: { data: MonthlyPoint[] }) {
 interface TypeData {
   plastik: number;
   karton: number;
+  paperCup: number;
 }
 
 export function ConsumerDonutChart({ data }: { data: TypeData }) {
-  const total = data.plastik + data.karton;
+  const total = data.plastik + data.karton + data.paperCup;
 
   if (total === 0) {
     return (
@@ -100,13 +101,14 @@ export function ConsumerDonutChart({ data }: { data: TypeData }) {
   }
 
   const chartData = {
-    labels: ["Plastik", "Karton"],
+    labels: ["Plastik", "Karton", "Paper Cup"],
     datasets: [
       {
-        data: [data.plastik, data.karton],
+        data: [data.plastik, data.karton, data.paperCup],
         backgroundColor: [
           "rgba(220, 38, 38, 0.85)",
           "rgba(251, 146, 60, 0.85)",
+          "rgba(59, 130, 246, 0.85)",
         ],
         borderWidth: 0,
       },

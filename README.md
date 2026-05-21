@@ -9,12 +9,15 @@ Platform digital pengelolaan sampah modern berbasis web, dibangun untuk membantu
 3. **Dua Alur Pengumpulan Sampah (Dual Workflows)**:
    - **Setor Langsung (`LANGSUNG`)**: Pengguna mengantar sendiri sampah ke pusat pengumpulan. Proses verifikasi langsung menyelesaikan transaksi (Status: `MENUNGGU_VERIFIKASI` $\rightarrow$ `SELESAI`) dan mengkreditkan poin.
    - **Layanan Kurir / Pickup (`EKSPEDISI`)**: Penjemputan terjadwal oleh driver dengan status pelacakan 7 tahap terintegrasi (menunggu verifikasi, terverifikasi, dalam penjemputan, sudah diserahkan, sampah diterima, hingga verifikasi berat aktual & selesai).
-4. **Verifikasi Instan ("Data Sudah Benar")**: Admin dapat memverifikasi setoran secara cepat menggunakan satu tombol yang menyamakan berat aktual dengan estimasi nasabah, menghitung perolehan poin otomatis, mencatat log, dan mengkreditkan poin secara real-time.
-5. **Dashboard Multi-Role dengan Proteksi (Role-based Dashboards)**:
+4. **Verifikasi Instan (\"Data Sudah Benar\")**: Admin dapat memverifikasi setoran secara cepat menggunakan satu tombol yang menyamakan berat aktual dengan estimasi nasabah, menghitung perolehan poin otomatis, mencatat log, dan mengkreditkan poin secara real-time.
+5. **Pencairan Dana Bank Sampah**: Alur pencairan saldo uang khusus nasabah kategori Bank Sampah:
+   - **Dashboard Bank Sampah**: Ajukan pencairan (kelipatan Rp 50.000, min Rp 50.000) dengan catatan opsional; lihat riwayat pengajuan & bukti foto pencairan.
+   - **Dashboard Admin**: Verifikasi → Cairkan (dengan upload foto bukti transfer ke Cloudflare R2, dikompres otomatis ≤ 50KB) → Tolak. Saldo nasabah dipotong otomatis & mutasi dibuat saat pencairan dikonfirmasi.
+6. **Dashboard Multi-Role dengan Proteksi (Role-based Dashboards)**:
    - **Dashboard Admin & HRD** (`/dashboard-admin`): Kelola Master Data (Nasabah, Produk, Ekspedisi, Rate Harga), pemrosesan transaksi setoran, tabungan poin, riwayat mutasi, dan laporan analitik pendataan.
    - **Dashboard Konsumen** (`/dashboard-konsumen`): Ringkasan poin aktif, form pengajuan setoran baru (langsung/ekspedisi), timeline status aktif, dan daftar riwayat transaksi.
-   - **Dashboard Bank Sampah** (`/dashboard-bank-sampah`): Khusus untuk unit Bank Sampah terdaftar, dengan alur Setor Langsung saja (tanpa ekspedisi) dan reward berupa uang kredit/saldo rupiah langsung pada nasabah (bukan point).
-6. **Autentikasi Aman & Cepat**: Proteksi route menggunakan Custom JWT session di httpOnly cookie yang divalidasi pada tingkat Edge/Middleware (`proxy.ts`).
+   - **Dashboard Bank Sampah** (`/dashboard-bank-sampah`): Khusus untuk unit Bank Sampah terdaftar, dengan alur Setor Langsung saja (tanpa ekspedisi) dan reward berupa uang kredit/saldo rupiah langsung pada nasabah (bukan point). Termasuk fitur Pencairan Dana.
+7. **Autentikasi Aman & Cepat**: Proteksi route menggunakan Custom JWT session di httpOnly cookie yang divalidasi pada tingkat Edge/Middleware (`proxy.ts`).
 
 ## Requirements
 
@@ -91,8 +94,8 @@ app/
         page.tsx         # Kelola standar berat kemasan produk (Etiket, Karton, Cup).
     pendataan/           # Modul administrasi timbangan masuk dan pelaporan.
       laporan-pendataan/
-        actions.ts       # Aksi server penarikan data rekap bulanan & statistik.
-        page.tsx         # Halaman pencetakan laporan bulanan & filter data setoran.
+        actions.ts       # Aksi server penarikan data rekap setoran, pencairan dana, & penukaran kupon.
+        page.tsx         # Halaman laporan komprehensif (Setoran, Pencairan Dana, Kupon) lengkap dengan stats & chart.
       setor-sampah/
         actions.ts       # Aksi verifikasi alur setoran (timbang aktual & kredit poin).
         page.tsx         # Panel validasi setoran, tombol "Data Sudah Benar", & input berat aktual.

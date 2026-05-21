@@ -1,5 +1,6 @@
 import {
   Calendar,
+  ClipboardList,
   Clock,
   Recycle,
   TrendingUp,
@@ -33,6 +34,8 @@ export default async function DashboardPage() {
     recentActivities,
     plastikStats,
     kartonStats,
+    paperCupStats,
+    pencairanPendingCount,
     monthlyStats,
   ] = await Promise.all([
     prisma.nasabah.count(),
@@ -60,6 +63,13 @@ export default async function DashboardPage() {
     prisma.setorSampah.aggregate({
       where: { status: "SELESAI", jenisSampah: "KARTON" },
       _sum: { beratAktual: true },
+    }),
+    prisma.setorSampah.aggregate({
+      where: { status: "SELESAI", jenisSampah: "PAPER_CUP" },
+      _sum: { beratAktual: true },
+    }),
+    prisma.pencairan.count({
+      where: { status: "DIAJUKAN" },
     }),
     // Fetch data for the last 6 months
     Promise.all(
@@ -106,6 +116,12 @@ export default async function DashboardPage() {
       value: `${totalPayout} Poin`,
       subValue: "Poin tersalurkan",
     },
+    {
+      icon: ClipboardList,
+      label: "Pencairan Pending",
+      value: `${pencairanPendingCount} Pengajuan`,
+      subValue: "Menunggu transfer",
+    },
   ];
 
   return (
@@ -136,7 +152,7 @@ export default async function DashboardPage() {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {stats.map(({ icon: Icon, label, value, subValue }) => (
           <div
             key={label}
@@ -153,8 +169,10 @@ export default async function DashboardPage() {
               <p className="text-xs text-zinc-400 font-bold uppercase tracking-wider mb-1">
                 {label}
               </p>
-              <h3 className="text-2xl font-bold text-zinc-900">{value}</h3>
-              <p className="text-xs text-zinc-500 mt-1 font-medium italic">
+              <h3 className="text-2xl font-bold text-zinc-900 leading-tight">
+                {value}
+              </h3>
+              <p className="text-[10px] text-zinc-500 mt-1 font-medium italic">
                 {subValue}
               </p>
             </div>
@@ -189,12 +207,13 @@ export default async function DashboardPage() {
             Komposisi Sampah
           </h3>
           <p className="text-xs text-zinc-400 mb-6">
-            Perbandingan berat plastik & karton
+            Perbandingan berat plastik, karton, & paper cup
           </p>
           <div className="flex items-center justify-center py-4">
             <WasteTypeChart
               plastik={plastikStats._sum.beratAktual || 0}
               karton={kartonStats._sum.beratAktual || 0}
+              paperCup={paperCupStats._sum.beratAktual || 0}
             />
           </div>
         </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  Banknote,
   Coins,
   FileText,
   Layers,
@@ -80,6 +81,11 @@ const MENU_GROUPS = [
         icon: Ticket,
         label: "Kupon Terklaim",
         href: "/dashboard-admin/reward-poin/kupon",
+      },
+      {
+        icon: Banknote,
+        label: "Pencairan Dana",
+        href: "/dashboard-admin/reward-poin/pencairan",
       },
     ],
   },

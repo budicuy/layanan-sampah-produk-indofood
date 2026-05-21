@@ -95,16 +95,18 @@ export function WasteLineChart({
 export function WasteTypeChart({
   plastik = 0,
   karton = 0,
+  paperCup = 0,
 }: {
   plastik?: number;
   karton?: number;
+  paperCup?: number;
 }) {
   const chartData = {
-    labels: ["Plastik", "Karton"],
+    labels: ["Plastik", "Karton", "Paper Cup"],
     datasets: [
       {
-        data: [plastik, karton],
-        backgroundColor: ["#dc2626", "#fecaca"], // Red and Light Red
+        data: [plastik, karton, paperCup],
+        backgroundColor: ["#dc2626", "#fb923c", "#3b82f6"], // Red, Orange, Blue
         borderWidth: 0,
       },
     ],
@@ -141,6 +143,7 @@ interface MonthlyData {
   label: string; // "Jan 2026"
   plastik: number; // berat kg
   karton: number;
+  paperCup: number;
 }
 
 export function LaporanBarChart({ data }: { data: MonthlyData[] }) {
@@ -157,6 +160,12 @@ export function LaporanBarChart({ data }: { data: MonthlyData[] }) {
         label: "Karton (kg)",
         data: data.map((d) => d.karton),
         backgroundColor: "rgba(251, 146, 60, 0.8)",
+        borderRadius: 6,
+      },
+      {
+        label: "Paper Cup (kg)",
+        data: data.map((d) => d.paperCup),
+        backgroundColor: "rgba(59, 130, 246, 0.8)",
         borderRadius: 6,
       },
     ],
@@ -188,18 +197,20 @@ export function LaporanBarChart({ data }: { data: MonthlyData[] }) {
 interface TypeData {
   plastik: number; // berat total kg
   karton: number;
+  paperCup: number;
 }
 
 export function LaporanDonutChart({ data }: { data: TypeData }) {
-  const total = data.plastik + data.karton;
+  const total = data.plastik + data.karton + data.paperCup;
   const chartData = {
-    labels: ["Plastik", "Karton"],
+    labels: ["Plastik", "Karton", "Paper Cup"],
     datasets: [
       {
-        data: [data.plastik, data.karton],
+        data: [data.plastik, data.karton, data.paperCup],
         backgroundColor: [
           "rgba(220, 38, 38, 0.85)",
           "rgba(251, 146, 60, 0.85)",
+          "rgba(59, 130, 246, 0.85)",
         ],
         borderWidth: 0,
       },

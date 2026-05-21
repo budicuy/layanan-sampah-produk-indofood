@@ -64,6 +64,7 @@ export default async function BankSampahDashboardPage() {
     ? await prisma.nasabah.findUnique({
         where: { userId: user.sub },
         select: {
+          id: true,
           saldo: true,
           noRek: true,
           alamat: true,
@@ -79,6 +80,14 @@ export default async function BankSampahDashboardPage() {
               status: true,
               selesaiAt: true,
               createdAt: true,
+            },
+          },
+          pencairan: {
+            orderBy: { createdAt: "desc" },
+            take: 1,
+            select: {
+              jumlah: true,
+              status: true,
             },
           },
         },
@@ -121,6 +130,12 @@ export default async function BankSampahDashboardPage() {
   const kartonKg = setoranSelesai
     .filter((s) => s.jenisSampah === "KARTON")
     .reduce((a, s) => a + (s.beratAktual ?? s.beratEstimasi), 0);
+  const paperCupKg = setoranSelesai
+    .filter((s) => s.jenisSampah === "PAPER_CUP")
+    .reduce((a, s) => a + (s.beratAktual ?? s.beratEstimasi), 0);
+
+  // Latest pencairan
+  const latestP = nasabah?.pencairan?.[0];
 
   // Stats cards
   const stats = [
@@ -151,6 +166,25 @@ export default async function BankSampahDashboardPage() {
       bg: "bg-blue-50 border-blue-100",
       iconBg: "bg-blue-100",
     },
+    {
+      icon: Wallet,
+      label: "Pencairan Terakhir",
+      value: latestP ? formatRupiah(latestP.jumlah) : "-",
+      sub: latestP
+        ? `Status: ${
+            latestP.status === "DICAIRKAN"
+              ? "Sudah Cair"
+              : latestP.status === "DIVERIFIKASI"
+                ? "Diverifikasi"
+                : latestP.status === "DIAJUKAN"
+                  ? "Diajukan"
+                  : "Ditolak"
+          }`
+        : "Belum pernah mengajukan",
+      color: "text-amber-600",
+      bg: "bg-amber-50 border-amber-100",
+      iconBg: "bg-amber-100",
+    },
   ];
 
   return (
@@ -178,7 +212,7 @@ export default async function BankSampahDashboardPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {stats.map((s) => (
           <div
             key={s.label}
@@ -188,11 +222,11 @@ export default async function BankSampahDashboardPage() {
               <s.icon size={20} className={s.color} />
             </div>
             <p
-              className={`text-2xl md:text-3xl font-heading font-bold ${s.color}`}>
+              className={`text-xl md:text-2xl font-heading font-bold ${s.color} leading-tight`}>
               {s.value}
             </p>
             <p className="text-xs text-zinc-500 font-medium mt-1">{s.label}</p>
-            <p className="text-[11px] text-zinc-400 mt-0.5">{s.sub}</p>
+            <p className="text-[10px] text-zinc-400 mt-0.5">{s.sub}</p>
           </div>
         ))}
       </div>
@@ -213,6 +247,7 @@ export default async function BankSampahDashboardPage() {
             data={{
               plastik: Math.round(plastikKg * 10) / 10,
               karton: Math.round(kartonKg * 10) / 10,
+              paperCup: Math.round(paperCupKg * 10) / 10,
             }}
           />
         </div>
@@ -243,7 +278,9 @@ export default async function BankSampahDashboardPage() {
                     className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
                       s.jenisSampah === "PLASTIK"
                         ? "bg-red-50 text-red-500"
-                        : "bg-orange-50 text-orange-500"
+                        : s.jenisSampah === "KARTON"
+                          ? "bg-orange-50 text-orange-500"
+                          : "bg-blue-50 text-blue-500"
                     }`}>
                     <Recycle size={20} />
                   </div>
@@ -251,7 +288,11 @@ export default async function BankSampahDashboardPage() {
                     <div className="flex flex-wrap items-center gap-2">
                       <p className="font-bold text-zinc-900 text-sm">
                         <Tag size={12} className="inline mr-1 text-zinc-400" />
-                        {s.jenisSampah === "PLASTIK" ? "Plastik" : "Karton"}
+                        {s.jenisSampah === "PLASTIK"
+                          ? "Plastik"
+                          : s.jenisSampah === "KARTON"
+                            ? "Karton"
+                            : "Paper Cup"}
                       </p>
                       <span
                         className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${st.cls}`}>

@@ -44,7 +44,9 @@ export async function ajukanPencairan(formData: FormData) {
   const catatan = String(formData.get("catatan") || "");
 
   if (!jumlah || jumlah < 50000 || jumlah % 50000 !== 0) {
-    throw new Error("Jumlah pencairan harus kelipatan Rp 50.000, minimal Rp 50.000");
+    throw new Error(
+      "Jumlah pencairan harus kelipatan Rp 50.000, minimal Rp 50.000",
+    );
   }
 
   const nasabah = await prisma.nasabah.findFirst({
