@@ -1,6 +1,8 @@
 "use client";
 
+import imageCompression from "browser-image-compression";
 import {
+  Camera,
   CheckCircle,
   CheckCircle2,
   Circle,
@@ -10,6 +12,8 @@ import {
   PackageCheck,
   Recycle,
   Send,
+  Trash2,
+  Upload,
   Wallet,
   XCircle,
 } from "lucide-react";
@@ -26,6 +30,39 @@ import {
 } from "./actions";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
+
+// Helper to convert File to base64
+const fileToBase64 = (
+  file: File,
+): Promise<{ base64: string; mime: string }> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => {
+      const result = reader.result as string;
+      const commaIdx = result.indexOf(",");
+      const base64 = result.substring(commaIdx + 1);
+      resolve({ base64, mime: file.type });
+    };
+    reader.onerror = (error) => reject(error);
+  });
+};
+
+// Helper to compress and convert file
+const compressAndGetBase64 = async (file: File) => {
+  const options = {
+    maxSizeMB: 0.8,
+    maxWidthOrHeight: 1200,
+    useWebWorker: true,
+  };
+  try {
+    const compressed = await imageCompression(file, options);
+    return await fileToBase64(compressed);
+  } catch (err) {
+    console.error("Compression failed, using original file:", err);
+    return await fileToBase64(file);
+  }
+};
 
 const STATUS_STEPS: {
   key: StatusSetorSampah;
@@ -186,17 +223,52 @@ function FormSetorSampah({
     alamatPenjemputan: defaultAlamat ?? "",
   });
 
+  const [scaleFile, setScaleFile] = useState<File | null>(null);
+  const [scalePreview, setScalePreview] = useState<string | null>(null);
+  const [proofFiles, setProofFiles] = useState<File[]>([]);
+  const [proofPreviews, setProofPreviews] = useState<string[]>([]);
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (!scaleFile) {
+      setError("Foto timbangan wajib diunggah.");
+      return;
+    }
+    if (proofFiles.length < 1) {
+      setError("Minimal 1 foto bukti tambahan wajib diunggah.");
+      return;
+    }
+    if (proofFiles.length > 4) {
+      setError("Maksimal 4 foto bukti tambahan diperbolehkan.");
+      return;
+    }
+
     setLoading(true);
     setError(null);
     try {
+      // 1. Compress and convert scale image
+      const scaleRes = await compressAndGetBase64(scaleFile);
+
+      // 2. Compress and convert proof images
+      const proofBase64List: string[] = [];
+      const proofMimeList: string[] = [];
+      for (const file of proofFiles) {
+        const res = await compressAndGetBase64(file);
+        proofBase64List.push(res.base64);
+        proofMimeList.push(res.mime);
+      }
+
       await submitSetorSampah({
         jenisSampah: form.jenisSampah,
         beratEstimasi: Number(form.beratEstimasi),
         keterangan: form.keterangan || undefined,
         alamatPenjemputan: form.alamatPenjemputan,
+        gambarTimbanganBase64: scaleRes.base64,
+        gambarTimbanganMime: scaleRes.mime,
+        gambarBuktiBase64List: proofBase64List,
+        gambarBuktiMimeList: proofMimeList,
       });
+
       setSuccess(true);
       setForm({
         jenisSampah: "PLASTIK",
@@ -204,6 +276,10 @@ function FormSetorSampah({
         keterangan: "",
         alamatPenjemputan: defaultAlamat ?? "",
       });
+      setScaleFile(null);
+      setScalePreview(null);
+      setProofFiles([]);
+      setProofPreviews([]);
       onSuccess();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Terjadi kesalahan");
@@ -222,12 +298,13 @@ function FormSetorSampah({
           Pengajuan Berhasil!
         </h3>
         <p className="text-green-700 text-sm">
-          Data setor sampah Anda sudah dikirim. Tunggu verifikasi dari admin.
+          Data setor sampah Anda sudah dikirim dan divalidasi. Tunggu verifikasi
+          dari admin.
         </p>
         <button
           type="button"
           onClick={() => setSuccess(false)}
-          className="mt-4 px-6 py-2.5 bg-green-600 text-white rounded-xl font-bold text-sm hover:bg-green-700 transition-colors">
+          className="mt-4 px-6 py-2.5 bg-green-600 text-white rounded-xl font-bold text-sm hover:bg-green-700 transition-colors cursor-pointer">
           Ajukan Lagi
         </button>
       </div>
@@ -237,7 +314,7 @@ function FormSetorSampah({
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
       {error && (
-        <div className="p-4 bg-red-50 border border-red-200 rounded-2xl text-red-700 text-sm">
+        <div className="p-4 bg-red-50 border border-red-200 rounded-2xl text-red-700 text-sm whitespace-pre-wrap">
           {error}
         </div>
       )}
@@ -321,22 +398,150 @@ function FormSetorSampah({
         />
       </div>
 
+      {/* Upload Gambar Timbangan (Wajib) */}
+      <div className="space-y-2">
+        <p className="block text-sm font-bold text-zinc-700">
+          Foto Timbangan (Wajib) <span className="text-red-500">*</span>
+        </p>
+        <p className="text-xs text-zinc-500 leading-relaxed">
+          Ambil foto timbangan yang menampilkan angka berat secara jelas. Foto
+          ini akan dianalisis otomatis oleh AI.
+        </p>
+
+        {scalePreview ? (
+          <div className="relative rounded-2xl overflow-hidden border border-zinc-200 aspect-video group bg-zinc-50 flex items-center justify-center">
+            {/* biome-ignore lint/performance/noImgElement: Client-side file preview */}
+            <img
+              src={scalePreview}
+              alt="Preview Timbangan"
+              className="w-full h-full object-contain"
+            />
+            <button
+              type="button"
+              onClick={() => {
+                setScaleFile(null);
+                setScalePreview(null);
+              }}
+              className="absolute top-3 right-3 bg-red-50 text-white p-2 rounded-xl hover:bg-red-650 transition-colors shadow-md cursor-pointer">
+              <Trash2 size={16} />
+            </button>
+          </div>
+        ) : (
+          <label className="flex flex-col items-center justify-center border-2 border-dashed border-zinc-200 hover:border-primary/50 rounded-2xl p-6 bg-zinc-50 hover:bg-zinc-100/50 cursor-pointer transition-colors text-center group">
+            <Camera className="w-8 h-8 text-zinc-400 group-hover:text-primary transition-colors mb-2" />
+            <span className="text-xs font-bold text-zinc-700">
+              Pilih Foto Timbangan
+            </span>
+            <span className="text-[10px] text-zinc-400 mt-1">
+              Format JPG, PNG (Maks 10MB)
+            </span>
+            <input
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) {
+                  setScaleFile(file);
+                  setScalePreview(URL.createObjectURL(file));
+                }
+              }}
+            />
+          </label>
+        )}
+      </div>
+
+      {/* Upload Foto Bukti Tambahan (Wajib: 1 - 4 Foto) */}
+      <div className="space-y-2">
+        <p className="block text-sm font-bold text-zinc-700">
+          Foto Bukti Sampah Tambahan <span className="text-red-500">*</span>
+        </p>
+        <p className="text-xs text-zinc-500 leading-relaxed">
+          Unggah foto sampah Anda dari sudut lain sebagai bukti fisik tambahan
+          (unggah 1 sampai 4 foto).
+        </p>
+
+        {/* Thumbnail Preview Grid */}
+        {proofPreviews.length > 0 && (
+          <div className="grid grid-cols-4 gap-2">
+            {proofPreviews.map((src, index) => (
+              <div
+                key={src}
+                className="relative aspect-square rounded-xl overflow-hidden border border-zinc-200 bg-zinc-50 group">
+                {/* biome-ignore lint/performance/noImgElement: Client-side file preview */}
+                <img
+                  src={src}
+                  alt={`Preview Bukti ${index + 1}`}
+                  className="w-full h-full object-cover"
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    const updatedFiles = [...proofFiles];
+                    const updatedPreviews = [...proofPreviews];
+                    updatedFiles.splice(index, 1);
+                    updatedPreviews.splice(index, 1);
+                    setProofFiles(updatedFiles);
+                    setProofPreviews(updatedPreviews);
+                  }}
+                  className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-lg hover:bg-red-650 transition-colors shadow-xs cursor-pointer">
+                  <Trash2 size={12} />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {proofFiles.length < 4 && (
+          <label className="flex flex-col items-center justify-center border-2 border-dashed border-zinc-200 hover:border-primary/50 rounded-2xl p-4 bg-zinc-50 hover:bg-zinc-100/50 cursor-pointer transition-colors text-center group">
+            <Upload className="w-6 h-6 text-zinc-400 group-hover:text-primary transition-colors mb-1.5" />
+            <span className="text-xs font-bold text-zinc-700">
+              Tambah Foto Bukti
+            </span>
+            <span className="text-[9px] text-zinc-400 mt-0.5">
+              Minimal 1 gambar, maksimal 4 gambar ({proofFiles.length}/4)
+            </span>
+            <input
+              type="file"
+              accept="image/*"
+              className="hidden"
+              multiple
+              onChange={(e) => {
+                const files = Array.from(e.target.files || []);
+                const remainingSlots = 4 - proofFiles.length;
+                const filesToAdd = files.slice(0, remainingSlots);
+
+                if (filesToAdd.length > 0) {
+                  const updatedFiles = [...proofFiles, ...filesToAdd];
+                  const updatedPreviews = [
+                    ...proofPreviews,
+                    ...filesToAdd.map((f) => URL.createObjectURL(f)),
+                  ];
+                  setProofFiles(updatedFiles);
+                  setProofPreviews(updatedPreviews);
+                }
+              }}
+            />
+          </label>
+        )}
+      </div>
+
       <button
         type="submit"
         disabled={loading}
-        className="w-full flex items-center justify-center gap-2 py-4 bg-primary text-white rounded-2xl font-bold text-sm hover:bg-primary/90 disabled:opacity-60 disabled:cursor-not-allowed transition-all active:scale-95">
+        className="w-full flex items-center justify-center gap-2 py-4 bg-primary text-white rounded-2xl font-bold text-sm hover:bg-primary/90 disabled:opacity-60 disabled:cursor-not-allowed transition-all active:scale-95 cursor-pointer">
         {loading ? (
           <Loader2 size={16} className="animate-spin" />
         ) : (
-          <Send size={16} />
+          <Recycle size={16} />
         )}
-        {loading ? "Mengirim..." : "Ajukan Setor Sampah"}
+        {loading
+          ? "Memproses & Menganalisis dengan AI..."
+          : "Daftarkan Setoran"}
       </button>
     </form>
   );
 }
-
-// ─── FormSetorLangsung ───────────────────────────────────────────────────────
 
 function FormSetorLangsung({
   onBack,
@@ -358,18 +563,57 @@ function FormSetorLangsung({
     keterangan: "",
   });
 
+  const [scaleFile, setScaleFile] = useState<File | null>(null);
+  const [scalePreview, setScalePreview] = useState<string | null>(null);
+  const [proofFiles, setProofFiles] = useState<File[]>([]);
+  const [proofPreviews, setProofPreviews] = useState<string[]>([]);
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (!scaleFile) {
+      setError("Foto timbangan wajib diunggah.");
+      return;
+    }
+    if (proofFiles.length < 1) {
+      setError("Minimal 1 foto bukti tambahan wajib diunggah.");
+      return;
+    }
+    if (proofFiles.length > 4) {
+      setError("Maksimal 4 foto bukti tambahan diperbolehkan.");
+      return;
+    }
+
     setLoading(true);
     setError(null);
     try {
+      // 1. Compress and convert scale image
+      const scaleRes = await compressAndGetBase64(scaleFile);
+
+      // 2. Compress and convert proof images
+      const proofBase64List: string[] = [];
+      const proofMimeList: string[] = [];
+      for (const file of proofFiles) {
+        const res = await compressAndGetBase64(file);
+        proofBase64List.push(res.base64);
+        proofMimeList.push(res.mime);
+      }
+
       await submitSetorLangsung({
         jenisSampah: form.jenisSampah,
         beratEstimasi: Number(form.beratEstimasi),
         keterangan: form.keterangan || undefined,
+        gambarTimbanganBase64: scaleRes.base64,
+        gambarTimbanganMime: scaleRes.mime,
+        gambarBuktiBase64List: proofBase64List,
+        gambarBuktiMimeList: proofMimeList,
       });
+
       setSuccess(true);
       setForm({ jenisSampah: "PLASTIK", beratEstimasi: "", keterangan: "" });
+      setScaleFile(null);
+      setScalePreview(null);
+      setProofFiles([]);
+      setProofPreviews([]);
       onSuccess();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Terjadi kesalahan");
@@ -385,7 +629,7 @@ function FormSetorLangsung({
         <button
           type="button"
           onClick={onBack}
-          className="text-[10px] font-bold text-zinc-400 hover:text-zinc-700 transition-colors flex items-center gap-1.5 group mb-3 px-2 py-1 rounded-lg hover:bg-zinc-100 w-fit">
+          className="text-[10px] font-bold text-zinc-400 hover:text-zinc-700 transition-colors flex items-center gap-1.5 group mb-3 px-2 py-1 rounded-lg hover:bg-zinc-100 w-fit cursor-pointer">
           <span className="group-hover:-translate-x-0.5 transition-transform">
             ←
           </span>{" "}
@@ -393,7 +637,7 @@ function FormSetorLangsung({
         </button>
         <h1 className="text-xl font-heading font-black text-zinc-900 tracking-tight">
           Setor{" "}
-          <span className="text-zinc-600 font-bold">Langsung ke Pusat</span>
+          <span className="text-zinc-650 font-bold">Langsung ke Pusat</span>
         </h1>
         <p className="text-zinc-500 mt-0.5 text-xs">
           Input data sampah yang akan Anda bawa langsung ke pusat SICUAN.
@@ -448,7 +692,7 @@ function FormSetorLangsung({
                 },
               ].map((s) => (
                 <div key={s.n} className="flex gap-2.5 items-start">
-                  <div className="w-5.5 h-5.5 rounded-full bg-zinc-200 text-zinc-600 flex items-center justify-center font-bold text-[9px] shrink-0">
+                  <div className="w-5.5 h-5.5 rounded-full bg-zinc-200 text-zinc-650 flex items-center justify-center font-bold text-[9px] shrink-0">
                     {s.n}
                   </div>
                   <div>
@@ -481,20 +725,20 @@ function FormSetorLangsung({
                 Berhasil Diajukan!
               </h3>
               <p className="text-green-700 text-xs leading-relaxed">
-                Data Anda sudah tercatat. Segera bawa sampah Anda ke pusat Bank
-                Sampah.
+                Data Anda sudah tercatat dan divalidasi. Segera bawa sampah Anda
+                ke pusat Bank Sampah.
               </p>
               <div className="flex gap-2 mt-2">
                 <button
                   type="button"
                   onClick={() => setSuccess(false)}
-                  className="flex-1 px-3 py-2 border border-green-200 text-green-700 rounded-xl font-bold text-[10px] hover:bg-green-100 transition-colors">
+                  className="flex-1 px-3 py-2 border border-green-200 text-green-700 rounded-xl font-bold text-[10px] hover:bg-green-100 transition-colors cursor-pointer">
                   Ajukan Lagi
                 </button>
                 <button
                   type="button"
                   onClick={onBack}
-                  className="flex-1 px-3 py-2 bg-green-600 text-white rounded-xl font-bold text-[10px] hover:bg-green-700 transition-colors">
+                  className="flex-1 px-3 py-2 bg-green-600 text-white rounded-xl font-bold text-[10px] hover:bg-green-700 transition-colors cursor-pointer">
                   Kembali ke Menu
                 </button>
               </div>
@@ -502,7 +746,7 @@ function FormSetorLangsung({
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
               {error && (
-                <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-red-700 text-xs">
+                <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-red-700 text-xs whitespace-pre-wrap">
                   {error}
                 </div>
               )}
@@ -586,16 +830,148 @@ function FormSetorLangsung({
                 />
               </div>
 
+              {/* Upload Gambar Timbangan (Wajib) */}
+              <div className="space-y-2">
+                <p className="block text-xs font-bold text-zinc-700">
+                  Foto Timbangan (Wajib) <span className="text-red-500">*</span>
+                </p>
+                <p className="text-[10px] text-zinc-500 leading-relaxed">
+                  Ambil foto timbangan yang menampilkan angka berat secara
+                  jelas. Foto ini akan dianalisis otomatis oleh AI.
+                </p>
+
+                {scalePreview ? (
+                  <div className="relative rounded-2xl overflow-hidden border border-zinc-200 aspect-video group bg-zinc-50 flex items-center justify-center">
+                    {/* biome-ignore lint/performance/noImgElement: Client-side file preview */}
+                    <img
+                      src={scalePreview}
+                      alt="Preview Timbangan"
+                      className="w-full h-full object-contain"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setScaleFile(null);
+                        setScalePreview(null);
+                      }}
+                      className="absolute top-3 right-3 bg-red-500 text-white p-2 rounded-xl hover:bg-red-650 transition-colors shadow-md cursor-pointer">
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
+                ) : (
+                  <label className="flex flex-col items-center justify-center border-2 border-dashed border-zinc-200 hover:border-primary/50 rounded-2xl p-6 bg-zinc-50 hover:bg-zinc-100/50 cursor-pointer transition-colors text-center group">
+                    <Camera className="w-8 h-8 text-zinc-400 group-hover:text-primary transition-colors mb-2" />
+                    <span className="text-xs font-bold text-zinc-700">
+                      Pilih Foto Timbangan
+                    </span>
+                    <span className="text-[10px] text-zinc-400 mt-1">
+                      Format JPG, PNG (Maks 10MB)
+                    </span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          setScaleFile(file);
+                          setScalePreview(URL.createObjectURL(file));
+                        }
+                      }}
+                    />
+                  </label>
+                )}
+              </div>
+
+              {/* Upload Foto Bukti Tambahan (Wajib: 1 - 4 Foto) */}
+              <div className="space-y-2">
+                <p className="block text-xs font-bold text-zinc-700">
+                  Foto Bukti Sampah Tambahan{" "}
+                  <span className="text-red-500">*</span>
+                </p>
+                <p className="text-[10px] text-zinc-500 leading-relaxed">
+                  Unggah foto sampah Anda dari sudut lain sebagai bukti fisik
+                  tambahan (unggah 1 sampai 4 foto).
+                </p>
+
+                {/* Thumbnail Preview Grid */}
+                {proofPreviews.length > 0 && (
+                  <div className="grid grid-cols-4 gap-2">
+                    {proofPreviews.map((src, index) => (
+                      <div
+                        key={src}
+                        className="relative aspect-square rounded-xl overflow-hidden border border-zinc-200 bg-zinc-50 group">
+                        {/* biome-ignore lint/performance/noImgElement: Client-side file preview */}
+                        <img
+                          src={src}
+                          alt={`Preview Bukti ${index + 1}`}
+                          className="w-full h-full object-cover"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const updatedFiles = [...proofFiles];
+                            const updatedPreviews = [...proofPreviews];
+                            updatedFiles.splice(index, 1);
+                            updatedPreviews.splice(index, 1);
+                            setProofFiles(updatedFiles);
+                            setProofPreviews(updatedPreviews);
+                          }}
+                          className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-lg hover:bg-red-650 transition-colors shadow-xs cursor-pointer">
+                          <Trash2 size={12} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {proofFiles.length < 4 && (
+                  <label className="flex flex-col items-center justify-center border-2 border-dashed border-zinc-200 hover:border-primary/50 rounded-2xl p-4 bg-zinc-50 hover:bg-zinc-100/50 cursor-pointer transition-colors text-center group">
+                    <Upload className="w-6 h-6 text-zinc-400 group-hover:text-primary transition-colors mb-1.5" />
+                    <span className="text-xs font-bold text-zinc-700">
+                      Tambah Foto Bukti
+                    </span>
+                    <span className="text-[9px] text-zinc-400 mt-0.5">
+                      Minimal 1 gambar, maksimal 4 gambar ({proofFiles.length}
+                      /4)
+                    </span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      multiple
+                      onChange={(e) => {
+                        const files = Array.from(e.target.files || []);
+                        const remainingSlots = 4 - proofFiles.length;
+                        const filesToAdd = files.slice(0, remainingSlots);
+
+                        if (filesToAdd.length > 0) {
+                          const updatedFiles = [...proofFiles, ...filesToAdd];
+                          const updatedPreviews = [
+                            ...proofPreviews,
+                            ...filesToAdd.map((f) => URL.createObjectURL(f)),
+                          ];
+                          setProofFiles(updatedFiles);
+                          setProofPreviews(updatedPreviews);
+                        }
+                      }}
+                    />
+                  </label>
+                )}
+              </div>
+
               <button
                 type="submit"
                 disabled={loading || !nasabah}
-                className="w-full flex items-center justify-center gap-1.5 py-3 bg-zinc-950 text-white rounded-xl font-bold text-xs hover:bg-zinc-800 disabled:opacity-60 disabled:cursor-not-allowed transition-all active:scale-95">
+                className="w-full flex items-center justify-center gap-1.5 py-3.5 bg-zinc-950 text-white rounded-xl font-bold text-xs hover:bg-zinc-800 disabled:opacity-60 disabled:cursor-not-allowed transition-all active:scale-95 cursor-pointer">
                 {loading ? (
                   <Loader2 size={14} className="animate-spin" />
                 ) : (
                   <Recycle size={14} />
                 )}
-                {loading ? "Mengirim..." : "Daftarkan Setoran"}
+                {loading
+                  ? "Memproses & Menganalisis dengan AI..."
+                  : "Daftarkan Setoran"}
               </button>
             </form>
           )}
@@ -718,6 +1094,7 @@ type SetorSampah = {
   keterangan: string | null;
   status: StatusSetorSampah;
   catatanAdmin: string | null;
+  verifiedBy: string | null;
   ekpedisi: Ekpedisi | null;
   totalPoin: number | null;
   createdAt: Date;
@@ -1102,6 +1479,18 @@ export default function SetorSampahPage() {
                       <p className="text-red-700 text-[10px] leading-relaxed">
                         <strong>Alasan:</strong> {item.catatanAdmin}
                       </p>
+                    </div>
+                  )}
+
+                  {/* Verified by admin */}
+                  {item.verifiedBy && !isDitolak && (
+                    <div className="flex items-center justify-between gap-2 p-2.5 bg-emerald-50 border border-emerald-100 rounded-lg">
+                      <span className="text-emerald-600 text-[10px] font-semibold">
+                        ✅ Diverifikasi oleh
+                      </span>
+                      <span className="text-emerald-800 text-[10px] font-bold">
+                        {item.verifiedBy}
+                      </span>
                     </div>
                   )}
 

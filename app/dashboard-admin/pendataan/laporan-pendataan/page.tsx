@@ -19,6 +19,7 @@ import {
   Wallet,
   X,
 } from "lucide-react";
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import {
   LaporanBarChart,
@@ -1056,10 +1057,12 @@ export default function LaporanPage() {
               <X size={18} />
             </button>
             <div className="relative aspect-video w-full bg-zinc-900 flex items-center justify-center">
-              <img
+              <Image
                 src={selectedPhoto}
                 alt="Bukti Transfer"
-                className="max-h-full object-contain max-w-full"
+                fill
+                className="object-contain"
+                unoptimized
               />
             </div>
             <div className="p-5 border-t border-zinc-100 flex items-center justify-between bg-zinc-50">

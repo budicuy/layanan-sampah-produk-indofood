@@ -1,6 +1,12 @@
 "use client";
 
-import { LayoutDashboard, LogOut, Recycle, Ticket } from "lucide-react";
+import {
+  History,
+  LayoutDashboard,
+  LogOut,
+  Recycle,
+  Ticket,
+} from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useTransition } from "react";
@@ -26,6 +32,11 @@ export default function BottomNav() {
       icon: Ticket,
       label: "Tukar Kupon",
       href: "/dashboard-konsumen/tukar-kupon",
+    },
+    {
+      icon: History,
+      label: "Riwayat",
+      href: "/dashboard-konsumen/riwayat",
     },
   ];
 

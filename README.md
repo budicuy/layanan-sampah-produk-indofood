@@ -20,6 +20,10 @@ Platform digital pengelolaan sampah modern berbasis web, dibangun untuk membantu
 8. **Dukungan Progressive Web App (PWA) & Mobile Installation Gate**:
    - Mendukung instalasi aplikasi secara native di ponsel Android/iOS melalui file `manifest.ts` dan caching Service Worker (`sw.js`).
    - Dilengkapi dengan fitur **PwaGate**: Ketika pengguna mengakses platform dari browser perangkat mobile, antarmuka akan terkunci oleh layar instruksi premium yang meminta mereka menginstal PWA terlebih dahulu sebelum dapat mengakses dashboard.
+9. **Verifikasi Timbangan Cerdas dengan AI (Gemini)**:
+   - Konsumen mengunggah foto display timbangan yang dianalisis secara otomatis oleh AI Gemini (mendukung sistem fallback berantai Model 1 $\rightarrow$ Model 2 $\rightarrow$ Model 3 jika terjadi error API).
+   - Melakukan parsing otomatis angka timbangan & konversi satuan (gram ke kg), membandingkannya dengan estimasi berat user. Jika selisih $\le$ 0.5 kg, status validasi otomatis `"VALID"`, jika tidak status menjadi `"PERLU_REVIEW"`.
+   - Admin dapat meninjau detail foto timbangan utama dan foto-foto bukti tambahan (1-4 foto wajib pendukung) melalui modal galeri interaktif.
 
 ## Requirements
 
@@ -210,3 +214,13 @@ bun run db:seed
 bun run lint
 bun run format
 ```
+
+## 🛠️ Riwayat Perubahan Terbaru
+
+- **Perbaikan Batch Verifikasi (Setor Sampah)**: Memperbaiki masalah tombol konfirmasi verifikasi ter-disable saat memilih/menandai beberapa item sekaligus. Masalah ini diselesaikan dengan mengganti hook `useEffect` pengontrol modal dengan handler fungsi eksplisit `openBatchModal` dan `closeBatchModal` untuk inisialisasi state, menghindari efek samping re-render yang mereset status penandaan item.
+
+- **Field `verifiedBy` pada SetorSampah**: Menambahkan kolom `verifiedBy` (TEXT) ke tabel `setor_sampah` di database. Nama admin yang memverifikasi kini disimpan terpisah dari catatan opsional (`catatanAdmin`). Dashboard konsumen (halaman Riwayat dan Setor Sampah) menampilkan info "Diverifikasi oleh: [nama admin]" secara eksplisit. Field `catatanAdmin` kini murni untuk catatan opsional admin saja.
+
+- **Perbaikan Parsing JSON Gemini (lib/gemini.ts)**: Model-model Gemma (gemma-4-31b-it, gemma-4-26b-a4b-it) mengabaikan `responseMimeType: "application/json"` dan mengembalikan teks reasoning sebelum JSON. Ditambahkan fungsi `extractJson()` yang mencari JSON object pertama secara robust di dalam teks response menggunakan dua strategi: (1) ekstrak dari markdown code fence, (2) parsing karakter per karakter untuk menemukan `{...}` yang seimbang. Model 1 & 2 sekarang berhasil di-parse meskipun ada teks reasoning.
+
+

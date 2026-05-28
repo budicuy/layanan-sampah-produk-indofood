@@ -40,7 +40,7 @@ async function main() {
       const map = isBS ? saldoSumMap : poinSumMap;
       map.set(
         s.username,
-        (map.get(s.username) || 0) + s.totalPoin * (isBS ? 1000 : 1),
+        (map.get(s.username) || 0) + (s.totalPoin || 0) * (isBS ? 1000 : 1),
       );
     }
   }
@@ -123,36 +123,41 @@ async function main() {
       nasabahId: nasabah.nasabahId,
       jenisSampah: item.jenisSampah as JenisSampah,
       beratEstimasi: item.beratEstimasi,
-      beratAktual: item.beratAktual,
+      beratAktual: item.beratAktual ?? null,
       alamatPenjemputan: nasabah.alamat,
+      jenisSetor: (item as { jenisSetor?: string }).jenisSetor || "EKSPEDISI",
       status: item.status,
-      poinPerKg: isBS ? null : item.poinPerKg,
-      totalPoin: isBS ? null : item.totalPoin,
-      hargaPerKg: isBS ? item.poinPerKg * 1000 : null,
-      totalHarga: isBS ? item.totalPoin * 1000 : null,
-      selesaiAt: new Date(item.selesaiAt),
-      verifikasiAt: new Date(item.verifikasiAt),
-      penjemputanAt: new Date(item.penjemputanAt),
-      diserahkanAt: new Date(item.diserahkanAt),
+      poinPerKg: isBS ? null : (item.poinPerKg ?? null),
+      totalPoin: isBS ? null : (item.totalPoin ?? null),
+      hargaPerKg: isBS ? (item.poinPerKg ?? 0) * 1000 : null,
+      totalHarga: isBS ? (item.totalPoin ?? 0) * 1000 : null,
+      selesaiAt: item.selesaiAt ? new Date(item.selesaiAt) : null,
+      verifikasiAt: item.verifikasiAt ? new Date(item.verifikasiAt) : null,
+      penjemputanAt: item.penjemputanAt ? new Date(item.penjemputanAt) : null,
+      diserahkanAt: item.diserahkanAt ? new Date(item.diserahkanAt) : null,
     };
   });
 
-  await prisma.setorSampah.createMany({ data: setoranData });
+  await prisma.setorSampah.createMany({ data: setoranData as never });
 
-  const mutasiData = setoranData.map((s) => {
-    const isBS = s.hargaPerKg !== null;
-    const jumlah = isBS ? (s.totalHarga ?? 0) : (s.totalPoin ?? 0);
-    return {
-      nasabahId: s.nasabahId,
-      jumlah,
-      keterangan: `Setor sampah ${s.jenisSampah} ${s.beratAktual} kg (${
-        isBS ? `Rp ${jumlah.toLocaleString("id-ID")}` : `${jumlah} poin`
-      })`,
-      referensiId: s.id,
-    };
-  });
+  const mutasiData = setoranData
+    .filter((s) => s.status === "SELESAI")
+    .map((s) => {
+      const isBS = s.hargaPerKg !== null;
+      const jumlah = isBS ? (s.totalHarga ?? 0) : (s.totalPoin ?? 0);
+      return {
+        nasabahId: s.nasabahId,
+        jumlah,
+        keterangan: `Setor sampah ${s.jenisSampah} ${s.beratAktual} kg (${
+          isBS ? `Rp ${jumlah.toLocaleString("id-ID")}` : `${jumlah} poin`
+        })`,
+        referensiId: s.id,
+      };
+    });
 
-  await prisma.mutasiSaldo.createMany({ data: mutasiData });
+  if (mutasiData.length > 0) {
+    await prisma.mutasiSaldo.createMany({ data: mutasiData });
+  }
   console.log("✨ Seeding completed successfully!");
 }
 

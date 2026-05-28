@@ -1357,6 +1357,7 @@ export const SetorSampahScalarFieldEnum = {
   jenisSetor: 'jenisSetor',
   status: 'status',
   catatanAdmin: 'catatanAdmin',
+  verifiedBy: 'verifiedBy',
   verifikasiAt: 'verifikasiAt',
   ekpedisiId: 'ekpedisiId',
   penjemputanAt: 'penjemputanAt',
@@ -1366,6 +1367,10 @@ export const SetorSampahScalarFieldEnum = {
   hargaPerKg: 'hargaPerKg',
   totalHarga: 'totalHarga',
   selesaiAt: 'selesaiAt',
+  gambarTimbangan: 'gambarTimbangan',
+  gambarBukti: 'gambarBukti',
+  statusValidasi: 'statusValidasi',
+  beratTerbaca: 'beratTerbaca',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

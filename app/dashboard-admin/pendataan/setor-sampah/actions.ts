@@ -22,11 +22,14 @@ export async function verifikasiSetorSampah(
   if (!session || session.user.role === "KONSUMEN")
     throw new Error("Unauthorized");
 
+  const adminName = session.user.name || session.user.username || "Admin";
+
   await prisma.setorSampah.update({
     where: { id: setorSampahId },
     data: {
       status: approve ? "TERVERIFIKASI" : "DITOLAK",
-      catatanAdmin: catatan,
+      catatanAdmin: catatan ?? null,
+      verifiedBy: adminName,
       verifikasiAt: new Date(),
     },
   });
@@ -41,6 +44,7 @@ export async function verifikasiSetorLangsungDanKreditSaldo(
   beratAktual: number,
   poinPerKg: number,
   catatan?: string,
+  isAutoFill?: boolean,
 ) {
   const session = await getSession();
   if (!session || session.user.role === "KONSUMEN")
@@ -58,11 +62,21 @@ export async function verifikasiSetorLangsungDanKreditSaldo(
   const isBankSampah = setor.nasabah.user.role === "BANK_SAMPAH";
   const totalValue = Math.round(beratAktual * poinPerKg);
   const now = new Date();
+  const adminName = session.user.name || session.user.username || "Admin";
+
+  // Tentukan label verifikasi
+  const isAiValid = setor.statusValidasi === "VALID";
+  const verifiedByLabel = isAiValid
+    ? "Sistem (AI)"
+    : isAutoFill
+      ? `Otomatis oleh ${adminName}`
+      : `Manual oleh ${adminName}`;
 
   const setorUpdateData = {
     status: "SELESAI" as const,
     beratAktual,
-    catatanAdmin: catatan,
+    catatanAdmin: catatan ?? null,
+    verifiedBy: verifiedByLabel,
     verifikasiAt: now,
     selesaiAt: now,
     hargaPerKg: isBankSampah ? poinPerKg : undefined,
@@ -152,13 +166,14 @@ export async function konfirmasiSampahDiterima(setorSampahId: string) {
   revalidatePath("/dashboard-admin/pendataan/setor-sampah");
 }
 
-// ─── Verifikasi akhir & kreditkan saldo ───────────────────────────────────
+// ─── Verifikasi akhir & kreditkan saldo ─────────────────────────────
 
 export async function verifikasiAkhirDanKreditSaldo(
   setorSampahId: string,
   beratAktual: number,
   poinPerKg: number,
   catatan?: string,
+  isAutoFill?: boolean,
 ) {
   const session = await getSession();
   if (!session || session.user.role === "KONSUMEN")
@@ -174,6 +189,15 @@ export async function verifikasiAkhirDanKreditSaldo(
   }
 
   const totalPoin = Math.round(beratAktual * poinPerKg);
+  const adminName = session.user.name || session.user.username || "Admin";
+
+  // Tentukan label verifikasi
+  const isAiValid = setor.statusValidasi === "VALID";
+  const verifiedByLabel = isAiValid
+    ? "Sistem (AI)"
+    : isAutoFill
+      ? `Otomatis oleh ${adminName}`
+      : `Manual oleh ${adminName}`;
 
   await prisma.$transaction([
     prisma.setorSampah.update({
@@ -184,6 +208,7 @@ export async function verifikasiAkhirDanKreditSaldo(
         poinPerKg,
         totalPoin,
         catatanAdmin: catatan ?? null,
+        verifiedBy: verifiedByLabel,
         selesaiAt: new Date(),
       },
     }),
@@ -242,4 +267,109 @@ export async function getHargaTerbaru(jenisSampah: string) {
     orderBy: { bulan: "desc" },
     select: { harga: true, point: true, bulan: true },
   });
+}
+
+export async function batchVerifikasiSetor(ids: string[]) {
+  const session = await getSession();
+  if (!session || session.user.role === "KONSUMEN") {
+    throw new Error("Unauthorized");
+  }
+
+  const adminName = session.user.name || session.user.username || "Admin";
+
+  const setoranList = await prisma.setorSampah.findMany({
+    where: {
+      id: { in: ids },
+      status: "MENUNGGU_VERIFIKASI",
+    },
+    include: {
+      nasabah: {
+        include: { user: true },
+      },
+    },
+  });
+
+  const now = new Date();
+
+  await prisma.$transaction(async (tx) => {
+    for (const setor of setoranList) {
+      if (setor.jenisSetor === "LANGSUNG") {
+        const hargaDB = await tx.hargaSampah.findFirst({
+          where: { jenisSampah: setor.jenisSampah },
+          orderBy: { bulan: "desc" },
+        });
+
+        const isBankSampah = setor.nasabah.user.role === "BANK_SAMPAH";
+        const ratePerKg = hargaDB
+          ? isBankSampah
+            ? hargaDB.harga
+            : hargaDB.point
+          : 0;
+        const beratAktual = setor.beratTerbaca ?? setor.beratEstimasi;
+        const totalValue = Math.round(beratAktual * ratePerKg);
+
+        // Cek apakah AI sudah memvalidasi berat
+        const isAiValid = setor.statusValidasi === "VALID";
+        const batchVerifiedBy = isAiValid
+          ? "Sistem (AI)"
+          : `Otomatis oleh ${adminName}`;
+
+        const setorUpdateData = {
+          status: "SELESAI" as const,
+          beratAktual,
+          catatanAdmin: null,
+          verifiedBy: batchVerifiedBy,
+          verifikasiAt: now,
+          selesaiAt: now,
+          hargaPerKg: isBankSampah ? ratePerKg : undefined,
+          totalHarga: isBankSampah ? totalValue : undefined,
+          poinPerKg: isBankSampah ? undefined : ratePerKg,
+          totalPoin: isBankSampah ? undefined : totalValue,
+        };
+
+        const nasabahUpdateData = isBankSampah
+          ? { saldo: { increment: totalValue } }
+          : { poin: { increment: totalValue } };
+
+        await tx.setorSampah.update({
+          where: { id: setor.id },
+          data: setorUpdateData,
+        });
+
+        await tx.nasabah.update({
+          where: { id: setor.nasabahId },
+          data: nasabahUpdateData,
+        });
+
+        await tx.mutasiSaldo.create({
+          data: {
+            nasabahId: setor.nasabahId,
+            jumlah: totalValue,
+            keterangan: isBankSampah
+              ? `Setor langsung (Cash) ${setor.jenisSampah} ${beratAktual} kg (Batch)`
+              : `Setor langsung ${setor.jenisSampah} ${beratAktual} kg (Batch)`,
+            referensiId: setor.id,
+          },
+        });
+      } else {
+        // Ekspedisi batch: tetap tentukan berdasarkan AI
+        const isAiValid = setor.statusValidasi === "VALID";
+        const batchVerifiedBy = isAiValid
+          ? "Sistem (AI)"
+          : `Otomatis oleh ${adminName}`;
+
+        await tx.setorSampah.update({
+          where: { id: setor.id },
+          data: {
+            status: "TERVERIFIKASI",
+            catatanAdmin: null,
+            verifiedBy: batchVerifiedBy,
+            verifikasiAt: now,
+          },
+        });
+      }
+    }
+  });
+
+  revalidatePath("/dashboard-admin/pendataan/setor-sampah");
 }

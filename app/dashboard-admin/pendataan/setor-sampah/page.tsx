@@ -4,7 +4,10 @@ import {
   AlertTriangle,
   CheckCircle,
   CheckCircle2,
+  ChevronDown,
+  ChevronUp,
   Clock,
+  Eye,
   Loader2,
   MapPin,
   PackageCheck,
@@ -19,9 +22,12 @@ import {
   Wallet,
   XCircle,
 } from "lucide-react";
+import Image from "next/image";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import toast from "react-hot-toast";
 import type { StatusSetorSampah } from "@/prisma/generated/prisma/client";
 import {
+  batchVerifikasiSetor,
   getEkpedisiList,
   getHargaTerbaru,
   getSetorSampahData,
@@ -55,6 +61,10 @@ interface SetorSampahItem {
   totalPoin: number | null;
   totalHarga: number | null;
   createdAt: Date;
+  gambarTimbangan: string | null;
+  gambarBukti: string[];
+  statusValidasi: string | null;
+  beratTerbaca: number | null;
   nasabah: {
     id: string;
     noTelp: string;
@@ -782,6 +792,15 @@ function SetorCard({
   ekpedisiList: Ekpedisi[];
   onActionSuccess: () => void;
 }) {
+  const [showModal, setShowModal] = useState(false);
+  const [activeImageUrl, setActiveImageUrl] = useState("");
+
+  useEffect(() => {
+    if (showModal && item.gambarTimbangan) {
+      setActiveImageUrl(item.gambarTimbangan);
+    }
+  }, [showModal, item.gambarTimbangan]);
+
   const cfg = STATUS_CFG[item.status] ?? {
     label: item.status,
     cls: "bg-zinc-100 text-zinc-600 border-zinc-200",
@@ -875,6 +894,241 @@ function SetorCard({
             />
           )}
         </div>
+
+        {item.gambarTimbangan && (
+          <div className="bg-zinc-50 border border-zinc-200 rounded-xl p-3.5 space-y-2.5">
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">
+                Verifikasi Gambar AI
+              </span>
+              {item.statusValidasi === "VALID" ? (
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-green-100 text-green-700">
+                  <CheckCircle2 size={10} /> Valid
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-700 animate-pulse">
+                  <AlertTriangle size={10} /> Perlu Review
+                </span>
+              )}
+            </div>
+            {item.beratTerbaca !== null && (
+              <div className="text-xs text-zinc-650">
+                <p>
+                  Berat Terbaca AI:{" "}
+                  <strong className="text-zinc-900">
+                    {item.beratTerbaca} kg
+                  </strong>
+                </p>
+                <p className="text-[10px] text-zinc-400 mt-0.5">
+                  Estimasi Konsumen: {item.beratEstimasi} kg (Selisih:{" "}
+                  {Math.abs(item.beratTerbaca - item.beratEstimasi).toFixed(2)}{" "}
+                  kg)
+                </p>
+              </div>
+            )}
+            <button
+              type="button"
+              onClick={() => setShowModal(true)}
+              className="w-full flex items-center justify-center gap-1.5 py-2 px-3 bg-white border border-zinc-200 hover:bg-zinc-50 hover:border-zinc-300 text-zinc-700 rounded-xl text-xs font-bold transition-all active:scale-[0.98] cursor-pointer">
+              <Eye size={13} />
+              Lihat Gambar Timbangan
+            </button>
+          </div>
+        )}
+
+        {showModal && (
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-100 flex items-center justify-center p-4 animate-in fade-in duration-200">
+            <div className="bg-white rounded-3xl border border-zinc-100 w-full max-w-2xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
+              {/* Modal Header */}
+              <div className="p-5 border-b border-zinc-150 flex items-center justify-between">
+                <div>
+                  <h3 className="font-heading font-black text-zinc-900 text-base">
+                    Bukti Timbangan & Foto Sampah
+                  </h3>
+                  <p className="text-zinc-500 text-[11px] mt-0.5">
+                    Detail foto timbangan yang dianalisis oleh AI beserta bukti
+                    tambahan dari konsumen.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowModal(false)}
+                  className="p-1.5 hover:bg-zinc-100 text-zinc-450 hover:text-zinc-700 rounded-lg transition-colors cursor-pointer">
+                  <XCircle size={20} />
+                </button>
+              </div>
+
+              {/* Modal Content */}
+              <div className="p-5 overflow-y-auto space-y-5 flex-1">
+                {/* AI Validation Stats */}
+                <div className="grid grid-cols-2 gap-3 bg-zinc-50 border border-zinc-200 rounded-2xl p-4 text-xs">
+                  <div>
+                    <span className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider block">
+                      Status Validasi AI
+                    </span>
+                    <div className="mt-1">
+                      {item.statusValidasi === "VALID" ? (
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-green-100 text-green-700">
+                          ✓ Cocok (VALID)
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-700">
+                          ⚠ Perlu Review Manual
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider block">
+                      Selisih Berat
+                    </span>
+                    <p className="font-bold text-zinc-800 mt-1">
+                      {item.beratTerbaca !== null
+                        ? `${Math.abs(item.beratTerbaca - item.beratEstimasi).toFixed(2)} kg`
+                        : "N/A (AI Gagal Membaca)"}
+                    </p>
+                  </div>
+                  <div className="border-t border-zinc-200 pt-2 mt-2 col-span-2 grid grid-cols-3 gap-2">
+                    <div>
+                      <span className="text-[9px] text-zinc-400 font-bold uppercase block">
+                        Estimasi User
+                      </span>
+                      <p className="font-bold text-zinc-800">
+                        {item.beratEstimasi} kg
+                      </p>
+                    </div>
+                    <div>
+                      <span className="text-[9px] text-zinc-400 font-bold uppercase block">
+                        Terbaca AI
+                      </span>
+                      <p className="font-black text-primary">
+                        {item.beratTerbaca !== null
+                          ? `${item.beratTerbaca} kg`
+                          : "-"}
+                      </p>
+                    </div>
+                    <div>
+                      <span className="text-[9px] text-zinc-400 font-bold uppercase block">
+                        Jenis Sampah
+                      </span>
+                      <p className="font-bold text-zinc-800">
+                        {item.jenisSampah === "PLASTIK"
+                          ? "Plastik"
+                          : item.jenisSampah === "KARTON"
+                            ? "Karton"
+                            : "Paper Cup"}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Images Gallery */}
+                <div className="space-y-4">
+                  {/* Active Large Image Display */}
+                  <div className="space-y-2">
+                    <span className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider block">
+                      {activeImageUrl === item.gambarTimbangan
+                        ? "📸 Gambar Timbangan (Analisis AI)"
+                        : "📸 Foto Bukti Tambahan"}
+                    </span>
+                    <div className="rounded-2xl overflow-hidden border border-zinc-200 bg-zinc-50 aspect-video flex items-center justify-center relative">
+                      {activeImageUrl && typeof activeImageUrl === "string" ? (
+                        <Image
+                          src={activeImageUrl}
+                          alt="Bukti Setoran"
+                          fill
+                          className="object-contain"
+                          unoptimized
+                        />
+                      ) : (
+                        <span className="text-xs text-zinc-400">
+                          Tidak ada gambar
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Thumbnail selectors */}
+                  <div className="space-y-2">
+                    <span className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider block">
+                      Pilih Gambar
+                    </span>
+                    <div className="flex gap-2.5 overflow-x-auto pb-1">
+                      {/* Scale Display Thumbnail */}
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setActiveImageUrl(item.gambarTimbangan || "")
+                        }
+                        className={`relative w-20 h-20 rounded-xl overflow-hidden border-2 shrink-0 bg-zinc-50 cursor-pointer transition-all ${
+                          activeImageUrl === item.gambarTimbangan
+                            ? "border-primary scale-[1.03]"
+                            : "border-zinc-200 hover:border-zinc-300"
+                        }`}>
+                        {item.gambarTimbangan &&
+                        typeof item.gambarTimbangan === "string" ? (
+                          <Image
+                            src={item.gambarTimbangan}
+                            alt="Timbangan"
+                            fill
+                            className="object-cover"
+                            unoptimized
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-zinc-100 flex items-center justify-center text-[10px] text-zinc-400">
+                            No Image
+                          </div>
+                        )}
+                        <span className="absolute inset-x-0 bottom-0 bg-black/60 text-[8px] text-white text-center py-0.5 font-bold uppercase z-10">
+                          AI Timbang
+                        </span>
+                      </button>
+
+                      {item.gambarBukti?.map((url, idx) => (
+                        <button
+                          key={url}
+                          type="button"
+                          onClick={() => setActiveImageUrl(url)}
+                          className={`relative w-20 h-20 rounded-xl overflow-hidden border-2 shrink-0 bg-zinc-50 cursor-pointer transition-all ${
+                            activeImageUrl === url
+                              ? "border-primary scale-[1.03]"
+                              : "border-zinc-200 hover:border-zinc-300"
+                          }`}>
+                          {url && typeof url === "string" ? (
+                            <Image
+                              src={url}
+                              alt={`Bukti ${idx + 1}`}
+                              fill
+                              className="object-cover"
+                              unoptimized
+                            />
+                          ) : (
+                            <div className="w-full h-full bg-zinc-100 flex items-center justify-center text-[10px] text-zinc-400">
+                              No Image
+                            </div>
+                          )}
+                          <span className="absolute inset-x-0 bottom-0 bg-black/60 text-[8px] text-white text-center py-0.5 font-bold uppercase z-10">
+                            Bukti {idx + 1}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Modal Footer */}
+              <div className="p-5 border-t border-zinc-150 bg-zinc-50 flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => setShowModal(false)}
+                  className="px-5 py-2.5 bg-zinc-900 text-white rounded-xl font-bold text-xs hover:bg-zinc-800 transition-colors cursor-pointer">
+                  Tutup
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {item.totalPoin != null && (
           <div className="flex items-center gap-2 bg-green-50 border border-green-100 rounded-xl p-3">
@@ -971,6 +1225,32 @@ export default function SetorSampahAdminPage() {
 
   const [filter, setFilter] = useState<StatusSetorSampah | "ALL">("ALL");
   const [search, setSearch] = useState("");
+  const [showBatchModal, setShowBatchModal] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [batchLoading, setBatchLoading] = useState(false);
+  const [expandedIds, setExpandedIds] = useState<string[]>([]);
+  const [previewImageUrl, setPreviewImageUrl] = useState<string | null>(null);
+
+  const pendingItems = useMemo(() => {
+    return data.filter((s) => s.status === "MENUNGGU_VERIFIKASI");
+  }, [data]);
+
+  const toggleExpand = useCallback((id: string) => {
+    setExpandedIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
+    );
+  }, []);
+
+  const openBatchModal = useCallback(() => {
+    setShowBatchModal(true);
+    setSelectedIds(pendingItems.map((item) => item.id));
+  }, [pendingItems]);
+
+  const closeBatchModal = useCallback(() => {
+    setShowBatchModal(false);
+    setSelectedIds([]);
+    setExpandedIds([]);
+  }, []);
 
   const fetchData = useCallback(async () => {
     const [resSetor, resEkpedisi] = await Promise.all([
@@ -985,6 +1265,23 @@ export default function SetorSampahAdminPage() {
   useEffect(() => {
     fetchData();
   }, [fetchData]);
+
+  const handleBatchVerify = useCallback(async () => {
+    if (selectedIds.length === 0) return;
+    setBatchLoading(true);
+    try {
+      await batchVerifikasiSetor(selectedIds);
+      toast.success(`${selectedIds.length} setoran berhasil diverifikasi!`);
+      closeBatchModal();
+      fetchData();
+    } catch (err) {
+      toast.error(
+        err instanceof Error ? err.message : "Gagal melakukan batch verifikasi",
+      );
+    } finally {
+      setBatchLoading(false);
+    }
+  }, [selectedIds, fetchData, closeBatchModal]);
 
   const menunggu = data.filter(
     (s) => s.status === "MENUNGGU_VERIFIKASI",
@@ -1117,35 +1414,47 @@ export default function SetorSampahAdminPage() {
           />
         </div>
 
-        {/* Filter tabs */}
-        <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-hide">
-          {STATUS_FILTERS.map((f) => {
-            const count =
-              f.value === "ALL"
-                ? data.length
-                : data.filter((d) => d.status === f.value).length;
-            return (
-              <button
-                key={f.value}
-                type="button"
-                onClick={() => setFilter(f.value)}
-                className={`flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap min-h-[40px] ${
-                  filter === f.value
-                    ? "bg-primary text-white shadow-md shadow-primary/20"
-                    : "bg-white text-zinc-600 border border-zinc-200 hover:bg-zinc-50 hover:border-zinc-300"
-                }`}>
-                {f.label}
-                <span
-                  className={`px-1.5 py-0.5 rounded-md text-[10px] ${
+        {/* Filter tabs + Batch Verify */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-hide flex-1">
+            {STATUS_FILTERS.map((f) => {
+              const count =
+                f.value === "ALL"
+                  ? data.length
+                  : data.filter((d) => d.status === f.value).length;
+              return (
+                <button
+                  key={f.value}
+                  type="button"
+                  onClick={() => setFilter(f.value)}
+                  className={`flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap min-h-[40px] ${
                     filter === f.value
-                      ? "bg-white/20 text-white"
-                      : "bg-zinc-100 text-zinc-500"
+                      ? "bg-primary text-white shadow-md shadow-primary/20"
+                      : "bg-white text-zinc-600 border border-zinc-200 hover:bg-zinc-50 hover:border-zinc-300"
                   }`}>
-                  {count}
-                </span>
-              </button>
-            );
-          })}
+                  {f.label}
+                  <span
+                    className={`px-1.5 py-0.5 rounded-md text-[10px] ${
+                      filter === f.value
+                        ? "bg-white/20 text-white"
+                        : "bg-zinc-100 text-zinc-500"
+                    }`}>
+                    {count}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
+          {pendingItems.length > 0 && (
+            <button
+              type="button"
+              onClick={openBatchModal}
+              className="flex items-center justify-center gap-1.5 px-4 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-xl text-xs font-bold transition-all active:scale-[0.98] shadow-sm shrink-0 min-h-[40px] cursor-pointer">
+              <CheckCircle size={14} />
+              Verifikasi Semua ({pendingItems.length})
+            </button>
+          )}
         </div>
 
         {/* Cards */}
@@ -1169,6 +1478,317 @@ export default function SetorSampahAdminPage() {
                 onActionSuccess={fetchData}
               />
             ))}
+          </div>
+        )}
+        {showBatchModal && (
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-100 flex items-center justify-center p-4 animate-in fade-in duration-200">
+            <div className="bg-white rounded-3xl border border-zinc-100 w-full max-w-2xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
+              {/* Modal Header */}
+              <div className="p-5 border-b border-zinc-150 flex items-center justify-between">
+                <div>
+                  <h3 className="font-heading font-black text-zinc-900 text-base">
+                    Batch Verifikasi Setor Sampah
+                  </h3>
+                  <p className="text-zinc-500 text-[11px] mt-0.5">
+                    Tinjau dan verifikasi semua setoran yang sedang menunggu
+                    persetujuan sekaligus.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={closeBatchModal}
+                  className="p-1.5 hover:bg-zinc-100 text-zinc-400 hover:text-zinc-700 rounded-lg transition-colors cursor-pointer">
+                  <XCircle size={20} />
+                </button>
+              </div>
+
+              {/* Modal Content */}
+              <div className="p-5 overflow-y-auto flex-1 space-y-4">
+                {pendingItems.length === 0 ? (
+                  <div className="text-center py-12 text-zinc-450">
+                    <PackageCheck
+                      size={40}
+                      className="mx-auto mb-3 opacity-30"
+                    />
+                    <p className="text-xs font-bold">
+                      Tidak ada setoran yang menunggu verifikasi
+                    </p>
+                  </div>
+                ) : (
+                  <>
+                    {/* Select All Bar */}
+                    <div className="flex items-center justify-between px-3 py-2 bg-zinc-50 border border-zinc-200 rounded-xl">
+                      <span className="text-[11px] font-bold text-zinc-700">
+                        Pilih Semua ({selectedIds.length}/{pendingItems.length})
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (selectedIds.length === pendingItems.length) {
+                            setSelectedIds([]);
+                          } else {
+                            setSelectedIds(pendingItems.map((item) => item.id));
+                          }
+                        }}
+                        className="text-[10px] font-black text-primary hover:text-primary/95 transition-colors cursor-pointer">
+                        {selectedIds.length === pendingItems.length
+                          ? "BATALKAN SEMUA"
+                          : "PILIH SEMUA"}
+                      </button>
+                    </div>
+
+                    {/* Pending List */}
+                    <div className="space-y-2 max-h-[50vh] overflow-y-auto pr-1">
+                      {pendingItems.map((item) => {
+                        const isSelected = selectedIds.includes(item.id);
+                        let typeLabel = "Plastik";
+                        if (item.jenisSampah === "KARTON") typeLabel = "Karton";
+                        else if (item.jenisSampah === "PAPER_CUP")
+                          typeLabel = "Paper Cup";
+                        const isExpanded = expandedIds.includes(item.id);
+
+                        return (
+                          <div
+                            key={item.id}
+                            className={`flex flex-col border rounded-xl transition-all ${
+                              isSelected
+                                ? "border-green-300 bg-green-50/10"
+                                : "border-zinc-200 hover:bg-zinc-50/50"
+                            }`}>
+                            {/* Main row */}
+                            <div className="flex items-center justify-between p-3">
+                              <button
+                                type="button"
+                                onClick={() => toggleExpand(item.id)}
+                                className="flex-1 min-w-0 pr-3 cursor-pointer select-none text-left focus:outline-none">
+                                <div className="flex items-center gap-1.5">
+                                  {isExpanded ? (
+                                    <ChevronUp
+                                      size={14}
+                                      className="text-zinc-400 shrink-0"
+                                    />
+                                  ) : (
+                                    <ChevronDown
+                                      size={14}
+                                      className="text-zinc-400 shrink-0"
+                                    />
+                                  )}
+                                  <p className="font-bold text-zinc-900 text-xs truncate">
+                                    {item.nasabah.user.name}
+                                  </p>
+                                  <span
+                                    className={`px-1.5 py-0.5 rounded text-[9px] font-bold border ${
+                                      item.jenisSetor === "LANGSUNG"
+                                        ? "bg-zinc-100 text-zinc-600 border-zinc-200"
+                                        : "bg-blue-50 text-blue-600 border-blue-100"
+                                    }`}>
+                                    {item.jenisSetor === "LANGSUNG"
+                                      ? "🏪 Langsung"
+                                      : "🚚 Ekspedisi"}
+                                  </span>
+                                </div>
+                                <div className="flex items-center gap-2 mt-1 text-[10px] text-zinc-500 ml-5">
+                                  <span>
+                                    {typeLabel} · {item.beratEstimasi} kg
+                                  </span>
+                                  {item.gambarTimbangan && (
+                                    <span
+                                      className={`inline-flex items-center gap-0.5 px-1 py-0.2 rounded font-bold text-[8px] border ${
+                                        item.statusValidasi === "VALID"
+                                          ? "bg-green-100 text-green-700 border-green-200"
+                                          : "bg-amber-100 text-amber-700 border-amber-200"
+                                      }`}>
+                                      AI:{" "}
+                                      {item.statusValidasi === "VALID"
+                                        ? "Valid"
+                                        : "Perlu Review"}{" "}
+                                      (
+                                      {item.beratTerbaca !== null
+                                        ? `${item.beratTerbaca}kg`
+                                        : "-"}
+                                      )
+                                    </span>
+                                  )}
+                                </div>
+                              </button>
+
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setSelectedIds((prev) =>
+                                    prev.includes(item.id)
+                                      ? prev.filter((x) => x !== item.id)
+                                      : [...prev, item.id],
+                                  );
+                                }}
+                                className={`px-3 py-1.5 rounded-xl font-bold text-[10px] transition-all min-w-[80px] text-center cursor-pointer ${
+                                  isSelected
+                                    ? "bg-green-600 text-white hover:bg-green-700 shadow-sm"
+                                    : "bg-zinc-100 text-zinc-650 hover:bg-zinc-200"
+                                }`}>
+                                {isSelected ? "VALID ✓" : "Tandai VALID"}
+                              </button>
+                            </div>
+
+                            {/* Dropdown Summary Content */}
+                            {isExpanded && (
+                              <div className="px-4 pb-4 pt-2 border-t border-zinc-100 bg-zinc-50/30 text-[11px] text-zinc-600 space-y-3">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2">
+                                  <div>
+                                    <span className="font-bold text-zinc-400 block uppercase tracking-wider text-[9px]">
+                                      NIK
+                                    </span>
+                                    <span className="text-zinc-800 font-medium">
+                                      {item.nasabah.nik || "-"}
+                                    </span>
+                                  </div>
+                                  <div>
+                                    <span className="font-bold text-zinc-400 block uppercase tracking-wider text-[9px]">
+                                      No. Telp
+                                    </span>
+                                    <span className="text-zinc-800 font-medium">
+                                      {item.nasabah.noTelp || "-"}
+                                    </span>
+                                  </div>
+                                  {item.jenisSetor === "EKSPEDISI" && (
+                                    <div className="sm:col-span-2">
+                                      <span className="font-bold text-zinc-400 block uppercase tracking-wider text-[9px]">
+                                        Alamat Penjemputan
+                                      </span>
+                                      <span className="text-zinc-800 font-medium">
+                                        {item.alamatPenjemputan || "-"}
+                                      </span>
+                                    </div>
+                                  )}
+                                  {item.keterangan && (
+                                    <div className="sm:col-span-2">
+                                      <span className="font-bold text-zinc-400 block uppercase tracking-wider text-[9px]">
+                                        Keterangan
+                                      </span>
+                                      <span className="text-zinc-800 font-medium">
+                                        {item.keterangan}
+                                      </span>
+                                    </div>
+                                  )}
+                                </div>
+
+                                {/* Attachments thumbnails */}
+                                {(item.gambarTimbangan ||
+                                  (item.gambarBukti &&
+                                    item.gambarBukti.length > 0)) && (
+                                  <div className="space-y-1.5 border-t border-zinc-100 pt-3">
+                                    <span className="font-bold text-zinc-400 block uppercase tracking-wider text-[9px]">
+                                      Foto Lampiran
+                                    </span>
+                                    <div className="flex flex-wrap gap-2.5">
+                                      {item.gambarTimbangan && (
+                                        <button
+                                          type="button"
+                                          onClick={() =>
+                                            setPreviewImageUrl(
+                                              item.gambarTimbangan,
+                                            )
+                                          }
+                                          className="relative group block rounded-lg overflow-hidden border border-zinc-200 hover:border-zinc-300 transition-all shrink-0 bg-white w-14 h-14 cursor-pointer focus:outline-none">
+                                          <Image
+                                            src={item.gambarTimbangan}
+                                            alt="Timbangan"
+                                            fill
+                                            className="object-cover hover:scale-105 transition-transform"
+                                            unoptimized
+                                          />
+                                          <span className="absolute bottom-0 inset-x-0 bg-black/60 text-white text-[8px] text-center py-0.5 font-bold uppercase z-10">
+                                            Timbangan
+                                          </span>
+                                        </button>
+                                      )}
+                                      {item.gambarBukti?.map((url, idx) => (
+                                        <button
+                                          key={url}
+                                          type="button"
+                                          onClick={() =>
+                                            setPreviewImageUrl(url)
+                                          }
+                                          className="relative group block rounded-lg overflow-hidden border border-zinc-200 hover:border-zinc-300 transition-all shrink-0 bg-white w-14 h-14 cursor-pointer focus:outline-none">
+                                          <Image
+                                            src={url}
+                                            alt={`Bukti ${idx + 1}`}
+                                            fill
+                                            className="object-cover hover:scale-105 transition-transform"
+                                            unoptimized
+                                          />
+                                          <span className="absolute bottom-0 inset-x-0 bg-black/60 text-white text-[8px] text-center py-0.5 font-bold uppercase z-10">
+                                            Bukti {idx + 1}
+                                          </span>
+                                        </button>
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </>
+                )}
+              </div>
+
+              {/* Modal Footer */}
+              <div className="p-5 border-t border-zinc-150 bg-zinc-50 flex items-center justify-between">
+                <span className="text-xs text-zinc-500 font-medium">
+                  {selectedIds.length} data terpilih untuk diverifikasi.
+                </span>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={closeBatchModal}
+                    className="px-4 py-2 border border-zinc-200 text-zinc-700 rounded-xl font-bold text-xs hover:bg-zinc-100 transition-colors cursor-pointer"
+                    disabled={batchLoading}>
+                    Batal
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleBatchVerify}
+                    disabled={batchLoading || selectedIds.length === 0}
+                    className="flex items-center gap-1.5 px-4 py-2 bg-green-600 text-white rounded-xl font-bold text-xs hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-[0.98] shadow-sm cursor-pointer">
+                    {batchLoading && (
+                      <Loader2 size={12} className="animate-spin" />
+                    )}
+                    Konfirmasi Verifikasi
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {previewImageUrl && (
+          <div className="fixed inset-0 bg-black/85 backdrop-blur-sm z-[200] flex items-center justify-center p-4 animate-in fade-in duration-200">
+            <div className="relative max-w-2xl w-full max-h-[85vh] bg-white rounded-3xl overflow-hidden shadow-2xl flex flex-col animate-in zoom-in-95 duration-200">
+              <div className="p-4 border-b border-zinc-150 flex justify-between items-center bg-zinc-50">
+                <span className="text-xs font-bold text-zinc-500 uppercase tracking-wider">
+                  Preview Bukti
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setPreviewImageUrl(null)}
+                  className="p-1.5 hover:bg-zinc-100 text-zinc-400 hover:text-zinc-700 rounded-lg transition-colors cursor-pointer">
+                  <XCircle size={20} />
+                </button>
+              </div>
+              <div className="flex-1 overflow-hidden p-6 flex items-center justify-center bg-zinc-900 aspect-video relative">
+                <Image
+                  src={previewImageUrl}
+                  alt="Preview Bukti"
+                  fill
+                  sizes="(max-w-2xl) 100vw"
+                  className="object-contain"
+                  unoptimized
+                />
+              </div>
+            </div>
           </div>
         )}
       </div>

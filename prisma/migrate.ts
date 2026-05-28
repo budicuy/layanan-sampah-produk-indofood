@@ -343,6 +343,37 @@ async function main() {
     console.log("❌ Error ensuring 'pencairan' table:", msg);
   }
 
+  // 10. Alter SetorSampah table: Add AI validation and image columns
+  try {
+    await prisma.$executeRawUnsafe(
+      'ALTER TABLE "setor_sampah" ADD COLUMN IF NOT EXISTS "gambarTimbangan" TEXT',
+    );
+    await prisma.$executeRawUnsafe(
+      'ALTER TABLE "setor_sampah" ADD COLUMN IF NOT EXISTS "gambarBukti" TEXT[] NOT NULL DEFAULT \'{}\'::text[]',
+    );
+    await prisma.$executeRawUnsafe(
+      'ALTER TABLE "setor_sampah" ADD COLUMN IF NOT EXISTS "statusValidasi" TEXT',
+    );
+    await prisma.$executeRawUnsafe(
+      'ALTER TABLE "setor_sampah" ADD COLUMN IF NOT EXISTS "beratTerbaca" DOUBLE PRECISION',
+    );
+    console.log("✅ AI validation columns added to 'setor_sampah' table.");
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.log("❌ Error altering 'setor_sampah' table for AI fields:", msg);
+  }
+
+  // 11. Add verifiedBy column to setor_sampah
+  try {
+    await prisma.$executeRawUnsafe(
+      'ALTER TABLE "setor_sampah" ADD COLUMN IF NOT EXISTS "verifiedBy" TEXT',
+    );
+    console.log("✅ Column 'verifiedBy' added to 'setor_sampah' table.");
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.log("ℹ️ Skipping setor_sampah.verifiedBy addition:", msg);
+  }
+
   console.log("🎉 Migration script finished successfully!");
 }
 

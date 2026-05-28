@@ -1,4 +1,4 @@
-export const SetorSampahSeed = [
+const originalSeeds = [
   {
     username: "budi",
     jenisSampah: "PLASTIK",
@@ -65,3 +65,107 @@ export const SetorSampahSeed = [
     diserahkanAt: "2026-05-02",
   },
 ];
+
+const jenisSampahList = ["PLASTIK", "KARTON", "PAPER_CUP"];
+const users = ["budi", "warmiendo"];
+
+const generatedSeeds: {
+  username: string;
+  jenisSampah: string;
+  beratEstimasi: number;
+  beratAktual: number | null;
+  status: "MENUNGGU_VERIFIKASI" | "SELESAI";
+  poinPerKg: number | null;
+  totalPoin: number | null;
+  jenisSetor: "LANGSUNG" | "EKSPEDISI";
+  selesaiAt: string | null;
+  verifikasiAt: string | null;
+  penjemputanAt: string | null;
+  diserahkanAt: string | null;
+}[] = [];
+
+// Generate 10 LANGSUNG, MENUNGGU_VERIFIKASI
+for (let i = 0; i < 10; i++) {
+  const jenis = jenisSampahList[i % jenisSampahList.length];
+  const berat = Number((3.0 + i * 1.2).toFixed(1));
+  generatedSeeds.push({
+    username: users[i % users.length],
+    jenisSampah: jenis,
+    beratEstimasi: berat,
+    beratAktual: null,
+    status: "MENUNGGU_VERIFIKASI",
+    poinPerKg: null,
+    totalPoin: null,
+    jenisSetor: "LANGSUNG",
+    selesaiAt: null,
+    verifikasiAt: null,
+    penjemputanAt: null,
+    diserahkanAt: null,
+  });
+}
+
+// Generate 10 LANGSUNG, SELESAI
+for (let i = 0; i < 10; i++) {
+  const jenis = jenisSampahList[i % jenisSampahList.length];
+  const berat = Number((4.0 + i * 1.5).toFixed(1));
+  const rate = jenis === "PLASTIK" ? 40 : jenis === "KARTON" ? 22 : 21;
+  const total = Math.round(berat * rate);
+  generatedSeeds.push({
+    username: users[i % users.length],
+    jenisSampah: jenis,
+    beratEstimasi: berat,
+    beratAktual: berat,
+    status: "SELESAI",
+    poinPerKg: rate,
+    totalPoin: total,
+    jenisSetor: "LANGSUNG",
+    selesaiAt: `2026-05-${10 + i}`,
+    verifikasiAt: `2026-05-${10 + i}`,
+    penjemputanAt: null,
+    diserahkanAt: null,
+  });
+}
+
+// Generate 10 EKSPEDISI, MENUNGGU_VERIFIKASI
+for (let i = 0; i < 10; i++) {
+  const jenis = jenisSampahList[i % jenisSampahList.length];
+  const berat = Number((2.5 + i * 1.1).toFixed(1));
+  generatedSeeds.push({
+    username: users[i % users.length],
+    jenisSampah: jenis,
+    beratEstimasi: berat,
+    beratAktual: null,
+    status: "MENUNGGU_VERIFIKASI",
+    poinPerKg: null,
+    totalPoin: null,
+    jenisSetor: "EKSPEDISI",
+    selesaiAt: null,
+    verifikasiAt: null,
+    penjemputanAt: null,
+    diserahkanAt: null,
+  });
+}
+
+// Generate 10 EKSPEDISI, SELESAI
+for (let i = 0; i < 10; i++) {
+  const jenis = jenisSampahList[i % jenisSampahList.length];
+  const berat = Number((3.5 + i * 1.4).toFixed(1));
+  const rate = jenis === "PLASTIK" ? 40 : jenis === "KARTON" ? 22 : 21;
+  const total = Math.round(berat * rate);
+  generatedSeeds.push({
+    username: users[i % users.length],
+    jenisSampah: jenis,
+    beratEstimasi: berat,
+    beratAktual: berat,
+    status: "SELESAI",
+    poinPerKg: rate,
+    totalPoin: total,
+    jenisSetor: "EKSPEDISI",
+    selesaiAt: `2026-05-${12 + i}`,
+    verifikasiAt: `2026-05-${10 + i}`,
+    penjemputanAt: `2026-05-${11 + i}`,
+    diserahkanAt: `2026-05-${11 + i}`,
+  });
+}
+
+export const SetorSampahSeed = [...originalSeeds, ...generatedSeeds];
