@@ -10,9 +10,8 @@ export async function proxy(request: NextRequest) {
     pathname.startsWith("/dashboard-konsumen") ||
     pathname.startsWith("/dashboard-bank-sampah");
   const isAuthPage = pathname === "/login";
-  const isRoot = pathname === "/";
 
-  if (!isProtected && !isAuthPage && !isRoot) {
+  if (!isProtected && !isAuthPage) {
     return NextResponse.next();
   }
 
@@ -28,8 +27,8 @@ export async function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // If authenticated, redirect from login page OR root landing page to dashboard
-  if (isAuthPage || isRoot) {
+  // If authenticated, prevent access to login page
+  if (isAuthPage) {
     let target = "/dashboard-admin";
     if (payload.role === "KONSUMEN") {
       target = "/dashboard-konsumen";
@@ -75,7 +74,6 @@ export async function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/",
     "/dashboard-admin/:path*",
     "/dashboard-konsumen/:path*",
     "/dashboard-bank-sampah/:path*",
