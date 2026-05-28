@@ -4,7 +4,7 @@ import { CheckCircle, Info, Loader2, Recycle, Wallet } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import type {
   JenisSampah,
-  StatusSetorSampah,
+  StatusSetorLangsung,
 } from "@/prisma/generated/prisma/client";
 import { getSetorSampahBankSampahData, submitSetorLangsung } from "./actions";
 
@@ -26,7 +26,7 @@ interface SetorSampah {
   beratEstimasi: number;
   beratAktual: number | null;
   keterangan: string | null;
-  status: StatusSetorSampah;
+  status: StatusSetorLangsung;
   catatanAdmin: string | null;
   totalHarga: number | null;
   createdAt: Date;
@@ -291,30 +291,14 @@ function FormSetorLangsung({
                     : "Paper Cup";
 
               const statusMap: Record<
-                StatusSetorSampah,
+                StatusSetorLangsung,
                 { label: string; cls: string }
               > = {
                 MENUNGGU_VERIFIKASI: {
                   label: "Menunggu Verifikasi",
                   cls: "bg-amber-100 text-amber-700",
                 },
-                TERVERIFIKASI: {
-                  label: "Terverifikasi",
-                  cls: "bg-blue-100 text-blue-700",
-                },
                 DITOLAK: { label: "Ditolak", cls: "bg-red-100 text-red-700" },
-                DALAM_PENJEMPUTAN: {
-                  label: "Dalam Penjemputan",
-                  cls: "bg-purple-100 text-purple-700",
-                },
-                SUDAH_DISERAHKAN: {
-                  label: "Sudah Diserahkan",
-                  cls: "bg-indigo-100 text-indigo-700",
-                },
-                SAMPAH_DITERIMA: {
-                  label: "Sampah Diterima",
-                  cls: "bg-teal-100 text-teal-700",
-                },
                 SELESAI: {
                   label: "Selesai ✓",
                   cls: "bg-green-100 text-green-700",
@@ -377,7 +361,7 @@ type SetorSampahData = {
   beratEstimasi: number;
   beratAktual: number | null;
   keterangan: string | null;
-  status: StatusSetorSampah;
+  status: StatusSetorLangsung;
   catatanAdmin: string | null;
   totalHarga: number | null;
   createdAt: Date;
@@ -395,8 +379,17 @@ export default function SetorSampahPage() {
 
   const fetchData = useCallback(async () => {
     try {
-      const { nasabah } = await getSetorSampahBankSampahData();
-      setNasabah(nasabah as unknown as NasabahData);
+      const res = await getSetorSampahBankSampahData();
+      if (res.nasabah) {
+        setNasabah({
+          id: res.nasabah.id,
+          saldo: res.nasabah.saldo,
+          setorSampah: (res.setorLangsung || []).map((s) => ({
+            ...s,
+            status: s.status as StatusSetorLangsung,
+          })),
+        });
+      }
     } catch (_e) {
       // Ignored
     } finally {

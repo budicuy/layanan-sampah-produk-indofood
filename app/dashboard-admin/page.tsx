@@ -30,63 +30,113 @@ export default async function DashboardPage() {
 
   const [
     totalNasabah,
-    setoranSelesai,
-    recentActivities,
-    plastikStats,
-    kartonStats,
-    paperCupStats,
+    langsungSelesai,
+    ekspedisiSelesai,
+    recentLangsung,
+    recentEkspedisi,
+    plastikLangsung,
+    plastikEkspedisi,
+    kartonLangsung,
+    kartonEkspedisi,
+    paperCupLangsung,
+    paperCupEkspedisi,
     pencairanPendingCount,
     monthlyStats,
   ] = await Promise.all([
     prisma.nasabah.count(),
-    prisma.setorSampah.findMany({
+    prisma.setorLangsung.findMany({
       where: { status: "SELESAI" },
       select: { beratAktual: true, totalPoin: true },
     }),
-    prisma.setorSampah.findMany({
-      orderBy: { createdAt: "desc" },
-      take: 5,
-      include: {
-        nasabah: {
-          select: {
-            user: {
-              select: { name: true },
-            },
-          },
-        },
-      },
+    prisma.setorEkspedisi.findMany({
+      where: { status: "SELESAI" },
+      select: { beratAktual: true, totalPoin: true },
     }),
-    prisma.setorSampah.aggregate({
+    prisma.setorLangsung.findMany({
+      orderBy: { createdAt: "desc" },
+      take: 3,
+      include: { nasabah: { select: { user: { select: { name: true } } } } },
+    }),
+    prisma.setorEkspedisi.findMany({
+      orderBy: { createdAt: "desc" },
+      take: 3,
+      include: { nasabah: { select: { user: { select: { name: true } } } } },
+    }),
+    prisma.setorLangsung.aggregate({
       where: { status: "SELESAI", jenisSampah: "PLASTIK" },
       _sum: { beratAktual: true },
     }),
-    prisma.setorSampah.aggregate({
+    prisma.setorEkspedisi.aggregate({
+      where: { status: "SELESAI", jenisSampah: "PLASTIK" },
+      _sum: { beratAktual: true },
+    }),
+    prisma.setorLangsung.aggregate({
       where: { status: "SELESAI", jenisSampah: "KARTON" },
       _sum: { beratAktual: true },
     }),
-    prisma.setorSampah.aggregate({
+    prisma.setorEkspedisi.aggregate({
+      where: { status: "SELESAI", jenisSampah: "KARTON" },
+      _sum: { beratAktual: true },
+    }),
+    prisma.setorLangsung.aggregate({
       where: { status: "SELESAI", jenisSampah: "PAPER_CUP" },
       _sum: { beratAktual: true },
     }),
-    prisma.pencairan.count({
-      where: { status: "DIAJUKAN" },
+    prisma.setorEkspedisi.aggregate({
+      where: { status: "SELESAI", jenisSampah: "PAPER_CUP" },
+      _sum: { beratAktual: true },
     }),
-    // Fetch data for the last 6 months
+    prisma.pencairan.count({ where: { status: "DIAJUKAN" } }),
     Promise.all(
       last6Months.map(async (m) => {
         const start = new Date(m.year, m.month, 1);
         const end = new Date(m.year, m.month + 1, 0, 23, 59, 59);
-        const agg = await prisma.setorSampah.aggregate({
-          where: {
-            status: "SELESAI",
-            createdAt: { gte: start, lte: end },
-          },
-          _sum: { beratAktual: true },
-        });
-        return agg._sum.beratAktual || 0;
+        const [aggL, aggE] = await Promise.all([
+          prisma.setorLangsung.aggregate({
+            where: { status: "SELESAI", createdAt: { gte: start, lte: end } },
+            _sum: { beratAktual: true },
+          }),
+          prisma.setorEkspedisi.aggregate({
+            where: { status: "SELESAI", createdAt: { gte: start, lte: end } },
+            _sum: { beratAktual: true },
+          }),
+        ]);
+        return (aggL._sum.beratAktual || 0) + (aggE._sum.beratAktual || 0);
       }),
     ),
   ]);
+
+  const setoranSelesai = [...langsungSelesai, ...ekspedisiSelesai];
+  const recentActivities = [
+    ...recentLangsung.map((a) => ({ ...a, jenisSetor: "LANGSUNG" as const })),
+    ...recentEkspedisi.map((a) => ({ ...a, jenisSetor: "EKSPEDISI" as const })),
+  ]
+    .sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+    )
+    .slice(0, 5);
+  const plastikStats = {
+    _sum: {
+      beratAktual:
+        (plastikLangsung._sum.beratAktual || 0) +
+        (plastikEkspedisi._sum.beratAktual || 0),
+    },
+  };
+  const kartonStats = {
+    _sum: {
+      beratAktual:
+        (kartonLangsung._sum.beratAktual || 0) +
+        (kartonEkspedisi._sum.beratAktual || 0),
+    },
+  };
+  const paperCupStats = {
+    _sum: {
+      beratAktual:
+        (paperCupLangsung._sum.beratAktual || 0) +
+        (paperCupEkspedisi._sum.beratAktual || 0),
+    },
+  };
 
   const totalSampah = setoranSelesai.reduce(
     (acc, s) => acc + (s.beratAktual || 0),

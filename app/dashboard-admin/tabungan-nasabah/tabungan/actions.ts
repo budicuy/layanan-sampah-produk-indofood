@@ -18,8 +18,13 @@ export async function getTabunganData() {
       user: {
         select: { name: true, role: true },
       },
-      setorSampah: {
+      setorLangsung: {
         orderBy: { createdAt: "desc" },
+        take: 10,
+      },
+      setorEkspedisi: {
+        orderBy: { createdAt: "desc" },
+        take: 10,
         include: {
           ekpedisi: { select: { alamat: true, noTelp: true } },
         },

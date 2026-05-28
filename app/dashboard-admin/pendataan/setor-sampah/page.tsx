@@ -25,57 +25,99 @@ import {
 import Image from "next/image";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
-import type { StatusSetorSampah } from "@/prisma/generated/prisma/client";
+import type {
+  StatusSetorEkspedisi,
+  StatusSetorLangsung,
+} from "@/prisma/generated/prisma/client";
 import {
-  batchVerifikasiSetor,
+  batchVerifikasiSetorEkspedisi,
+  batchVerifikasiSetorLangsung,
   getEkpedisiList,
   getHargaTerbaru,
-  getSetorSampahData,
+  getSetorEkspedisiData,
+  getSetorLangsungData,
   konfirmasiSampahDiterima,
+  tolakSetorLangsung,
   tugaskanEkpedisi,
-  verifikasiAkhirDanKreditSaldo,
-  verifikasiSetorLangsungDanKreditSaldo,
-  verifikasiSetorSampah,
+  verifikasiAkhirSetorEkspedisi,
+  verifikasiSetorEkspedisi,
+  verifikasiSetorLangsung,
 } from "./actions";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
-interface Ekpedisi {
+interface EkpedisiItem {
   id: string;
+  nama: string;
   noTelp: string;
   alamat: string;
 }
 
-interface SetorSampahItem {
+interface NasabahInfo {
   id: string;
+  noTelp: string;
+  alamat: string;
+  nik: string;
+  user: { name: string; role: string };
+}
+
+/** Data untuk setor langsung (drop-off) */
+interface SetorLangsungItem {
+  id: string;
+  jenisSetor: "LANGSUNG";
   jenisSampah: string;
-  jenisSetor: "LANGSUNG" | "EKSPEDISI";
   beratEstimasi: number;
   beratAktual: number | null;
   keterangan: string | null;
-  alamatPenjemputan: string;
-  status: StatusSetorSampah;
+  status: StatusSetorLangsung;
   catatanAdmin: string | null;
-  ekpedisiId: string | null;
-  ekpedisi: { noTelp: string; alamat: string } | null;
+  verifiedBy: string | null;
+  verifikasiAt: Date | null;
+  selesaiAt: Date | null;
   totalPoin: number | null;
   totalHarga: number | null;
+  poinPerKg: number | null;
+  hargaPerKg: number | null;
   createdAt: Date;
   gambarTimbangan: string | null;
   gambarBukti: string[];
   statusValidasi: string | null;
   beratTerbaca: number | null;
-  nasabah: {
-    id: string;
-    noTelp: string;
-    alamat: string;
-    nik: string;
-    user: {
-      name: string;
-      role: string;
-    };
-  };
+  nasabah: NasabahInfo;
 }
+
+/** Data untuk setor ekspedisi (kurir penjemput) */
+interface SetorEkspedisiItem {
+  id: string;
+  jenisSetor: "EKSPEDISI";
+  jenisSampah: string;
+  beratEstimasi: number;
+  beratAktual: number | null;
+  keterangan: string | null;
+  alamatPenjemputan: string;
+  status: StatusSetorEkspedisi;
+  catatanAdmin: string | null;
+  verifiedBy: string | null;
+  verifikasiAt: Date | null;
+  ekpedisiId: string | null;
+  ekpedisi: { id: string; nama: string; noTelp: string; alamat: string } | null;
+  penjemputanAt: Date | null;
+  diserahkanAt: Date | null;
+  sampahDiterimaAt: Date | null;
+  selesaiAt: Date | null;
+  totalPoin: number | null;
+  totalHarga: number | null;
+  poinPerKg: number | null;
+  hargaPerKg: number | null;
+  createdAt: Date;
+  gambarTimbangan: string | null;
+  gambarBukti: string[];
+  statusValidasi: string | null;
+  beratTerbaca: number | null;
+  nasabah: NasabahInfo;
+}
+
+type SetorItem = SetorLangsungItem | SetorEkspedisiItem;
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -102,8 +144,31 @@ function formatTime(d: Date | string) {
   });
 }
 
-const STATUS_CFG: Record<
-  StatusSetorSampah,
+// Status config untuk Setor Langsung
+const STATUS_LANGSUNG_CFG: Record<
+  StatusSetorLangsung,
+  { label: string; cls: string; step: number }
+> = {
+  MENUNGGU_VERIFIKASI: {
+    label: "Menunggu",
+    cls: "bg-amber-100 text-amber-700 border-amber-200",
+    step: 1,
+  },
+  DITOLAK: {
+    label: "Ditolak",
+    cls: "bg-red-100 text-red-700 border-red-200",
+    step: -1,
+  },
+  SELESAI: {
+    label: "Selesai",
+    cls: "bg-green-100 text-green-700 border-green-200",
+    step: 6,
+  },
+};
+
+// Status config untuk Setor Ekspedisi
+const STATUS_EKSPEDISI_CFG: Record<
+  StatusSetorEkspedisi,
   { label: string; cls: string; step: number }
 > = {
   MENUNGGU_VERIFIKASI: {
@@ -143,9 +208,16 @@ const STATUS_CFG: Record<
   },
 };
 
+function getStatusCfg(item: SetorItem) {
+  if (item.jenisSetor === "LANGSUNG")
+    return STATUS_LANGSUNG_CFG[item.status as StatusSetorLangsung];
+  return STATUS_EKSPEDISI_CFG[item.status as StatusSetorEkspedisi];
+}
+
 // ─── Action Panels ──────────────────────────────────────────────────────────
 
-function PanelVerifikasi({
+// Panel verifikasi awal untuk Setor Ekspedisi (approve/tolak)
+function PanelVerifikasiEkspedisi({
   id,
   onActionSuccess,
 }: {
@@ -158,8 +230,11 @@ function PanelVerifikasi({
   async function handle(approve: boolean) {
     setLoading(approve ? "approve" : "reject");
     try {
-      await verifikasiSetorSampah(id, approve, catatan || undefined);
+      await verifikasiSetorEkspedisi(id, approve, catatan || undefined);
+      toast.success(approve ? "Data disetujui" : "Data ditolak");
       onActionSuccess();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Gagal memproses");
     } finally {
       setLoading(null);
     }
@@ -204,13 +279,142 @@ function PanelVerifikasi({
   );
 }
 
+// Panel verifikasi + kredit poin untuk Setor Langsung (satu langkah)
+function _unused_PanelVerifikasiLangsung({
+  id,
+  statusValidasi,
+  onActionSuccess,
+}: {
+  id: string;
+  statusValidasi: string | null;
+  onActionSuccess: () => void;
+}) {
+  const [catatan, setCatatan] = useState("");
+  const [loading, setLoading] = useState<"approve" | "reject" | null>(null);
+  const [beratAktual, setBeratAktual] = useState("");
+  const [ratePerKg, setRatePerKg] = useState("");
+  const [isAutoFill, setIsAutoFill] = useState(false);
+
+  async function handleApprove() {
+    const berat = Number.parseFloat(beratAktual);
+    const rate = Number.parseFloat(ratePerKg);
+    if (!berat || !rate) {
+      toast.error("Isi berat aktual dan rate per kg");
+      return;
+    }
+    setLoading("approve");
+    try {
+      await verifikasiSetorLangsung(
+        id,
+        berat,
+        rate,
+        catatan || undefined,
+        isAutoFill,
+      );
+      toast.success("Setor langsung diverifikasi & poin dikreditkan!");
+      onActionSuccess();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Gagal memproses");
+    } finally {
+      setLoading(null);
+    }
+  }
+
+  async function handleReject() {
+    if (!catatan.trim()) {
+      toast.error("Catatan wajib diisi saat menolak");
+      return;
+    }
+    setLoading("reject");
+    try {
+      await tolakSetorLangsung(id, catatan);
+      toast.success("Data ditolak");
+      onActionSuccess();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Gagal memproses");
+    } finally {
+      setLoading(null);
+    }
+  }
+
+  return (
+    <div className="space-y-3">
+      <div className="grid grid-cols-2 gap-2">
+        <input
+          type="number"
+          step="0.01"
+          placeholder="Berat aktual (kg)"
+          value={beratAktual}
+          onChange={(e) => setBeratAktual(e.target.value)}
+          className="px-3 py-2 text-sm bg-white border border-zinc-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/30"
+        />
+        <input
+          type="number"
+          step="1"
+          placeholder="Rate/kg (poin)"
+          value={ratePerKg}
+          onChange={(e) => setRatePerKg(e.target.value)}
+          className="px-3 py-2 text-sm bg-white border border-zinc-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/30"
+        />
+      </div>
+      <textarea
+        value={catatan}
+        onChange={(e) => setCatatan(e.target.value)}
+        placeholder="Catatan admin (opsional)"
+        rows={2}
+        className="w-full px-4 py-3 text-sm bg-white border border-zinc-200 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-primary/30 placeholder:text-zinc-400"
+      />
+      <label className="flex items-center gap-2 text-xs text-zinc-500 cursor-pointer">
+        <input
+          type="checkbox"
+          checked={isAutoFill}
+          onChange={(e) => setIsAutoFill(e.target.checked)}
+          className="rounded"
+        />
+        Data diisi otomatis (gunakan label "Otomatis oleh Admin")
+      </label>
+      {statusValidasi === "VALID" && (
+        <p className="text-xs text-green-600 font-medium">
+          ✅ AI telah memvalidasi berat — akan dicatat sebagai "Sistem (AI)"
+        </p>
+      )}
+      <div className="flex gap-3">
+        <button
+          type="button"
+          onClick={handleApprove}
+          disabled={!!loading}
+          className="flex-1 flex items-center justify-center gap-2 py-3 px-4 bg-green-600 text-white rounded-xl font-bold text-sm hover:bg-green-700 active:scale-[0.98] disabled:opacity-60 transition-all min-h-[48px]">
+          {loading === "approve" ? (
+            <Loader2 size={16} className="animate-spin" />
+          ) : (
+            <CheckCircle size={16} />
+          )}
+          Verifikasi & Kredit Poin
+        </button>
+        <button
+          type="button"
+          onClick={handleReject}
+          disabled={!!loading || !catatan.trim()}
+          className="flex-1 flex items-center justify-center gap-2 py-3 px-4 bg-white text-red-600 border-2 border-red-200 rounded-xl font-bold text-sm hover:bg-red-50 active:scale-[0.98] disabled:opacity-40 transition-all min-h-[48px]">
+          {loading === "reject" ? (
+            <Loader2 size={16} className="animate-spin" />
+          ) : (
+            <XCircle size={16} />
+          )}
+          Tolak
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function PanelEkpedisi({
   id,
   ekpedisiList,
   onActionSuccess,
 }: {
   id: string;
-  ekpedisiList: Ekpedisi[];
+  ekpedisiList: EkpedisiItem[];
   onActionSuccess: () => void;
 }) {
   const [selectedEkpedisi, setSelectedEkpedisi] = useState("");
@@ -333,7 +537,7 @@ function PanelVerifikasiAkhir({
     setLoading(true);
     setError(null);
     try {
-      await verifikasiAkhirDanKreditSaldo(
+      await verifikasiAkhirSetorEkspedisi(
         id,
         Number(beratAktual),
         poinPerKg,
@@ -628,22 +832,24 @@ function PanelVerifikasiLangsung({
 
   async function handleApprove() {
     if (!form.beratAktual || !ratePerKg) {
-      alert(
+      toast.error(
         "Isi berat aktual terlebih dahulu dan pastikan data tarif tersedia",
       );
       return;
     }
     setLoading(true);
     try {
-      await verifikasiSetorLangsungDanKreditSaldo(
+      await verifikasiSetorLangsung(
         id,
         Number(form.beratAktual),
         ratePerKg,
         form.catatan || undefined,
+        true, // isAutoFill = true (tombol "Data Sudah Benar")
       );
+      toast.success("Setor langsung diverifikasi & poin dikreditkan!");
       onActionSuccess();
     } catch (e) {
-      alert(e instanceof Error ? e.message : "Terjadi kesalahan");
+      toast.error(e instanceof Error ? e.message : "Terjadi kesalahan");
     } finally {
       setLoading(false);
     }
@@ -654,10 +860,11 @@ function PanelVerifikasiLangsung({
     if (!catatan) return;
     setLoading(true);
     try {
-      await verifikasiSetorSampah(id, false, catatan);
+      await tolakSetorLangsung(id, catatan);
+      toast.success("Data ditolak");
       onActionSuccess();
     } catch (e) {
-      alert(e instanceof Error ? e.message : "Terjadi kesalahan");
+      toast.error(e instanceof Error ? e.message : "Terjadi kesalahan");
     } finally {
       setLoading(false);
     }
@@ -788,8 +995,8 @@ function SetorCard({
   ekpedisiList,
   onActionSuccess,
 }: {
-  item: SetorSampahItem;
-  ekpedisiList: Ekpedisi[];
+  item: SetorItem;
+  ekpedisiList: EkpedisiItem[];
   onActionSuccess: () => void;
 }) {
   const [showModal, setShowModal] = useState(false);
@@ -801,10 +1008,9 @@ function SetorCard({
     }
   }, [showModal, item.gambarTimbangan]);
 
-  const cfg = STATUS_CFG[item.status] ?? {
+  const cfg = getStatusCfg(item) ?? {
     label: item.status,
     cls: "bg-zinc-100 text-zinc-600 border-zinc-200",
-    step: 0,
   };
 
   const needsAction = [
@@ -871,11 +1077,13 @@ function SetorCard({
         <div className="grid grid-cols-1 gap-2.5 text-xs">
           <InfoRow icon={User} label="NIK" value={item.nasabah.nik} />
           <InfoRow icon={Phone} label="Telp" value={item.nasabah.noTelp} />
-          <InfoRow
-            icon={MapPin}
-            label="Alamat Jemput"
-            value={item.alamatPenjemputan}
-          />
+          {item.jenisSetor === "EKSPEDISI" && (
+            <InfoRow
+              icon={MapPin}
+              label="Alamat Jemput"
+              value={item.alamatPenjemputan}
+            />
+          )}
           {item.keterangan && (
             <InfoRow icon={Tag} label="Keterangan" value={item.keterangan} />
           )}
@@ -886,7 +1094,7 @@ function SetorCard({
               value={item.catatanAdmin}
             />
           )}
-          {item.ekpedisi && (
+          {item.jenisSetor === "EKSPEDISI" && item.ekpedisi && (
             <InfoRow
               icon={Truck}
               label="Kurir"
@@ -1173,7 +1381,10 @@ function SetorCard({
         {item.status === "MENUNGGU_VERIFIKASI" &&
           item.jenisSetor !== "LANGSUNG" && (
             <ActionSection title="Verifikasi Data">
-              <PanelVerifikasi id={item.id} onActionSuccess={onActionSuccess} />
+              <PanelVerifikasiEkspedisi
+                id={item.id}
+                onActionSuccess={onActionSuccess}
+              />
             </ActionSection>
           )}
         {item.status === "TERVERIFIKASI" && (
@@ -1205,7 +1416,7 @@ function SetorCard({
   );
 }
 
-const STATUS_FILTERS: { value: StatusSetorSampah | "ALL"; label: string }[] = [
+const STATUS_FILTERS: { value: string; label: string }[] = [
   { value: "ALL", label: "Semua" },
   { value: "MENUNGGU_VERIFIKASI", label: "Menunggu" },
   { value: "TERVERIFIKASI", label: "Terverifikasi" },
@@ -1219,11 +1430,14 @@ const STATUS_FILTERS: { value: StatusSetorSampah | "ALL"; label: string }[] = [
 // ─── Main Page Component ─────────────────────────────────────────────────────
 
 export default function SetorSampahAdminPage() {
-  const [data, setData] = useState<SetorSampahItem[]>([]);
-  const [ekpedisiList, setEkpedisiList] = useState<Ekpedisi[]>([]);
+  const [data, setData] = useState<SetorItem[]>([]);
+  const [ekpedisiList, setEkpedisiList] = useState<EkpedisiItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<"LANGSUNG" | "EKSPEDISI">(
+    "LANGSUNG",
+  );
 
-  const [filter, setFilter] = useState<StatusSetorSampah | "ALL">("ALL");
+  const [filter, setFilter] = useState<string>("ALL");
   const [search, setSearch] = useState("");
   const [showBatchModal, setShowBatchModal] = useState(false);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
@@ -1232,8 +1446,10 @@ export default function SetorSampahAdminPage() {
   const [previewImageUrl, setPreviewImageUrl] = useState<string | null>(null);
 
   const pendingItems = useMemo(() => {
-    return data.filter((s) => s.status === "MENUNGGU_VERIFIKASI");
-  }, [data]);
+    return data.filter(
+      (s) => s.jenisSetor === activeTab && s.status === "MENUNGGU_VERIFIKASI",
+    );
+  }, [data, activeTab]);
 
   const toggleExpand = useCallback((id: string) => {
     setExpandedIds((prev) =>
@@ -1253,12 +1469,19 @@ export default function SetorSampahAdminPage() {
   }, []);
 
   const fetchData = useCallback(async () => {
-    const [resSetor, resEkpedisi] = await Promise.all([
-      getSetorSampahData(),
+    const [resLangsung, resEkspedisi, resEkpedisi] = await Promise.all([
+      getSetorLangsungData(),
+      getSetorEkspedisiData(),
       getEkpedisiList(),
     ]);
-    setData(resSetor as unknown as SetorSampahItem[]);
-    setEkpedisiList(resEkpedisi as unknown as Ekpedisi[]);
+    const langsung = (resLangsung as unknown as SetorLangsungItem[]).map(
+      (s) => ({ ...s, jenisSetor: "LANGSUNG" as const }),
+    );
+    const ekspedisi = (resEkspedisi as unknown as SetorEkspedisiItem[]).map(
+      (s) => ({ ...s, jenisSetor: "EKSPEDISI" as const }),
+    );
+    setData([...langsung, ...ekspedisi]);
+    setEkpedisiList(resEkpedisi as unknown as EkpedisiItem[]);
     setIsLoading(false);
   }, []);
 
@@ -1270,7 +1493,11 @@ export default function SetorSampahAdminPage() {
     if (selectedIds.length === 0) return;
     setBatchLoading(true);
     try {
-      await batchVerifikasiSetor(selectedIds);
+      if (activeTab === "LANGSUNG") {
+        await batchVerifikasiSetorLangsung(selectedIds);
+      } else {
+        await batchVerifikasiSetorEkspedisi(selectedIds);
+      }
       toast.success(`${selectedIds.length} setoran berhasil diverifikasi!`);
       closeBatchModal();
       fetchData();
@@ -1281,7 +1508,7 @@ export default function SetorSampahAdminPage() {
     } finally {
       setBatchLoading(false);
     }
-  }, [selectedIds, fetchData, closeBatchModal]);
+  }, [selectedIds, fetchData, closeBatchModal, activeTab]);
 
   const menunggu = data.filter(
     (s) => s.status === "MENUNGGU_VERIFIKASI",

@@ -64,28 +64,31 @@ enum StatusNasabah {
   NONAKTIF
 }
 
-enum JenisSetor {
-  LANGSUNG
-  EKSPEDISI
-}
-
 enum JenisSampah {
   PLASTIK
   KARTON
   PAPER_CUP
 }
 
-
-
-/// Status alur setor sampah:
+/// Status alur setor langsung (drop-off):
 /// MENUNGGU_VERIFIKASI → Konsumen baru submit
+/// DITOLAK             → Admin tolak
+/// SELESAI             → Admin verifikasi & kredit poin
+enum StatusSetorLangsung {
+  MENUNGGU_VERIFIKASI
+  DITOLAK
+  SELESAI
+}
+
+/// Status alur setor ekspedisi (kurir penjemput):
+/// MENUNGGU_VERIFIKASI → Konsumen submit pickup request
 /// TERVERIFIKASI       → Admin konfirmasi data valid
-/// DITOLAK             → Admin tolak (data tidak valid)
-/// DALAM_PENJEMPUTAN   → Ekpedisi ditugaskan, sedang menuju konsumen
+/// DITOLAK             → Admin tolak
+/// DALAM_PENJEMPUTAN   → Kurir ditugaskan, menuju konsumen
 /// SUDAH_DISERAHKAN    → Konsumen konfirmasi sudah menyerahkan ke kurir
-/// SAMPAH_DITERIMA     → Admin konfirmasi sampah sudah tiba di pusat
-/// SELESAI             → Saldo sudah dikreditkan ke nasabah
-enum StatusSetorSampah {
+/// SAMPAH_DITERIMA     → Admin konfirmasi sampah tiba di pusat
+/// SELESAI             → Poin dikreditkan ke nasabah
+enum StatusSetorEkspedisi {
   MENUNGGU_VERIFIKASI
   TERVERIFIKASI
   DITOLAK
@@ -114,10 +117,11 @@ model Nasabah {
   createdAt   DateTime        @default(now())
   updatedAt   DateTime        @updatedAt
 
-  setorSampah SetorSampah[]
-  mutasiSaldo MutasiSaldo[]
-  kupons      Kupon[]
-  pencairan   Pencairan[]
+  setorLangsung  SetorLangsung[]
+  setorEkspedisi SetorEkspedisi[]
+  mutasiSaldo    MutasiSaldo[]
+  kupons         Kupon[]
+  pencairan      Pencairan[]
 
   @@map("nasabah")
 }
@@ -131,7 +135,7 @@ model Ekpedisi {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  setorSampah SetorSampah[]
+  setorEkspedisi SetorEkspedisi[]
 
   @@map("ekpedisi")
 }
@@ -152,22 +156,61 @@ model HargaSampah {
 
 // ─── Fitur Setor Sampah ───────────────────────────────────────────────────────
 
-model SetorSampah {
-  id                String      @id @default(cuid())
-  nasabahId         String
-  nasabah           Nasabah     @relation(fields: [nasabahId], references: [id])
-  jenisSampah       JenisSampah
-  beratEstimasi     Float // Estimasi berat (kg) diisi konsumen
-  beratAktual       Float? // Berat aktual setelah ditimbang
-  keterangan        String? // Catatan dari konsumen
-  alamatPenjemputan String
-  jenisSetor        JenisSetor @default(EKSPEDISI)
+/// Setoran sampah langsung (drop-off di pusat). Alur: MENUNGGU → DITOLAK/SELESAI
+model SetorLangsung {
+  id            String              @id @default(cuid())
+  nasabahId     String
+  nasabah       Nasabah             @relation(fields: [nasabahId], references: [id])
+  jenisSampah   JenisSampah
+  beratEstimasi Float               // Estimasi berat (kg) diisi konsumen
+  beratAktual   Float?              // Berat aktual setelah ditimbang admin
+  keterangan    String?             // Catatan dari konsumen
 
-  status StatusSetorSampah @default(MENUNGGU_VERIFIKASI)
+  status StatusSetorLangsung @default(MENUNGGU_VERIFIKASI)
+
+  // Verifikasi & pencairan (dilakukan sekaligus oleh admin)
+  catatanAdmin String?
+  verifiedBy   String?   // Label verifikasi: "Sistem (AI)", "Manual oleh X", dll.
+  verifikasiAt DateTime?
+  selesaiAt    DateTime?
+
+  // Reward
+  poinPerKg  Int? // Poin per kg
+  totalPoin  Int? // Total poin dikreditkan
+  hargaPerKg Int? // Rupiah per kg (khusus Bank Sampah)
+  totalHarga Int? // Total rupiah (khusus Bank Sampah)
+
+  // AI Validation & images
+  gambarTimbangan String?
+  gambarBukti     String[] @default([])
+  statusValidasi  String?  // "VALID", "INVALID", "PERLU_REVIEW", "MANUAL"
+  beratTerbaca    Float?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([nasabahId, status])
+  @@index([status])
+  @@index([selesaiAt])
+  @@map("setor_langsung")
+}
+
+/// Setoran sampah via kurir ekspedisi. Alur: MENUNGGU → TERVERIFIKASI → DALAM_PENJEMPUTAN → SUDAH_DISERAHKAN → SAMPAH_DITERIMA → SELESAI
+model SetorEkspedisi {
+  id            String               @id @default(cuid())
+  nasabahId     String
+  nasabah       Nasabah              @relation(fields: [nasabahId], references: [id])
+  jenisSampah   JenisSampah
+  beratEstimasi Float                // Estimasi berat (kg) diisi konsumen
+  beratAktual   Float?               // Berat aktual setelah ditimbang admin
+  keterangan    String?              // Catatan dari konsumen
+  alamatPenjemputan String           // Alamat penjemputan oleh kurir
+
+  status StatusSetorEkspedisi @default(MENUNGGU_VERIFIKASI)
 
   // Verifikasi awal
   catatanAdmin String?
-  verifiedBy   String?  // Nama admin yang memverifikasi
+  verifiedBy   String?   // Label verifikasi
   verifikasiAt DateTime?
 
   // Penjemputan
@@ -178,18 +221,21 @@ model SetorSampah {
   // Serah terima konsumen → kurir
   diserahkanAt DateTime?
 
-  // Verifikasi akhir & pencairan
-  poinPerKg  Int? // Point per kg yang diberikan
-  totalPoin  Int? // Total poin dikreditkan ke nasabah
-  hargaPerKg Int? // Rupiah per kg yang diberikan
-  totalHarga Int? // Total Rupiah dikreditkan ke nasabah
-  selesaiAt  DateTime?
+  // Penerimaan di pusat & pencairan
+  sampahDiterimaAt DateTime?
+  selesaiAt        DateTime?
 
-  // AI Validation and images
-  gambarTimbangan   String?
-  gambarBukti       String[]    @default([])
-  statusValidasi    String?     // "VALID", "INVALID", "PERLU_REVIEW", "MANUAL"
-  beratTerbaca      Float?
+  // Reward
+  poinPerKg  Int?
+  totalPoin  Int?
+  hargaPerKg Int? // Khusus Bank Sampah
+  totalHarga Int? // Khusus Bank Sampah
+
+  // AI Validation & images
+  gambarTimbangan String?
+  gambarBukti     String[] @default([])
+  statusValidasi  String?  // "VALID", "INVALID", "PERLU_REVIEW", "MANUAL"
+  beratTerbaca    Float?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -197,18 +243,19 @@ model SetorSampah {
   @@index([nasabahId, status])
   @@index([status])
   @@index([selesaiAt])
-  @@map("setor_sampah")
+  @@map("setor_ekspedisi")
 }
 
-/// Riwayat mutasi saldo nasabah
+/// Riwayat mutasi saldo/poin nasabah
 model MutasiSaldo {
-  id          String   @id @default(cuid())
-  nasabahId   String
-  nasabah     Nasabah  @relation(fields: [nasabahId], references: [id])
-  jumlah      Int // Positif = kredit, negatif = debit
-  keterangan  String
-  referensiId String? // ID SetorSampah atau transaksi lain
-  createdAt   DateTime @default(now())
+  id              String   @id @default(cuid())
+  nasabahId       String
+  nasabah         Nasabah  @relation(fields: [nasabahId], references: [id])
+  jumlah          Int      // Positif = kredit, negatif = debit
+  keterangan      String
+  referensiId     String?  // ID SetorLangsung atau SetorEkspedisi
+  jenisReferensi  String?  // "LANGSUNG" atau "EKSPEDISI"
+  createdAt       DateTime @default(now())
 
   @@index([nasabahId])
   @@map("mutasi_saldo")
@@ -265,19 +312,19 @@ model RawMaterial {
 
 /// Pencairan dana untuk nasabah Bank Sampah
 model Pencairan {
-  id         String          @id @default(cuid())
-  nasabahId  String
-  nasabah    Nasabah         @relation(fields: [nasabahId], references: [id])
-  jumlah     Int             // Nominal pencairan (kelipatan 50rb, min 50rb)
-  status     StatusPencairan @default(DIAJUKAN)
-  catatan    String?         // Catatan dari bank sampah saat pengajuan
-  catatanAdmin String?       // Catatan verifikasi dari admin
-  buktiFoto  String?         // URL foto bukti pencairan di Cloudflare R2
-  diajukanAt DateTime        @default(now())
+  id           String          @id @default(cuid())
+  nasabahId    String
+  nasabah      Nasabah         @relation(fields: [nasabahId], references: [id])
+  jumlah       Int             // Nominal pencairan (kelipatan 50rb, min 50rb)
+  status       StatusPencairan @default(DIAJUKAN)
+  catatan      String?         // Catatan dari bank sampah saat pengajuan
+  catatanAdmin String?         // Catatan verifikasi dari admin
+  buktiFoto    String?         // URL foto bukti pencairan di Cloudflare R2
+  diajukanAt   DateTime        @default(now())
   diverifikasi DateTime?
-  dicairkan  DateTime?
-  createdAt  DateTime        @default(now())
-  updatedAt  DateTime        @updatedAt
+  dicairkan    DateTime?
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
 
   @@index([nasabahId, status])
   @@index([status])
@@ -290,4 +337,3 @@ enum StatusPencairan {
   DICAIRKAN
   DITOLAK
 }
-

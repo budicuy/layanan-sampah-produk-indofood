@@ -260,18 +260,11 @@ export type FloatNullableFilter<$PrismaModel = never> = {
   not?: Prisma.NestedFloatNullableFilter<$PrismaModel> | number | null
 }
 
-export type EnumJenisSetorFilter<$PrismaModel = never> = {
-  equals?: $Enums.JenisSetor | Prisma.EnumJenisSetorFieldRefInput<$PrismaModel>
-  in?: $Enums.JenisSetor[] | Prisma.ListEnumJenisSetorFieldRefInput<$PrismaModel>
-  notIn?: $Enums.JenisSetor[] | Prisma.ListEnumJenisSetorFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumJenisSetorFilter<$PrismaModel> | $Enums.JenisSetor
-}
-
-export type EnumStatusSetorSampahFilter<$PrismaModel = never> = {
-  equals?: $Enums.StatusSetorSampah | Prisma.EnumStatusSetorSampahFieldRefInput<$PrismaModel>
-  in?: $Enums.StatusSetorSampah[] | Prisma.ListEnumStatusSetorSampahFieldRefInput<$PrismaModel>
-  notIn?: $Enums.StatusSetorSampah[] | Prisma.ListEnumStatusSetorSampahFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumStatusSetorSampahFilter<$PrismaModel> | $Enums.StatusSetorSampah
+export type EnumStatusSetorLangsungFilter<$PrismaModel = never> = {
+  equals?: $Enums.StatusSetorLangsung | Prisma.EnumStatusSetorLangsungFieldRefInput<$PrismaModel>
+  in?: $Enums.StatusSetorLangsung[] | Prisma.ListEnumStatusSetorLangsungFieldRefInput<$PrismaModel>
+  notIn?: $Enums.StatusSetorLangsung[] | Prisma.ListEnumStatusSetorLangsungFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumStatusSetorLangsungFilter<$PrismaModel> | $Enums.StatusSetorLangsung
 }
 
 export type DateTimeNullableFilter<$PrismaModel = never> = {
@@ -312,24 +305,14 @@ export type FloatNullableWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedFloatNullableFilter<$PrismaModel>
 }
 
-export type EnumJenisSetorWithAggregatesFilter<$PrismaModel = never> = {
-  equals?: $Enums.JenisSetor | Prisma.EnumJenisSetorFieldRefInput<$PrismaModel>
-  in?: $Enums.JenisSetor[] | Prisma.ListEnumJenisSetorFieldRefInput<$PrismaModel>
-  notIn?: $Enums.JenisSetor[] | Prisma.ListEnumJenisSetorFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumJenisSetorWithAggregatesFilter<$PrismaModel> | $Enums.JenisSetor
+export type EnumStatusSetorLangsungWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.StatusSetorLangsung | Prisma.EnumStatusSetorLangsungFieldRefInput<$PrismaModel>
+  in?: $Enums.StatusSetorLangsung[] | Prisma.ListEnumStatusSetorLangsungFieldRefInput<$PrismaModel>
+  notIn?: $Enums.StatusSetorLangsung[] | Prisma.ListEnumStatusSetorLangsungFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumStatusSetorLangsungWithAggregatesFilter<$PrismaModel> | $Enums.StatusSetorLangsung
   _count?: Prisma.NestedIntFilter<$PrismaModel>
-  _min?: Prisma.NestedEnumJenisSetorFilter<$PrismaModel>
-  _max?: Prisma.NestedEnumJenisSetorFilter<$PrismaModel>
-}
-
-export type EnumStatusSetorSampahWithAggregatesFilter<$PrismaModel = never> = {
-  equals?: $Enums.StatusSetorSampah | Prisma.EnumStatusSetorSampahFieldRefInput<$PrismaModel>
-  in?: $Enums.StatusSetorSampah[] | Prisma.ListEnumStatusSetorSampahFieldRefInput<$PrismaModel>
-  notIn?: $Enums.StatusSetorSampah[] | Prisma.ListEnumStatusSetorSampahFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumStatusSetorSampahWithAggregatesFilter<$PrismaModel> | $Enums.StatusSetorSampah
-  _count?: Prisma.NestedIntFilter<$PrismaModel>
-  _min?: Prisma.NestedEnumStatusSetorSampahFilter<$PrismaModel>
-  _max?: Prisma.NestedEnumStatusSetorSampahFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumStatusSetorLangsungFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumStatusSetorLangsungFilter<$PrismaModel>
 }
 
 export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -360,6 +343,23 @@ export type IntNullableWithAggregatesFilter<$PrismaModel = never> = {
   _sum?: Prisma.NestedIntNullableFilter<$PrismaModel>
   _min?: Prisma.NestedIntNullableFilter<$PrismaModel>
   _max?: Prisma.NestedIntNullableFilter<$PrismaModel>
+}
+
+export type EnumStatusSetorEkspedisiFilter<$PrismaModel = never> = {
+  equals?: $Enums.StatusSetorEkspedisi | Prisma.EnumStatusSetorEkspedisiFieldRefInput<$PrismaModel>
+  in?: $Enums.StatusSetorEkspedisi[] | Prisma.ListEnumStatusSetorEkspedisiFieldRefInput<$PrismaModel>
+  notIn?: $Enums.StatusSetorEkspedisi[] | Prisma.ListEnumStatusSetorEkspedisiFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumStatusSetorEkspedisiFilter<$PrismaModel> | $Enums.StatusSetorEkspedisi
+}
+
+export type EnumStatusSetorEkspedisiWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.StatusSetorEkspedisi | Prisma.EnumStatusSetorEkspedisiFieldRefInput<$PrismaModel>
+  in?: $Enums.StatusSetorEkspedisi[] | Prisma.ListEnumStatusSetorEkspedisiFieldRefInput<$PrismaModel>
+  notIn?: $Enums.StatusSetorEkspedisi[] | Prisma.ListEnumStatusSetorEkspedisiFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumStatusSetorEkspedisiWithAggregatesFilter<$PrismaModel> | $Enums.StatusSetorEkspedisi
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumStatusSetorEkspedisiFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumStatusSetorEkspedisiFilter<$PrismaModel>
 }
 
 export type EnumKuponStatusFilter<$PrismaModel = never> = {
@@ -644,18 +644,11 @@ export type NestedFloatNullableFilter<$PrismaModel = never> = {
   not?: Prisma.NestedFloatNullableFilter<$PrismaModel> | number | null
 }
 
-export type NestedEnumJenisSetorFilter<$PrismaModel = never> = {
-  equals?: $Enums.JenisSetor | Prisma.EnumJenisSetorFieldRefInput<$PrismaModel>
-  in?: $Enums.JenisSetor[] | Prisma.ListEnumJenisSetorFieldRefInput<$PrismaModel>
-  notIn?: $Enums.JenisSetor[] | Prisma.ListEnumJenisSetorFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumJenisSetorFilter<$PrismaModel> | $Enums.JenisSetor
-}
-
-export type NestedEnumStatusSetorSampahFilter<$PrismaModel = never> = {
-  equals?: $Enums.StatusSetorSampah | Prisma.EnumStatusSetorSampahFieldRefInput<$PrismaModel>
-  in?: $Enums.StatusSetorSampah[] | Prisma.ListEnumStatusSetorSampahFieldRefInput<$PrismaModel>
-  notIn?: $Enums.StatusSetorSampah[] | Prisma.ListEnumStatusSetorSampahFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumStatusSetorSampahFilter<$PrismaModel> | $Enums.StatusSetorSampah
+export type NestedEnumStatusSetorLangsungFilter<$PrismaModel = never> = {
+  equals?: $Enums.StatusSetorLangsung | Prisma.EnumStatusSetorLangsungFieldRefInput<$PrismaModel>
+  in?: $Enums.StatusSetorLangsung[] | Prisma.ListEnumStatusSetorLangsungFieldRefInput<$PrismaModel>
+  notIn?: $Enums.StatusSetorLangsung[] | Prisma.ListEnumStatusSetorLangsungFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumStatusSetorLangsungFilter<$PrismaModel> | $Enums.StatusSetorLangsung
 }
 
 export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
@@ -685,24 +678,14 @@ export type NestedFloatNullableWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedFloatNullableFilter<$PrismaModel>
 }
 
-export type NestedEnumJenisSetorWithAggregatesFilter<$PrismaModel = never> = {
-  equals?: $Enums.JenisSetor | Prisma.EnumJenisSetorFieldRefInput<$PrismaModel>
-  in?: $Enums.JenisSetor[] | Prisma.ListEnumJenisSetorFieldRefInput<$PrismaModel>
-  notIn?: $Enums.JenisSetor[] | Prisma.ListEnumJenisSetorFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumJenisSetorWithAggregatesFilter<$PrismaModel> | $Enums.JenisSetor
+export type NestedEnumStatusSetorLangsungWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.StatusSetorLangsung | Prisma.EnumStatusSetorLangsungFieldRefInput<$PrismaModel>
+  in?: $Enums.StatusSetorLangsung[] | Prisma.ListEnumStatusSetorLangsungFieldRefInput<$PrismaModel>
+  notIn?: $Enums.StatusSetorLangsung[] | Prisma.ListEnumStatusSetorLangsungFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumStatusSetorLangsungWithAggregatesFilter<$PrismaModel> | $Enums.StatusSetorLangsung
   _count?: Prisma.NestedIntFilter<$PrismaModel>
-  _min?: Prisma.NestedEnumJenisSetorFilter<$PrismaModel>
-  _max?: Prisma.NestedEnumJenisSetorFilter<$PrismaModel>
-}
-
-export type NestedEnumStatusSetorSampahWithAggregatesFilter<$PrismaModel = never> = {
-  equals?: $Enums.StatusSetorSampah | Prisma.EnumStatusSetorSampahFieldRefInput<$PrismaModel>
-  in?: $Enums.StatusSetorSampah[] | Prisma.ListEnumStatusSetorSampahFieldRefInput<$PrismaModel>
-  notIn?: $Enums.StatusSetorSampah[] | Prisma.ListEnumStatusSetorSampahFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumStatusSetorSampahWithAggregatesFilter<$PrismaModel> | $Enums.StatusSetorSampah
-  _count?: Prisma.NestedIntFilter<$PrismaModel>
-  _min?: Prisma.NestedEnumStatusSetorSampahFilter<$PrismaModel>
-  _max?: Prisma.NestedEnumStatusSetorSampahFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumStatusSetorLangsungFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumStatusSetorLangsungFilter<$PrismaModel>
 }
 
 export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -733,6 +716,23 @@ export type NestedIntNullableWithAggregatesFilter<$PrismaModel = never> = {
   _sum?: Prisma.NestedIntNullableFilter<$PrismaModel>
   _min?: Prisma.NestedIntNullableFilter<$PrismaModel>
   _max?: Prisma.NestedIntNullableFilter<$PrismaModel>
+}
+
+export type NestedEnumStatusSetorEkspedisiFilter<$PrismaModel = never> = {
+  equals?: $Enums.StatusSetorEkspedisi | Prisma.EnumStatusSetorEkspedisiFieldRefInput<$PrismaModel>
+  in?: $Enums.StatusSetorEkspedisi[] | Prisma.ListEnumStatusSetorEkspedisiFieldRefInput<$PrismaModel>
+  notIn?: $Enums.StatusSetorEkspedisi[] | Prisma.ListEnumStatusSetorEkspedisiFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumStatusSetorEkspedisiFilter<$PrismaModel> | $Enums.StatusSetorEkspedisi
+}
+
+export type NestedEnumStatusSetorEkspedisiWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.StatusSetorEkspedisi | Prisma.EnumStatusSetorEkspedisiFieldRefInput<$PrismaModel>
+  in?: $Enums.StatusSetorEkspedisi[] | Prisma.ListEnumStatusSetorEkspedisiFieldRefInput<$PrismaModel>
+  notIn?: $Enums.StatusSetorEkspedisi[] | Prisma.ListEnumStatusSetorEkspedisiFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumStatusSetorEkspedisiWithAggregatesFilter<$PrismaModel> | $Enums.StatusSetorEkspedisi
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumStatusSetorEkspedisiFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumStatusSetorEkspedisiFilter<$PrismaModel>
 }
 
 export type NestedEnumKuponStatusFilter<$PrismaModel = never> = {

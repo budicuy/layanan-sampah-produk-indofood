@@ -44,14 +44,6 @@ export const StatusNasabah = {
 export type StatusNasabah = (typeof StatusNasabah)[keyof typeof StatusNasabah]
 
 
-export const JenisSetor = {
-  LANGSUNG: 'LANGSUNG',
-  EKSPEDISI: 'EKSPEDISI'
-} as const
-
-export type JenisSetor = (typeof JenisSetor)[keyof typeof JenisSetor]
-
-
 export const JenisSampah = {
   PLASTIK: 'PLASTIK',
   KARTON: 'KARTON',
@@ -61,7 +53,16 @@ export const JenisSampah = {
 export type JenisSampah = (typeof JenisSampah)[keyof typeof JenisSampah]
 
 
-export const StatusSetorSampah = {
+export const StatusSetorLangsung = {
+  MENUNGGU_VERIFIKASI: 'MENUNGGU_VERIFIKASI',
+  DITOLAK: 'DITOLAK',
+  SELESAI: 'SELESAI'
+} as const
+
+export type StatusSetorLangsung = (typeof StatusSetorLangsung)[keyof typeof StatusSetorLangsung]
+
+
+export const StatusSetorEkspedisi = {
   MENUNGGU_VERIFIKASI: 'MENUNGGU_VERIFIKASI',
   TERVERIFIKASI: 'TERVERIFIKASI',
   DITOLAK: 'DITOLAK',
@@ -71,7 +72,7 @@ export const StatusSetorSampah = {
   SELESAI: 'SELESAI'
 } as const
 
-export type StatusSetorSampah = (typeof StatusSetorSampah)[keyof typeof StatusSetorSampah]
+export type StatusSetorEkspedisi = (typeof StatusSetorEkspedisi)[keyof typeof StatusSetorEkspedisi]
 
 
 export const KuponStatus = {

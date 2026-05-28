@@ -13,9 +13,9 @@ async function checkAdminAuth() {
 export async function getLaporanData() {
   await checkAdminAuth();
 
-  const [setoran, pencairan, kupon] = await Promise.all([
-    // 1. Setoran selesai
-    prisma.setorSampah.findMany({
+  const [setorLangsung, setorEkspedisi, pencairan, kupon] = await Promise.all([
+    // 1a. Setor Langsung selesai
+    prisma.setorLangsung.findMany({
       where: { status: "SELESAI" },
       orderBy: { selesaiAt: "desc" },
       include: {
@@ -24,14 +24,25 @@ export async function getLaporanData() {
             id: true,
             nik: true,
             kategori: true,
-            user: {
-              select: { name: true },
-            },
+            user: { select: { name: true } },
           },
         },
-        ekpedisi: {
-          select: { alamat: true, noTelp: true },
+      },
+    }),
+    // 1b. Setor Ekspedisi selesai
+    prisma.setorEkspedisi.findMany({
+      where: { status: "SELESAI" },
+      orderBy: { selesaiAt: "desc" },
+      include: {
+        nasabah: {
+          select: {
+            id: true,
+            nik: true,
+            kategori: true,
+            user: { select: { name: true } },
+          },
         },
+        ekpedisi: { select: { alamat: true, noTelp: true } },
       },
     }),
     // 2. Semua Pencairan
@@ -42,9 +53,7 @@ export async function getLaporanData() {
           select: {
             id: true,
             nik: true,
-            user: {
-              select: { name: true, username: true },
-            },
+            user: { select: { name: true, username: true } },
           },
         },
       },
@@ -57,14 +66,26 @@ export async function getLaporanData() {
           select: {
             id: true,
             nik: true,
-            user: {
-              select: { name: true },
-            },
+            user: { select: { name: true } },
           },
         },
       },
     }),
   ]);
+
+  // Gabungkan setor langsung + ekspedisi, tandai jenisnya
+  const setoran = [
+    ...setorLangsung.map((s) => ({
+      ...s,
+      jenisSetor: "LANGSUNG" as const,
+      ekpedisi: null,
+    })),
+    ...setorEkspedisi.map((s) => ({ ...s, jenisSetor: "EKSPEDISI" as const })),
+  ].sort(
+    (a, b) =>
+      new Date(b.selesaiAt ?? b.createdAt).getTime() -
+      new Date(a.selesaiAt ?? a.createdAt).getTime(),
+  );
 
   return { setoran, pencairan, kupon };
 }

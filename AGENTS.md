@@ -160,16 +160,16 @@ export async function createEntity(data: FormData) {
 
 ```bash
 # Development
-pnpm dev                    # Start dev server (http://localhost:3000)
-pnpm run db:seed           # Seed default data (updates points & mock data)
-pnpm run prisma/migrate.ts  # Push local schema changes to Neon DB via HTTP adapter (bypassing blocked TCP port 5432)
-pnpm run db:generate       # Regenerate Prisma client after schema changes
-pnpm run lint              # Format + lint with Biome (writes fixes)
-pnpm run format            # Format code only
+bun dev                    # Start dev server (http://localhost:3000)
+bun run db:seed           # Seed default data (updates points & mock data)
+bun run prisma/migrate.ts  # Push local schema changes to Neon DB via HTTP adapter (bypassing blocked TCP port 5432)
+bun run db:generate       # Regenerate Prisma client after schema changes
+bun run lint              # Format + lint with Biome (writes fixes)
+bun run format            # Format code only
 
 # Production
-pnpm run build             # Build production bundle
-pnpm start                 # Start production server
+bun run build             # Build production bundle
+bun start                 # Start production server
 ```
 
 ---

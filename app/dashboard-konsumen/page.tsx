@@ -57,7 +57,21 @@ export default async function ConsumerDashboardPage() {
           poin: true,
           noRek: true,
           alamat: true,
-          setorSampah: {
+          setorLangsung: {
+            orderBy: { createdAt: "desc" },
+            take: 10,
+            select: {
+              id: true,
+              jenisSampah: true,
+              beratEstimasi: true,
+              beratAktual: true,
+              totalPoin: true,
+              status: true,
+              selesaiAt: true,
+              createdAt: true,
+            },
+          },
+          setorEkspedisi: {
             orderBy: { createdAt: "desc" },
             take: 10,
             select: {
@@ -75,8 +89,23 @@ export default async function ConsumerDashboardPage() {
       })
     : null;
 
-  const setoran = nasabah?.setorSampah ?? [];
-  const setoranSelesai = setoran.filter((s) => s.status === "SELESAI");
+  // Combine and sort setoran by createdAt desc
+  const setoranLangsungList = nasabah?.setorLangsung ?? [];
+  const setoranEkspedisiList = nasabah?.setorEkspedisi ?? [];
+  const setoran = [
+    ...setoranLangsungList.map((s) => ({ ...s, jenisSetor: "LANGSUNG" })),
+    ...setoranEkspedisiList.map((s) => ({ ...s, jenisSetor: "EKSPEDISI" })),
+  ]
+    .sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+    )
+    .slice(0, 10);
+
+  const setoranSelesai = [
+    ...setoranLangsungList.filter((s) => s.status === "SELESAI"),
+    ...setoranEkspedisiList.filter((s) => s.status === "SELESAI"),
+  ];
 
   // Stats
   const totalBerat = setoranSelesai.reduce(
@@ -84,7 +113,7 @@ export default async function ConsumerDashboardPage() {
     0,
   );
   const totalPoin = nasabah?.poin ?? 0;
-  const totalSetoran = setoran.length;
+  const totalSetoran = setoranLangsungList.length + setoranEkspedisiList.length;
   const selesaiCount = setoranSelesai.length;
 
   // Chart: monthly data (last 6 months)

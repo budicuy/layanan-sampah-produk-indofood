@@ -20,7 +20,8 @@ import {
 import { useCallback, useEffect, useState } from "react";
 import type {
   JenisSampah,
-  StatusSetorSampah,
+  StatusSetorEkspedisi,
+  StatusSetorLangsung,
 } from "@/prisma/generated/prisma/client";
 import {
   getSetorSampahKonsumenData,
@@ -65,7 +66,7 @@ const compressAndGetBase64 = async (file: File) => {
 };
 
 const STATUS_STEPS: {
-  key: StatusSetorSampah;
+  key: string;
   label: string;
   desc: string;
 }[] = [
@@ -101,13 +102,13 @@ const STATUS_STEPS: {
   },
 ];
 
-function getStepIndex(status: StatusSetorSampah): number {
+function getStepIndex(status: string): number {
   if (status === "DITOLAK") return -1;
   return STATUS_STEPS.findIndex((s) => s.key === status);
 }
 
-function StatusBadge({ status }: { status: StatusSetorSampah }) {
-  const map: Record<StatusSetorSampah, { label: string; cls: string }> = {
+function StatusBadge({ status }: { status: string }) {
+  const map: Record<string, { label: string; cls: string }> = {
     MENUNGGU_VERIFIKASI: {
       label: "Menunggu Verifikasi",
       cls: "bg-amber-100 text-amber-700",
@@ -997,36 +998,34 @@ function FormSetorLangsung({
                 typeCls = "bg-blue-50 text-blue-500";
               }
 
-              const statusMap: Record<
-                StatusSetorSampah,
-                { label: string; cls: string }
-              > = {
-                MENUNGGU_VERIFIKASI: {
-                  label: "Menunggu",
-                  cls: "bg-amber-100 text-amber-700",
-                },
-                TERVERIFIKASI: {
-                  label: "Terverifikasi",
-                  cls: "bg-blue-100 text-blue-700",
-                },
-                DITOLAK: { label: "Ditolak", cls: "bg-red-100 text-red-700" },
-                DALAM_PENJEMPUTAN: {
-                  label: "Penjemputan",
-                  cls: "bg-purple-100 text-purple-700",
-                },
-                SUDAH_DISERAHKAN: {
-                  label: "Diserahkan",
-                  cls: "bg-indigo-100 text-indigo-700",
-                },
-                SAMPAH_DITERIMA: {
-                  label: "Diterima",
-                  cls: "bg-teal-100 text-teal-700",
-                },
-                SELESAI: {
-                  label: "Selesai ✓",
-                  cls: "bg-green-100 text-green-700",
-                },
-              };
+              const statusMap: Record<string, { label: string; cls: string }> =
+                {
+                  MENUNGGU_VERIFIKASI: {
+                    label: "Menunggu",
+                    cls: "bg-amber-100 text-amber-700",
+                  },
+                  TERVERIFIKASI: {
+                    label: "Terverifikasi",
+                    cls: "bg-blue-100 text-blue-700",
+                  },
+                  DITOLAK: { label: "Ditolak", cls: "bg-red-100 text-red-700" },
+                  DALAM_PENJEMPUTAN: {
+                    label: "Penjemputan",
+                    cls: "bg-purple-100 text-purple-700",
+                  },
+                  SUDAH_DISERAHKAN: {
+                    label: "Diserahkan",
+                    cls: "bg-indigo-100 text-indigo-700",
+                  },
+                  SAMPAH_DITERIMA: {
+                    label: "Diterima",
+                    cls: "bg-teal-100 text-teal-700",
+                  },
+                  SELESAI: {
+                    label: "Selesai ✓",
+                    cls: "bg-green-100 text-green-700",
+                  },
+                };
               const { label, cls } = statusMap[item.status];
 
               return (
@@ -1092,7 +1091,7 @@ type SetorSampah = {
   beratEstimasi: number;
   beratAktual: number | null;
   keterangan: string | null;
-  status: StatusSetorSampah;
+  status: string;
   catatanAdmin: string | null;
   verifiedBy: string | null;
   ekpedisi: Ekpedisi | null;
@@ -1114,8 +1113,33 @@ export default function SetorSampahPage() {
 
   const fetchData = useCallback(async () => {
     try {
-      const { nasabah } = await getSetorSampahKonsumenData();
-      setNasabah(nasabah as unknown as Nasabah);
+      const res = await getSetorSampahKonsumenData();
+      if (res.nasabah) {
+        const combinedSetor: SetorSampah[] = [
+          ...(res.setorLangsung || []).map((s) => ({
+            ...s,
+            jenisSetor: "LANGSUNG" as const,
+            ekpedisi: null,
+          })),
+          ...(res.setorEkspedisi || []).map((s) => ({
+            ...s,
+            jenisSetor: "EKSPEDISI" as const,
+            ekpedisi: s.ekpedisi
+              ? { noTelp: s.ekpedisi.noTelp, alamat: s.ekpedisi.alamat }
+              : null,
+          })),
+        ].sort(
+          (a, b) =>
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+        );
+
+        setNasabah({
+          id: res.nasabah.id,
+          alamat: res.nasabah.alamat || "",
+          poin: res.nasabah.poin,
+          setorSampah: combinedSetor,
+        });
+      }
     } catch (_e) {
       // Ignored or handle unauth
     } finally {

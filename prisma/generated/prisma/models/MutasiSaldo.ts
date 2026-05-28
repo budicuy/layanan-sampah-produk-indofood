@@ -14,7 +14,7 @@ import type * as Prisma from "../internal/prismaNamespace"
 
 /**
  * Model MutasiSaldo
- * Riwayat mutasi saldo nasabah
+ * Riwayat mutasi saldo/poin nasabah
  */
 export type MutasiSaldoModel = runtime.Types.Result.DefaultSelection<Prisma.$MutasiSaldoPayload>
 
@@ -40,6 +40,7 @@ export type MutasiSaldoMinAggregateOutputType = {
   jumlah: number | null
   keterangan: string | null
   referensiId: string | null
+  jenisReferensi: string | null
   createdAt: Date | null
 }
 
@@ -49,6 +50,7 @@ export type MutasiSaldoMaxAggregateOutputType = {
   jumlah: number | null
   keterangan: string | null
   referensiId: string | null
+  jenisReferensi: string | null
   createdAt: Date | null
 }
 
@@ -58,6 +60,7 @@ export type MutasiSaldoCountAggregateOutputType = {
   jumlah: number
   keterangan: number
   referensiId: number
+  jenisReferensi: number
   createdAt: number
   _all: number
 }
@@ -77,6 +80,7 @@ export type MutasiSaldoMinAggregateInputType = {
   jumlah?: true
   keterangan?: true
   referensiId?: true
+  jenisReferensi?: true
   createdAt?: true
 }
 
@@ -86,6 +90,7 @@ export type MutasiSaldoMaxAggregateInputType = {
   jumlah?: true
   keterangan?: true
   referensiId?: true
+  jenisReferensi?: true
   createdAt?: true
 }
 
@@ -95,6 +100,7 @@ export type MutasiSaldoCountAggregateInputType = {
   jumlah?: true
   keterangan?: true
   referensiId?: true
+  jenisReferensi?: true
   createdAt?: true
   _all?: true
 }
@@ -191,6 +197,7 @@ export type MutasiSaldoGroupByOutputType = {
   jumlah: number
   keterangan: string
   referensiId: string | null
+  jenisReferensi: string | null
   createdAt: Date
   _count: MutasiSaldoCountAggregateOutputType | null
   _avg: MutasiSaldoAvgAggregateOutputType | null
@@ -223,6 +230,7 @@ export type MutasiSaldoWhereInput = {
   jumlah?: Prisma.IntFilter<"MutasiSaldo"> | number
   keterangan?: Prisma.StringFilter<"MutasiSaldo"> | string
   referensiId?: Prisma.StringNullableFilter<"MutasiSaldo"> | string | null
+  jenisReferensi?: Prisma.StringNullableFilter<"MutasiSaldo"> | string | null
   createdAt?: Prisma.DateTimeFilter<"MutasiSaldo"> | Date | string
   nasabah?: Prisma.XOR<Prisma.NasabahScalarRelationFilter, Prisma.NasabahWhereInput>
 }
@@ -233,6 +241,7 @@ export type MutasiSaldoOrderByWithRelationInput = {
   jumlah?: Prisma.SortOrder
   keterangan?: Prisma.SortOrder
   referensiId?: Prisma.SortOrderInput | Prisma.SortOrder
+  jenisReferensi?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   nasabah?: Prisma.NasabahOrderByWithRelationInput
 }
@@ -246,6 +255,7 @@ export type MutasiSaldoWhereUniqueInput = Prisma.AtLeast<{
   jumlah?: Prisma.IntFilter<"MutasiSaldo"> | number
   keterangan?: Prisma.StringFilter<"MutasiSaldo"> | string
   referensiId?: Prisma.StringNullableFilter<"MutasiSaldo"> | string | null
+  jenisReferensi?: Prisma.StringNullableFilter<"MutasiSaldo"> | string | null
   createdAt?: Prisma.DateTimeFilter<"MutasiSaldo"> | Date | string
   nasabah?: Prisma.XOR<Prisma.NasabahScalarRelationFilter, Prisma.NasabahWhereInput>
 }, "id">
@@ -256,6 +266,7 @@ export type MutasiSaldoOrderByWithAggregationInput = {
   jumlah?: Prisma.SortOrder
   keterangan?: Prisma.SortOrder
   referensiId?: Prisma.SortOrderInput | Prisma.SortOrder
+  jenisReferensi?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.MutasiSaldoCountOrderByAggregateInput
   _avg?: Prisma.MutasiSaldoAvgOrderByAggregateInput
@@ -273,6 +284,7 @@ export type MutasiSaldoScalarWhereWithAggregatesInput = {
   jumlah?: Prisma.IntWithAggregatesFilter<"MutasiSaldo"> | number
   keterangan?: Prisma.StringWithAggregatesFilter<"MutasiSaldo"> | string
   referensiId?: Prisma.StringNullableWithAggregatesFilter<"MutasiSaldo"> | string | null
+  jenisReferensi?: Prisma.StringNullableWithAggregatesFilter<"MutasiSaldo"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"MutasiSaldo"> | Date | string
 }
 
@@ -281,6 +293,7 @@ export type MutasiSaldoCreateInput = {
   jumlah: number
   keterangan: string
   referensiId?: string | null
+  jenisReferensi?: string | null
   createdAt?: Date | string
   nasabah: Prisma.NasabahCreateNestedOneWithoutMutasiSaldoInput
 }
@@ -291,6 +304,7 @@ export type MutasiSaldoUncheckedCreateInput = {
   jumlah: number
   keterangan: string
   referensiId?: string | null
+  jenisReferensi?: string | null
   createdAt?: Date | string
 }
 
@@ -299,6 +313,7 @@ export type MutasiSaldoUpdateInput = {
   jumlah?: Prisma.IntFieldUpdateOperationsInput | number
   keterangan?: Prisma.StringFieldUpdateOperationsInput | string
   referensiId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  jenisReferensi?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   nasabah?: Prisma.NasabahUpdateOneRequiredWithoutMutasiSaldoNestedInput
 }
@@ -309,6 +324,7 @@ export type MutasiSaldoUncheckedUpdateInput = {
   jumlah?: Prisma.IntFieldUpdateOperationsInput | number
   keterangan?: Prisma.StringFieldUpdateOperationsInput | string
   referensiId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  jenisReferensi?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -318,6 +334,7 @@ export type MutasiSaldoCreateManyInput = {
   jumlah: number
   keterangan: string
   referensiId?: string | null
+  jenisReferensi?: string | null
   createdAt?: Date | string
 }
 
@@ -326,6 +343,7 @@ export type MutasiSaldoUpdateManyMutationInput = {
   jumlah?: Prisma.IntFieldUpdateOperationsInput | number
   keterangan?: Prisma.StringFieldUpdateOperationsInput | string
   referensiId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  jenisReferensi?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -335,6 +353,7 @@ export type MutasiSaldoUncheckedUpdateManyInput = {
   jumlah?: Prisma.IntFieldUpdateOperationsInput | number
   keterangan?: Prisma.StringFieldUpdateOperationsInput | string
   referensiId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  jenisReferensi?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -354,6 +373,7 @@ export type MutasiSaldoCountOrderByAggregateInput = {
   jumlah?: Prisma.SortOrder
   keterangan?: Prisma.SortOrder
   referensiId?: Prisma.SortOrder
+  jenisReferensi?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -367,6 +387,7 @@ export type MutasiSaldoMaxOrderByAggregateInput = {
   jumlah?: Prisma.SortOrder
   keterangan?: Prisma.SortOrder
   referensiId?: Prisma.SortOrder
+  jenisReferensi?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -376,6 +397,7 @@ export type MutasiSaldoMinOrderByAggregateInput = {
   jumlah?: Prisma.SortOrder
   keterangan?: Prisma.SortOrder
   referensiId?: Prisma.SortOrder
+  jenisReferensi?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -430,6 +452,7 @@ export type MutasiSaldoCreateWithoutNasabahInput = {
   jumlah: number
   keterangan: string
   referensiId?: string | null
+  jenisReferensi?: string | null
   createdAt?: Date | string
 }
 
@@ -438,6 +461,7 @@ export type MutasiSaldoUncheckedCreateWithoutNasabahInput = {
   jumlah: number
   keterangan: string
   referensiId?: string | null
+  jenisReferensi?: string | null
   createdAt?: Date | string
 }
 
@@ -476,6 +500,7 @@ export type MutasiSaldoScalarWhereInput = {
   jumlah?: Prisma.IntFilter<"MutasiSaldo"> | number
   keterangan?: Prisma.StringFilter<"MutasiSaldo"> | string
   referensiId?: Prisma.StringNullableFilter<"MutasiSaldo"> | string | null
+  jenisReferensi?: Prisma.StringNullableFilter<"MutasiSaldo"> | string | null
   createdAt?: Prisma.DateTimeFilter<"MutasiSaldo"> | Date | string
 }
 
@@ -484,6 +509,7 @@ export type MutasiSaldoCreateManyNasabahInput = {
   jumlah: number
   keterangan: string
   referensiId?: string | null
+  jenisReferensi?: string | null
   createdAt?: Date | string
 }
 
@@ -492,6 +518,7 @@ export type MutasiSaldoUpdateWithoutNasabahInput = {
   jumlah?: Prisma.IntFieldUpdateOperationsInput | number
   keterangan?: Prisma.StringFieldUpdateOperationsInput | string
   referensiId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  jenisReferensi?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -500,6 +527,7 @@ export type MutasiSaldoUncheckedUpdateWithoutNasabahInput = {
   jumlah?: Prisma.IntFieldUpdateOperationsInput | number
   keterangan?: Prisma.StringFieldUpdateOperationsInput | string
   referensiId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  jenisReferensi?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -508,6 +536,7 @@ export type MutasiSaldoUncheckedUpdateManyWithoutNasabahInput = {
   jumlah?: Prisma.IntFieldUpdateOperationsInput | number
   keterangan?: Prisma.StringFieldUpdateOperationsInput | string
   referensiId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  jenisReferensi?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -519,6 +548,7 @@ export type MutasiSaldoSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   jumlah?: boolean
   keterangan?: boolean
   referensiId?: boolean
+  jenisReferensi?: boolean
   createdAt?: boolean
   nasabah?: boolean | Prisma.NasabahDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["mutasiSaldo"]>
@@ -529,6 +559,7 @@ export type MutasiSaldoSelectCreateManyAndReturn<ExtArgs extends runtime.Types.E
   jumlah?: boolean
   keterangan?: boolean
   referensiId?: boolean
+  jenisReferensi?: boolean
   createdAt?: boolean
   nasabah?: boolean | Prisma.NasabahDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["mutasiSaldo"]>
@@ -539,6 +570,7 @@ export type MutasiSaldoSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.E
   jumlah?: boolean
   keterangan?: boolean
   referensiId?: boolean
+  jenisReferensi?: boolean
   createdAt?: boolean
   nasabah?: boolean | Prisma.NasabahDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["mutasiSaldo"]>
@@ -549,10 +581,11 @@ export type MutasiSaldoSelectScalar = {
   jumlah?: boolean
   keterangan?: boolean
   referensiId?: boolean
+  jenisReferensi?: boolean
   createdAt?: boolean
 }
 
-export type MutasiSaldoOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "nasabahId" | "jumlah" | "keterangan" | "referensiId" | "createdAt", ExtArgs["result"]["mutasiSaldo"]>
+export type MutasiSaldoOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "nasabahId" | "jumlah" | "keterangan" | "referensiId" | "jenisReferensi" | "createdAt", ExtArgs["result"]["mutasiSaldo"]>
 export type MutasiSaldoInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   nasabah?: boolean | Prisma.NasabahDefaultArgs<ExtArgs>
 }
@@ -574,6 +607,7 @@ export type $MutasiSaldoPayload<ExtArgs extends runtime.Types.Extensions.Interna
     jumlah: number
     keterangan: string
     referensiId: string | null
+    jenisReferensi: string | null
     createdAt: Date
   }, ExtArgs["result"]["mutasiSaldo"]>
   composites: {}
@@ -1004,6 +1038,7 @@ export interface MutasiSaldoFieldRefs {
   readonly jumlah: Prisma.FieldRef<"MutasiSaldo", 'Int'>
   readonly keterangan: Prisma.FieldRef<"MutasiSaldo", 'String'>
   readonly referensiId: Prisma.FieldRef<"MutasiSaldo", 'String'>
+  readonly jenisReferensi: Prisma.FieldRef<"MutasiSaldo", 'String'>
   readonly createdAt: Prisma.FieldRef<"MutasiSaldo", 'DateTime'>
 }
     

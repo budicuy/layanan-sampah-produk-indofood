@@ -374,6 +374,175 @@ async function main() {
     console.log("ℹ️ Skipping setor_sampah.verifiedBy addition:", msg);
   }
 
+  // 12. Create StatusSetorLangsung enum
+  try {
+    await prisma.$executeRawUnsafe(`
+      DO $$ BEGIN
+        CREATE TYPE "StatusSetorLangsung" AS ENUM ('MENUNGGU_VERIFIKASI', 'DITOLAK', 'SELESAI');
+      EXCEPTION WHEN duplicate_object THEN NULL;
+      END $$
+    `);
+    console.log("✅ Enum 'StatusSetorLangsung' ensured.");
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.log("ℹ️ Skipping StatusSetorLangsung enum:", msg);
+  }
+
+  // 13. Create StatusSetorEkspedisi enum
+  try {
+    await prisma.$executeRawUnsafe(`
+      DO $$ BEGIN
+        CREATE TYPE "StatusSetorEkspedisi" AS ENUM (
+          'MENUNGGU_VERIFIKASI', 'TERVERIFIKASI', 'DITOLAK',
+          'DALAM_PENJEMPUTAN', 'SUDAH_DISERAHKAN', 'SAMPAH_DITERIMA', 'SELESAI'
+        );
+      EXCEPTION WHEN duplicate_object THEN NULL;
+      END $$
+    `);
+    console.log("✅ Enum 'StatusSetorEkspedisi' ensured.");
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.log("ℹ️ Skipping StatusSetorEkspedisi enum:", msg);
+  }
+
+  // 14. Create setor_langsung table
+  try {
+    await prisma.$executeRawUnsafe(`
+      CREATE TABLE IF NOT EXISTS "setor_langsung" (
+        "id"               TEXT NOT NULL,
+        "nasabahId"        TEXT NOT NULL,
+        "jenisSampah"      "JenisSampah" NOT NULL,
+        "beratEstimasi"    DOUBLE PRECISION NOT NULL,
+        "beratAktual"      DOUBLE PRECISION,
+        "keterangan"       TEXT,
+        "status"           "StatusSetorLangsung" NOT NULL DEFAULT 'MENUNGGU_VERIFIKASI',
+        "catatanAdmin"     TEXT,
+        "verifiedBy"       TEXT,
+        "verifikasiAt"     TIMESTAMP(3),
+        "selesaiAt"        TIMESTAMP(3),
+        "poinPerKg"        INTEGER,
+        "totalPoin"        INTEGER,
+        "hargaPerKg"       INTEGER,
+        "totalHarga"       INTEGER,
+        "gambarTimbangan"  TEXT,
+        "gambarBukti"      TEXT[] NOT NULL DEFAULT '{}',
+        "statusValidasi"   TEXT,
+        "beratTerbaca"     DOUBLE PRECISION,
+        "createdAt"        TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        "updatedAt"        TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        CONSTRAINT "setor_langsung_pkey" PRIMARY KEY ("id")
+      )
+    `);
+    await prisma.$executeRawUnsafe(`
+      CREATE INDEX IF NOT EXISTS "setor_langsung_nasabahId_status_idx"
+      ON "setor_langsung"("nasabahId", "status")
+    `);
+    await prisma.$executeRawUnsafe(`
+      CREATE INDEX IF NOT EXISTS "setor_langsung_status_idx"
+      ON "setor_langsung"("status")
+    `);
+    await prisma.$executeRawUnsafe(`
+      CREATE INDEX IF NOT EXISTS "setor_langsung_selesaiAt_idx"
+      ON "setor_langsung"("selesaiAt")
+    `);
+    await prisma.$executeRawUnsafe(`
+      DO $$ BEGIN
+        IF NOT EXISTS (
+          SELECT 1 FROM pg_constraint WHERE conname = 'setor_langsung_nasabahId_fkey'
+        ) THEN
+          ALTER TABLE "setor_langsung" ADD CONSTRAINT "setor_langsung_nasabahId_fkey"
+            FOREIGN KEY ("nasabahId") REFERENCES "nasabah"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+        END IF;
+      END $$
+    `);
+    console.log("✅ Table 'setor_langsung' created/ensured.");
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.log("❌ Error creating 'setor_langsung':", msg);
+  }
+
+  // 15. Create setor_ekspedisi table
+  try {
+    await prisma.$executeRawUnsafe(`
+      CREATE TABLE IF NOT EXISTS "setor_ekspedisi" (
+        "id"                 TEXT NOT NULL,
+        "nasabahId"          TEXT NOT NULL,
+        "jenisSampah"        "JenisSampah" NOT NULL,
+        "beratEstimasi"      DOUBLE PRECISION NOT NULL,
+        "beratAktual"        DOUBLE PRECISION,
+        "keterangan"         TEXT,
+        "alamatPenjemputan"  TEXT NOT NULL DEFAULT '',
+        "status"             "StatusSetorEkspedisi" NOT NULL DEFAULT 'MENUNGGU_VERIFIKASI',
+        "catatanAdmin"       TEXT,
+        "verifiedBy"         TEXT,
+        "verifikasiAt"       TIMESTAMP(3),
+        "ekpedisiId"         TEXT,
+        "penjemputanAt"      TIMESTAMP(3),
+        "diserahkanAt"       TIMESTAMP(3),
+        "sampahDiterimaAt"   TIMESTAMP(3),
+        "selesaiAt"          TIMESTAMP(3),
+        "poinPerKg"          INTEGER,
+        "totalPoin"          INTEGER,
+        "hargaPerKg"         INTEGER,
+        "totalHarga"         INTEGER,
+        "gambarTimbangan"    TEXT,
+        "gambarBukti"        TEXT[] NOT NULL DEFAULT '{}',
+        "statusValidasi"     TEXT,
+        "beratTerbaca"       DOUBLE PRECISION,
+        "createdAt"          TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        "updatedAt"          TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        CONSTRAINT "setor_ekspedisi_pkey" PRIMARY KEY ("id")
+      )
+    `);
+    await prisma.$executeRawUnsafe(`
+      CREATE INDEX IF NOT EXISTS "setor_ekspedisi_nasabahId_status_idx"
+      ON "setor_ekspedisi"("nasabahId", "status")
+    `);
+    await prisma.$executeRawUnsafe(`
+      CREATE INDEX IF NOT EXISTS "setor_ekspedisi_status_idx"
+      ON "setor_ekspedisi"("status")
+    `);
+    await prisma.$executeRawUnsafe(`
+      CREATE INDEX IF NOT EXISTS "setor_ekspedisi_selesaiAt_idx"
+      ON "setor_ekspedisi"("selesaiAt")
+    `);
+    await prisma.$executeRawUnsafe(`
+      DO $$ BEGIN
+        IF NOT EXISTS (
+          SELECT 1 FROM pg_constraint WHERE conname = 'setor_ekspedisi_nasabahId_fkey'
+        ) THEN
+          ALTER TABLE "setor_ekspedisi" ADD CONSTRAINT "setor_ekspedisi_nasabahId_fkey"
+            FOREIGN KEY ("nasabahId") REFERENCES "nasabah"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+        END IF;
+      END $$
+    `);
+    await prisma.$executeRawUnsafe(`
+      DO $$ BEGIN
+        IF NOT EXISTS (
+          SELECT 1 FROM pg_constraint WHERE conname = 'setor_ekspedisi_ekpedisiId_fkey'
+        ) THEN
+          ALTER TABLE "setor_ekspedisi" ADD CONSTRAINT "setor_ekspedisi_ekpedisiId_fkey"
+            FOREIGN KEY ("ekpedisiId") REFERENCES "ekpedisi"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+        END IF;
+      END $$
+    `);
+    console.log("✅ Table 'setor_ekspedisi' created/ensured.");
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.log("❌ Error creating 'setor_ekspedisi':", msg);
+  }
+
+  // 16. Add jenisReferensi column to mutasi_saldo
+  try {
+    await prisma.$executeRawUnsafe(
+      'ALTER TABLE "mutasi_saldo" ADD COLUMN IF NOT EXISTS "jenisReferensi" TEXT',
+    );
+    console.log("✅ Column 'jenisReferensi' added to 'mutasi_saldo'.");
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.log("ℹ️ Skipping mutasi_saldo.jenisReferensi:", msg);
+  }
+
   console.log("🎉 Migration script finished successfully!");
 }
 

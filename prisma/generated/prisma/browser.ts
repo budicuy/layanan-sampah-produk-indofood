@@ -43,13 +43,18 @@ export type Ekpedisi = Prisma.EkpedisiModel
  */
 export type HargaSampah = Prisma.HargaSampahModel
 /**
- * Model SetorSampah
- * 
+ * Model SetorLangsung
+ * Setoran sampah langsung (drop-off di pusat). Alur: MENUNGGU → DITOLAK/SELESAI
  */
-export type SetorSampah = Prisma.SetorSampahModel
+export type SetorLangsung = Prisma.SetorLangsungModel
+/**
+ * Model SetorEkspedisi
+ * Setoran sampah via kurir ekspedisi. Alur: MENUNGGU → TERVERIFIKASI → DALAM_PENJEMPUTAN → SUDAH_DISERAHKAN → SAMPAH_DITERIMA → SELESAI
+ */
+export type SetorEkspedisi = Prisma.SetorEkspedisiModel
 /**
  * Model MutasiSaldo
- * Riwayat mutasi saldo nasabah
+ * Riwayat mutasi saldo/poin nasabah
  */
 export type MutasiSaldo = Prisma.MutasiSaldoModel
 /**

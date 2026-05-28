@@ -56,7 +56,8 @@ export const ModelName = {
   Nasabah: 'Nasabah',
   Ekpedisi: 'Ekpedisi',
   HargaSampah: 'HargaSampah',
-  SetorSampah: 'SetorSampah',
+  SetorLangsung: 'SetorLangsung',
+  SetorEkspedisi: 'SetorEkspedisi',
   MutasiSaldo: 'MutasiSaldo',
   Kupon: 'Kupon',
   TierKupon: 'TierKupon',
@@ -159,27 +160,22 @@ export const HargaSampahScalarFieldEnum = {
 export type HargaSampahScalarFieldEnum = (typeof HargaSampahScalarFieldEnum)[keyof typeof HargaSampahScalarFieldEnum]
 
 
-export const SetorSampahScalarFieldEnum = {
+export const SetorLangsungScalarFieldEnum = {
   id: 'id',
   nasabahId: 'nasabahId',
   jenisSampah: 'jenisSampah',
   beratEstimasi: 'beratEstimasi',
   beratAktual: 'beratAktual',
   keterangan: 'keterangan',
-  alamatPenjemputan: 'alamatPenjemputan',
-  jenisSetor: 'jenisSetor',
   status: 'status',
   catatanAdmin: 'catatanAdmin',
   verifiedBy: 'verifiedBy',
   verifikasiAt: 'verifikasiAt',
-  ekpedisiId: 'ekpedisiId',
-  penjemputanAt: 'penjemputanAt',
-  diserahkanAt: 'diserahkanAt',
+  selesaiAt: 'selesaiAt',
   poinPerKg: 'poinPerKg',
   totalPoin: 'totalPoin',
   hargaPerKg: 'hargaPerKg',
   totalHarga: 'totalHarga',
-  selesaiAt: 'selesaiAt',
   gambarTimbangan: 'gambarTimbangan',
   gambarBukti: 'gambarBukti',
   statusValidasi: 'statusValidasi',
@@ -188,7 +184,39 @@ export const SetorSampahScalarFieldEnum = {
   updatedAt: 'updatedAt'
 } as const
 
-export type SetorSampahScalarFieldEnum = (typeof SetorSampahScalarFieldEnum)[keyof typeof SetorSampahScalarFieldEnum]
+export type SetorLangsungScalarFieldEnum = (typeof SetorLangsungScalarFieldEnum)[keyof typeof SetorLangsungScalarFieldEnum]
+
+
+export const SetorEkspedisiScalarFieldEnum = {
+  id: 'id',
+  nasabahId: 'nasabahId',
+  jenisSampah: 'jenisSampah',
+  beratEstimasi: 'beratEstimasi',
+  beratAktual: 'beratAktual',
+  keterangan: 'keterangan',
+  alamatPenjemputan: 'alamatPenjemputan',
+  status: 'status',
+  catatanAdmin: 'catatanAdmin',
+  verifiedBy: 'verifiedBy',
+  verifikasiAt: 'verifikasiAt',
+  ekpedisiId: 'ekpedisiId',
+  penjemputanAt: 'penjemputanAt',
+  diserahkanAt: 'diserahkanAt',
+  sampahDiterimaAt: 'sampahDiterimaAt',
+  selesaiAt: 'selesaiAt',
+  poinPerKg: 'poinPerKg',
+  totalPoin: 'totalPoin',
+  hargaPerKg: 'hargaPerKg',
+  totalHarga: 'totalHarga',
+  gambarTimbangan: 'gambarTimbangan',
+  gambarBukti: 'gambarBukti',
+  statusValidasi: 'statusValidasi',
+  beratTerbaca: 'beratTerbaca',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SetorEkspedisiScalarFieldEnum = (typeof SetorEkspedisiScalarFieldEnum)[keyof typeof SetorEkspedisiScalarFieldEnum]
 
 
 export const MutasiSaldoScalarFieldEnum = {
@@ -197,6 +225,7 @@ export const MutasiSaldoScalarFieldEnum = {
   jumlah: 'jumlah',
   keterangan: 'keterangan',
   referensiId: 'referensiId',
+  jenisReferensi: 'jenisReferensi',
   createdAt: 'createdAt'
 } as const
 

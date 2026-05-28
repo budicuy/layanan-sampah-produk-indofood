@@ -4,99 +4,78 @@ import { revalidatePath } from "next/cache";
 import { getSession } from "@/app/login/auth/session";
 import { prisma } from "@/lib/prisma";
 
-async function checkAdminAuth() {
-  const session = await getSession();
-  if (!session || session.user.role === "KONSUMEN") {
-    throw new Error("Unauthorized: Admin or HRD access required");
-  }
-}
+const REVALIDATE = "/dashboard-admin/pendataan/setor-sampah";
 
-// ─── Verifikasi awal (admin approve / tolak) ───────────────────────────────
-
-export async function verifikasiSetorSampah(
-  setorSampahId: string,
-  approve: boolean,
-  catatan?: string,
-) {
+async function getAdminSession() {
   const session = await getSession();
   if (!session || session.user.role === "KONSUMEN")
     throw new Error("Unauthorized");
-
-  const adminName = session.user.name || session.user.username || "Admin";
-
-  await prisma.setorSampah.update({
-    where: { id: setorSampahId },
-    data: {
-      status: approve ? "TERVERIFIKASI" : "DITOLAK",
-      catatanAdmin: catatan ?? null,
-      verifiedBy: adminName,
-      verifikasiAt: new Date(),
-    },
-  });
-
-  revalidatePath("/dashboard-admin/pendataan/setor-sampah");
+  return session;
 }
 
-// ─── Verifikasi & langsung kreditkan saldo (khusus Setor Langsung) ──────────
+function adminLabel(
+  session: Awaited<ReturnType<typeof getAdminSession>>,
+  isAiValid: boolean,
+  isAutoFill?: boolean,
+) {
+  const name = session.user.name || session.user.username || "Admin";
+  if (isAiValid) return "Sistem (AI)";
+  if (isAutoFill) return `Otomatis oleh ${name}`;
+  return `Manual oleh ${name}`;
+}
 
-export async function verifikasiSetorLangsungDanKreditSaldo(
-  setorSampahId: string,
+// ═══════════════════════════════════════════════════════════════════
+// SETOR LANGSUNG
+// ═══════════════════════════════════════════════════════════════════
+
+/** Verifikasi & kreditkan poin untuk Setor Langsung (satu langkah) */
+export async function verifikasiSetorLangsung(
+  id: string,
   beratAktual: number,
-  poinPerKg: number,
+  ratePerKg: number,
   catatan?: string,
   isAutoFill?: boolean,
 ) {
-  const session = await getSession();
-  if (!session || session.user.role === "KONSUMEN")
-    throw new Error("Unauthorized");
+  const session = await getAdminSession();
 
-  const setor = await prisma.setorSampah.findUnique({
-    where: { id: setorSampahId },
+  const setor = await prisma.setorLangsung.findUnique({
+    where: { id },
     include: { nasabah: { include: { user: true } } },
   });
   if (!setor) throw new Error("Data tidak ditemukan");
-  if (setor.status !== "MENUNGGU_VERIFIKASI") {
+  if (setor.status !== "MENUNGGU_VERIFIKASI")
     throw new Error("Status harus MENUNGGU_VERIFIKASI");
-  }
 
   const isBankSampah = setor.nasabah.user.role === "BANK_SAMPAH";
-  const totalValue = Math.round(beratAktual * poinPerKg);
+  const totalValue = Math.round(beratAktual * ratePerKg);
   const now = new Date();
-  const adminName = session.user.name || session.user.username || "Admin";
-
-  // Tentukan label verifikasi
-  const isAiValid = setor.statusValidasi === "VALID";
-  const verifiedByLabel = isAiValid
-    ? "Sistem (AI)"
-    : isAutoFill
-      ? `Otomatis oleh ${adminName}`
-      : `Manual oleh ${adminName}`;
-
-  const setorUpdateData = {
-    status: "SELESAI" as const,
-    beratAktual,
-    catatanAdmin: catatan ?? null,
-    verifiedBy: verifiedByLabel,
-    verifikasiAt: now,
-    selesaiAt: now,
-    hargaPerKg: isBankSampah ? poinPerKg : undefined,
-    totalHarga: isBankSampah ? totalValue : undefined,
-    poinPerKg: isBankSampah ? undefined : poinPerKg,
-    totalPoin: isBankSampah ? undefined : totalValue,
-  };
-
-  const nasabahUpdateData = isBankSampah
-    ? { saldo: { increment: totalValue } }
-    : { poin: { increment: totalValue } };
+  const verifiedByLabel = adminLabel(
+    session,
+    setor.statusValidasi === "VALID",
+    isAutoFill,
+  );
 
   await prisma.$transaction([
-    prisma.setorSampah.update({
-      where: { id: setorSampahId },
-      data: setorUpdateData,
+    prisma.setorLangsung.update({
+      where: { id },
+      data: {
+        status: "SELESAI",
+        beratAktual,
+        catatanAdmin: catatan ?? null,
+        verifiedBy: verifiedByLabel,
+        verifikasiAt: now,
+        selesaiAt: now,
+        hargaPerKg: isBankSampah ? ratePerKg : undefined,
+        totalHarga: isBankSampah ? totalValue : undefined,
+        poinPerKg: isBankSampah ? undefined : ratePerKg,
+        totalPoin: isBankSampah ? undefined : totalValue,
+      },
     }),
     prisma.nasabah.update({
       where: { id: setor.nasabahId },
-      data: nasabahUpdateData,
+      data: isBankSampah
+        ? { saldo: { increment: totalValue } }
+        : { poin: { increment: totalValue } },
     }),
     prisma.mutasiSaldo.create({
       data: {
@@ -105,133 +84,253 @@ export async function verifikasiSetorLangsungDanKreditSaldo(
         keterangan: isBankSampah
           ? `Setor langsung (Cash) ${setor.jenisSampah} ${beratAktual} kg`
           : `Setor langsung ${setor.jenisSampah} ${beratAktual} kg`,
-        referensiId: setorSampahId,
+        referensiId: id,
+        jenisReferensi: "LANGSUNG",
       },
     }),
   ]);
 
-  revalidatePath("/dashboard-admin/pendataan/setor-sampah");
+  revalidatePath(REVALIDATE);
 }
 
-// ─── Tugaskan ekpedisi untuk penjemputan ──────────────────────────────────
-
-export async function tugaskanEkpedisi(
-  setorSampahId: string,
-  ekpedisiId: string,
-) {
-  const session = await getSession();
-  if (!session || session.user.role === "KONSUMEN")
-    throw new Error("Unauthorized");
-
-  const setor = await prisma.setorSampah.findUnique({
-    where: { id: setorSampahId },
+/** Tolak Setor Langsung */
+export async function tolakSetorLangsung(id: string, catatan: string) {
+  const session = await getAdminSession();
+  const name = session.user.name || session.user.username || "Admin";
+  await prisma.setorLangsung.update({
+    where: { id },
+    data: {
+      status: "DITOLAK",
+      catatanAdmin: catatan,
+      verifiedBy: `Manual oleh ${name}`,
+      verifikasiAt: new Date(),
+    },
   });
-  if (!setor) throw new Error("Data tidak ditemukan");
-  if (setor.status !== "TERVERIFIKASI") {
-    throw new Error("Status harus TERVERIFIKASI sebelum menugaskan ekpedisi");
-  }
+  revalidatePath(REVALIDATE);
+}
 
-  await prisma.setorSampah.update({
-    where: { id: setorSampahId },
+/** Batch verifikasi Setor Langsung — proses sekaligus semua yang di-checklist */
+export async function batchVerifikasiSetorLangsung(ids: string[]) {
+  const session = await getAdminSession();
+  const name = session.user.name || session.user.username || "Admin";
+  const now = new Date();
+
+  const setoranList = await prisma.setorLangsung.findMany({
+    where: { id: { in: ids }, status: "MENUNGGU_VERIFIKASI" },
+    include: { nasabah: { include: { user: true } } },
+  });
+
+  await prisma.$transaction(async (tx) => {
+    for (const setor of setoranList) {
+      const hargaDB = await tx.hargaSampah.findFirst({
+        where: { jenisSampah: setor.jenisSampah },
+        orderBy: { bulan: "desc" },
+      });
+      const isBankSampah = setor.nasabah.user.role === "BANK_SAMPAH";
+      const ratePerKg = hargaDB
+        ? isBankSampah
+          ? hargaDB.harga
+          : hargaDB.point
+        : 0;
+      const beratAktual = setor.beratTerbaca ?? setor.beratEstimasi;
+      const totalValue = Math.round(beratAktual * ratePerKg);
+      const isAiValid = setor.statusValidasi === "VALID";
+      const verifiedByLabel = isAiValid
+        ? "Sistem (AI)"
+        : `Otomatis oleh ${name}`;
+
+      await tx.setorLangsung.update({
+        where: { id: setor.id },
+        data: {
+          status: "SELESAI",
+          beratAktual,
+          catatanAdmin: null,
+          verifiedBy: verifiedByLabel,
+          verifikasiAt: now,
+          selesaiAt: now,
+          hargaPerKg: isBankSampah ? ratePerKg : undefined,
+          totalHarga: isBankSampah ? totalValue : undefined,
+          poinPerKg: isBankSampah ? undefined : ratePerKg,
+          totalPoin: isBankSampah ? undefined : totalValue,
+        },
+      });
+      await tx.nasabah.update({
+        where: { id: setor.nasabahId },
+        data: isBankSampah
+          ? { saldo: { increment: totalValue } }
+          : { poin: { increment: totalValue } },
+      });
+      await tx.mutasiSaldo.create({
+        data: {
+          nasabahId: setor.nasabahId,
+          jumlah: totalValue,
+          keterangan: isBankSampah
+            ? `Setor langsung (Cash) ${setor.jenisSampah} ${beratAktual} kg (Batch)`
+            : `Setor langsung ${setor.jenisSampah} ${beratAktual} kg (Batch)`,
+          referensiId: setor.id,
+          jenisReferensi: "LANGSUNG",
+        },
+      });
+    }
+  });
+
+  revalidatePath(REVALIDATE);
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// SETOR EKSPEDISI
+// ═══════════════════════════════════════════════════════════════════
+
+/** Verifikasi awal Setor Ekspedisi (approve/tolak) */
+export async function verifikasiSetorEkspedisi(
+  id: string,
+  approve: boolean,
+  catatan?: string,
+) {
+  const session = await getAdminSession();
+  const name = session.user.name || session.user.username || "Admin";
+  await prisma.setorEkspedisi.update({
+    where: { id },
+    data: {
+      status: approve ? "TERVERIFIKASI" : "DITOLAK",
+      catatanAdmin: catatan ?? null,
+      verifiedBy: `Manual oleh ${name}`,
+      verifikasiAt: new Date(),
+    },
+  });
+  revalidatePath(REVALIDATE);
+}
+
+/** Tugaskan kurir ekspedisi */
+export async function tugaskanEkpedisi(id: string, ekpedisiId: string) {
+  await getAdminSession();
+  const setor = await prisma.setorEkspedisi.findUnique({ where: { id } });
+  if (!setor) throw new Error("Data tidak ditemukan");
+  if (setor.status !== "TERVERIFIKASI")
+    throw new Error("Status harus TERVERIFIKASI");
+  await prisma.setorEkspedisi.update({
+    where: { id },
     data: {
       ekpedisiId,
       status: "DALAM_PENJEMPUTAN",
       penjemputanAt: new Date(),
     },
   });
-
-  revalidatePath("/dashboard-admin/pendataan/setor-sampah");
+  revalidatePath(REVALIDATE);
 }
 
-// ─── Konfirmasi sampah diterima di pusat ──────────────────────────────────
-
-export async function konfirmasiSampahDiterima(setorSampahId: string) {
-  const session = await getSession();
-  if (!session || session.user.role === "KONSUMEN")
-    throw new Error("Unauthorized");
-
-  const setor = await prisma.setorSampah.findUnique({
-    where: { id: setorSampahId },
-  });
+/** Admin konfirmasi sampah sudah diterima di pusat */
+export async function konfirmasiSampahDiterima(id: string) {
+  await getAdminSession();
+  const setor = await prisma.setorEkspedisi.findUnique({ where: { id } });
   if (!setor) throw new Error("Data tidak ditemukan");
-  if (setor.status !== "SUDAH_DISERAHKAN") {
+  if (setor.status !== "SUDAH_DISERAHKAN")
     throw new Error("Konsumen belum konfirmasi serah terima");
-  }
-
-  await prisma.setorSampah.update({
-    where: { id: setorSampahId },
-    data: { status: "SAMPAH_DITERIMA" },
+  await prisma.setorEkspedisi.update({
+    where: { id },
+    data: { status: "SAMPAH_DITERIMA", sampahDiterimaAt: new Date() },
   });
-
-  revalidatePath("/dashboard-admin/pendataan/setor-sampah");
+  revalidatePath(REVALIDATE);
 }
 
-// ─── Verifikasi akhir & kreditkan saldo ─────────────────────────────
-
-export async function verifikasiAkhirDanKreditSaldo(
-  setorSampahId: string,
+/** Verifikasi akhir Setor Ekspedisi & kredit poin */
+export async function verifikasiAkhirSetorEkspedisi(
+  id: string,
   beratAktual: number,
-  poinPerKg: number,
+  ratePerKg: number,
   catatan?: string,
   isAutoFill?: boolean,
 ) {
-  const session = await getSession();
-  if (!session || session.user.role === "KONSUMEN")
-    throw new Error("Unauthorized");
-
-  const setor = await prisma.setorSampah.findUnique({
-    where: { id: setorSampahId },
-    include: { nasabah: true },
+  const session = await getAdminSession();
+  const setor = await prisma.setorEkspedisi.findUnique({
+    where: { id },
+    include: { nasabah: { include: { user: true } } },
   });
   if (!setor) throw new Error("Data tidak ditemukan");
-  if (setor.status !== "SAMPAH_DITERIMA") {
+  if (setor.status !== "SAMPAH_DITERIMA")
     throw new Error("Sampah belum dikonfirmasi diterima");
-  }
 
-  const totalPoin = Math.round(beratAktual * poinPerKg);
-  const adminName = session.user.name || session.user.username || "Admin";
-
-  // Tentukan label verifikasi
-  const isAiValid = setor.statusValidasi === "VALID";
-  const verifiedByLabel = isAiValid
-    ? "Sistem (AI)"
-    : isAutoFill
-      ? `Otomatis oleh ${adminName}`
-      : `Manual oleh ${adminName}`;
+  const isBankSampah = setor.nasabah.user.role === "BANK_SAMPAH";
+  const totalValue = Math.round(beratAktual * ratePerKg);
+  const verifiedByLabel = adminLabel(
+    session,
+    setor.statusValidasi === "VALID",
+    isAutoFill,
+  );
+  const now = new Date();
 
   await prisma.$transaction([
-    prisma.setorSampah.update({
-      where: { id: setorSampahId },
+    prisma.setorEkspedisi.update({
+      where: { id },
       data: {
         status: "SELESAI",
         beratAktual,
-        poinPerKg,
-        totalPoin,
         catatanAdmin: catatan ?? null,
         verifiedBy: verifiedByLabel,
-        selesaiAt: new Date(),
+        selesaiAt: now,
+        hargaPerKg: isBankSampah ? ratePerKg : undefined,
+        totalHarga: isBankSampah ? totalValue : undefined,
+        poinPerKg: isBankSampah ? undefined : ratePerKg,
+        totalPoin: isBankSampah ? undefined : totalValue,
       },
     }),
     prisma.nasabah.update({
       where: { id: setor.nasabahId },
-      data: { poin: { increment: totalPoin } },
+      data: isBankSampah
+        ? { saldo: { increment: totalValue } }
+        : { poin: { increment: totalValue } },
     }),
     prisma.mutasiSaldo.create({
       data: {
         nasabahId: setor.nasabahId,
-        jumlah: totalPoin,
-        keterangan: `Setor sampah ${setor.jenisSampah} ${beratAktual} kg`,
-        referensiId: setorSampahId,
+        jumlah: totalValue,
+        keterangan: isBankSampah
+          ? `Setor ekspedisi (Cash) ${setor.jenisSampah} ${beratAktual} kg`
+          : `Setor ekspedisi ${setor.jenisSampah} ${beratAktual} kg`,
+        referensiId: id,
+        jenisReferensi: "EKSPEDISI",
       },
     }),
   ]);
 
-  revalidatePath("/dashboard-admin/pendataan/setor-sampah");
+  revalidatePath(REVALIDATE);
 }
 
-export async function getSetorSampahData() {
-  await checkAdminAuth();
-  return await prisma.setorSampah.findMany({
+/** Batch verifikasi awal Setor Ekspedisi */
+export async function batchVerifikasiSetorEkspedisi(ids: string[]) {
+  const session = await getAdminSession();
+  const name = session.user.name || session.user.username || "Admin";
+  const now = new Date();
+
+  const setoranList = await prisma.setorEkspedisi.findMany({
+    where: { id: { in: ids }, status: "MENUNGGU_VERIFIKASI" },
+  });
+
+  await prisma.$transaction(async (tx) => {
+    for (const setor of setoranList) {
+      const isAiValid = setor.statusValidasi === "VALID";
+      await tx.setorEkspedisi.update({
+        where: { id: setor.id },
+        data: {
+          status: "TERVERIFIKASI",
+          catatanAdmin: null,
+          verifiedBy: isAiValid ? "Sistem (AI)" : `Otomatis oleh ${name}`,
+          verifikasiAt: now,
+        },
+      });
+    }
+  });
+
+  revalidatePath(REVALIDATE);
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// DATA FETCHERS
+// ═══════════════════════════════════════════════════════════════════
+
+export async function getSetorLangsungData() {
+  await getAdminSession();
+  return prisma.setorLangsung.findMany({
     orderBy: { createdAt: "desc" },
     include: {
       nasabah: {
@@ -240,136 +339,47 @@ export async function getSetorSampahData() {
           noTelp: true,
           alamat: true,
           nik: true,
-          user: {
-            select: { name: true, role: true },
-          },
+          user: { select: { name: true, role: true } },
+        },
+      },
+    },
+  });
+}
+
+export async function getSetorEkspedisiData() {
+  await getAdminSession();
+  return prisma.setorEkspedisi.findMany({
+    orderBy: { createdAt: "desc" },
+    include: {
+      nasabah: {
+        select: {
+          id: true,
+          noTelp: true,
+          alamat: true,
+          nik: true,
+          user: { select: { name: true, role: true } },
         },
       },
       ekpedisi: {
-        select: { noTelp: true, alamat: true },
+        select: { id: true, nama: true, noTelp: true, alamat: true },
       },
     },
   });
 }
 
 export async function getEkpedisiList() {
-  await checkAdminAuth();
-  return await prisma.ekpedisi.findMany({
-    select: { id: true, noTelp: true, alamat: true },
+  await getAdminSession();
+  return prisma.ekpedisi.findMany({
+    select: { id: true, nama: true, noTelp: true, alamat: true },
     orderBy: { createdAt: "desc" },
   });
 }
 
 export async function getHargaTerbaru(jenisSampah: string) {
-  await checkAdminAuth();
-  return await prisma.hargaSampah.findFirst({
+  await getAdminSession();
+  return prisma.hargaSampah.findFirst({
     where: { jenisSampah: jenisSampah as never },
     orderBy: { bulan: "desc" },
     select: { harga: true, point: true, bulan: true },
   });
-}
-
-export async function batchVerifikasiSetor(ids: string[]) {
-  const session = await getSession();
-  if (!session || session.user.role === "KONSUMEN") {
-    throw new Error("Unauthorized");
-  }
-
-  const adminName = session.user.name || session.user.username || "Admin";
-
-  const setoranList = await prisma.setorSampah.findMany({
-    where: {
-      id: { in: ids },
-      status: "MENUNGGU_VERIFIKASI",
-    },
-    include: {
-      nasabah: {
-        include: { user: true },
-      },
-    },
-  });
-
-  const now = new Date();
-
-  await prisma.$transaction(async (tx) => {
-    for (const setor of setoranList) {
-      if (setor.jenisSetor === "LANGSUNG") {
-        const hargaDB = await tx.hargaSampah.findFirst({
-          where: { jenisSampah: setor.jenisSampah },
-          orderBy: { bulan: "desc" },
-        });
-
-        const isBankSampah = setor.nasabah.user.role === "BANK_SAMPAH";
-        const ratePerKg = hargaDB
-          ? isBankSampah
-            ? hargaDB.harga
-            : hargaDB.point
-          : 0;
-        const beratAktual = setor.beratTerbaca ?? setor.beratEstimasi;
-        const totalValue = Math.round(beratAktual * ratePerKg);
-
-        // Cek apakah AI sudah memvalidasi berat
-        const isAiValid = setor.statusValidasi === "VALID";
-        const batchVerifiedBy = isAiValid
-          ? "Sistem (AI)"
-          : `Otomatis oleh ${adminName}`;
-
-        const setorUpdateData = {
-          status: "SELESAI" as const,
-          beratAktual,
-          catatanAdmin: null,
-          verifiedBy: batchVerifiedBy,
-          verifikasiAt: now,
-          selesaiAt: now,
-          hargaPerKg: isBankSampah ? ratePerKg : undefined,
-          totalHarga: isBankSampah ? totalValue : undefined,
-          poinPerKg: isBankSampah ? undefined : ratePerKg,
-          totalPoin: isBankSampah ? undefined : totalValue,
-        };
-
-        const nasabahUpdateData = isBankSampah
-          ? { saldo: { increment: totalValue } }
-          : { poin: { increment: totalValue } };
-
-        await tx.setorSampah.update({
-          where: { id: setor.id },
-          data: setorUpdateData,
-        });
-
-        await tx.nasabah.update({
-          where: { id: setor.nasabahId },
-          data: nasabahUpdateData,
-        });
-
-        await tx.mutasiSaldo.create({
-          data: {
-            nasabahId: setor.nasabahId,
-            jumlah: totalValue,
-            keterangan: isBankSampah
-              ? `Setor langsung (Cash) ${setor.jenisSampah} ${beratAktual} kg (Batch)`
-              : `Setor langsung ${setor.jenisSampah} ${beratAktual} kg (Batch)`,
-            referensiId: setor.id,
-          },
-        });
-      } else {
-        // Ekspedisi batch: tetap tentukan berdasarkan AI
-        const isAiValid = setor.statusValidasi === "VALID";
-        const batchVerifiedBy = isAiValid
-          ? "Sistem (AI)"
-          : `Otomatis oleh ${adminName}`;
-
-        await tx.setorSampah.update({
-          where: { id: setor.id },
-          data: {
-            status: "TERVERIFIKASI",
-            catatanAdmin: null,
-            verifiedBy: batchVerifiedBy,
-            verifikasiAt: now,
-          },
-        });
-      }
-    }
-  });
-
-  revalidatePath("/dashboard-admin/pendataan/setor-sampah");
 }
