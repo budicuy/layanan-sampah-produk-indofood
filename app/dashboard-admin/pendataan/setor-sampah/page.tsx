@@ -1433,7 +1433,7 @@ export default function SetorSampahAdminPage() {
   const [data, setData] = useState<SetorItem[]>([]);
   const [ekpedisiList, setEkpedisiList] = useState<EkpedisiItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<"LANGSUNG" | "EKSPEDISI">(
+  const [activeTab, _setActiveTab] = useState<"LANGSUNG" | "EKSPEDISI">(
     "LANGSUNG",
   );
 

@@ -14,8 +14,8 @@ async function checkBankSampahAuth() {
 
 export async function getNasabahSaldo() {
   const session = await checkBankSampahAuth();
-  const nasabah = await prisma.nasabah.findFirst({
-    where: { user: { username: session.user.username } },
+  const nasabah = await prisma.nasabah.findUnique({
+    where: { userId: session.user.sub },
     select: { id: true, saldo: true, poin: true },
   });
   return nasabah;
@@ -23,8 +23,8 @@ export async function getNasabahSaldo() {
 
 export async function getPencairanList() {
   const session = await checkBankSampahAuth();
-  const nasabah = await prisma.nasabah.findFirst({
-    where: { user: { username: session.user.username } },
+  const nasabah = await prisma.nasabah.findUnique({
+    where: { userId: session.user.sub },
     select: { id: true },
   });
   if (!nasabah) return [];
@@ -47,8 +47,8 @@ export async function ajukanPencairan(formData: FormData) {
     );
   }
 
-  const nasabah = await prisma.nasabah.findFirst({
-    where: { user: { username: session.user.username } },
+  const nasabah = await prisma.nasabah.findUnique({
+    where: { userId: session.user.sub },
     select: { id: true, saldo: true },
   });
 

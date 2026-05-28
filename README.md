@@ -223,4 +223,10 @@ bun run format
 
 - **Perbaikan Parsing JSON Gemini (lib/gemini.ts)**: Model-model Gemma (gemma-4-31b-it, gemma-4-26b-a4b-it) mengabaikan `responseMimeType: "application/json"` dan mengembalikan teks reasoning sebelum JSON. Ditambahkan fungsi `extractJson()` yang mencari JSON object pertama secara robust di dalam teks response menggunakan dua strategi: (1) ekstrak dari markdown code fence, (2) parsing karakter per karakter untuk menemukan `{...}` yang seimbang. Model 1 & 2 sekarang berhasil di-parse meskipun ada teks reasoning.
 
+- **Optimasi Kueri Database (Server Actions)**: 
+  - Menyelesaikan masalah kueri N+1 pada `batchVerifikasiSetorLangsung` dengan melakukan pra-fetch referensi harga terbaru di luar loop/transaksi dan melakukan pencarian langsung di memori.
+  - Mempercepat kueri nasabah pada fitur pencairan Bank Sampah dengan mengganti relasi JOIN `findFirst` yang lambat menjadi lookup langsung menggunakan kunci unik/primer `findUnique` berdasarkan `userId` dari session.
+  - Menyelesaikan tipe data tidak cocok pada admin tabungan dengan merelasikan serta menggabungkan alur `setorLangsung` dan `setorEkspedisi` menjadi list `setorSampah` yang terurut di server sebelum dikirimkan ke frontend, guna menghindari potensi crash akibat properti `.setorSampah` bernilai `undefined`.
+
+
 

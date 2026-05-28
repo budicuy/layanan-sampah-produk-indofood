@@ -12,7 +12,7 @@ async function checkAdminAuth() {
 
 export async function getTabunganData() {
   await checkAdminAuth();
-  return await prisma.nasabah.findMany({
+  const nasabahs = await prisma.nasabah.findMany({
     orderBy: { poin: "desc" },
     include: {
       user: {
@@ -34,5 +34,24 @@ export async function getTabunganData() {
         take: 20,
       },
     },
+  });
+
+  return nasabahs.map((nasabah) => {
+    const combinedSetor = [
+      ...nasabah.setorLangsung.map((s) => ({
+        ...s,
+        jenisSetor: "LANGSUNG" as const,
+        ekpedisi: null,
+      })),
+      ...nasabah.setorEkspedisi.map((s) => ({
+        ...s,
+        jenisSetor: "EKSPEDISI" as const,
+      })),
+    ].sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+
+    return {
+      ...nasabah,
+      setorSampah: combinedSetor,
+    };
   });
 }

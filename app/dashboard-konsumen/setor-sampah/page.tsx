@@ -18,11 +18,7 @@ import {
   XCircle,
 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
-import type {
-  JenisSampah,
-  StatusSetorEkspedisi,
-  StatusSetorLangsung,
-} from "@/prisma/generated/prisma/client";
+import type { JenisSampah } from "@/prisma/generated/prisma/client";
 import {
   getSetorSampahKonsumenData,
   konfirmasiSerahTerima,

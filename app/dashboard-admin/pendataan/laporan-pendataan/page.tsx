@@ -279,16 +279,22 @@ export default function LaporanPage() {
 
       {/* Tabs */}
       <div className="flex border-b border-zinc-200 overflow-x-auto scrollbar-none gap-2">
-        {[
-          { id: "setoran", label: "Setoran Sampah", count: setoran.length },
-          { id: "pencairan", label: "Pencairan Dana", count: pencairan.length },
-          { id: "kupon", label: "Penukaran Kupon", count: kupon.length },
-        ].map((t) => (
+        {(
+          [
+            { id: "setoran", label: "Setoran Sampah", count: setoran.length },
+            {
+              id: "pencairan",
+              label: "Pencairan Dana",
+              count: pencairan.length,
+            },
+            { id: "kupon", label: "Penukaran Kupon", count: kupon.length },
+          ] as const
+        ).map((t) => (
           <button
             key={t.id}
             type="button"
             onClick={() => {
-              setActiveTab(t.id as any);
+              setActiveTab(t.id);
               setSearch("");
             }}
             className={`px-5 py-3 text-sm font-bold border-b-2 transition-all flex items-center gap-2 whitespace-nowrap ${

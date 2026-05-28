@@ -120,12 +120,19 @@ export async function batchVerifikasiSetorLangsung(ids: string[]) {
     include: { nasabah: { include: { user: true } } },
   });
 
+  const allPrices = await prisma.hargaSampah.findMany({
+    orderBy: { bulan: "desc" },
+  });
+  const latestPrices: Record<string, (typeof allPrices)[0]> = {};
+  for (const price of allPrices) {
+    if (!latestPrices[price.jenisSampah]) {
+      latestPrices[price.jenisSampah] = price;
+    }
+  }
+
   await prisma.$transaction(async (tx) => {
     for (const setor of setoranList) {
-      const hargaDB = await tx.hargaSampah.findFirst({
-        where: { jenisSampah: setor.jenisSampah },
-        orderBy: { bulan: "desc" },
-      });
+      const hargaDB = latestPrices[setor.jenisSampah];
       const isBankSampah = setor.nasabah.user.role === "BANK_SAMPAH";
       const ratePerKg = hargaDB
         ? isBankSampah
