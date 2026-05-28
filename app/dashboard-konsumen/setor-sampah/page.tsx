@@ -769,11 +769,11 @@ export default function SetorSampahPage() {
             </span>
             Pilih Langkah Hijau Anda
           </div>
-          <h1 className="text-xl font-heading font-black text-zinc-900 leading-tight">
+          <h1 className="text-2xl font-heading font-black text-zinc-900 leading-tight">
             Bagaimana Anda ingin{" "}
             <span className="text-primary">Setor Sampah?</span>
           </h1>
-          <p className="text-zinc-400 mt-1 text-xs leading-relaxed">
+          <p className="text-zinc-500 mt-1 text-xs leading-relaxed">
             Pilih metode yang paling nyaman bagi Anda untuk berkontribusi
             menjaga bumi.
           </p>
@@ -784,24 +784,24 @@ export default function SetorSampahPage() {
           <button
             type="button"
             onClick={() => setView("LANGSUNG")}
-            className="relative group flex flex-col w-full text-left bg-white border border-zinc-200/80 p-5 rounded-2xl transition-all hover:border-zinc-300 hover:shadow-md overflow-hidden">
+            className="relative group flex flex-col w-full text-left bg-white border-2 border-zinc-150/70 p-6 rounded-[24px] transition-all hover:border-zinc-300 hover:shadow-lg overflow-hidden cursor-pointer">
             <div className="mb-4 relative">
-              <div className="w-12 h-12 bg-zinc-100 rounded-xl flex items-center justify-center relative z-10 group-hover:scale-105 transition-transform duration-500">
-                <Recycle className="text-zinc-400 w-6 h-6 group-hover:rotate-12 transition-transform" />
+              <div className="w-12 h-12 bg-zinc-100 rounded-2xl flex items-center justify-center relative z-10 group-hover:scale-105 transition-transform duration-500">
+                <Recycle className="text-zinc-600 w-6 h-6 group-hover:rotate-12 transition-transform" />
               </div>
-              <div className="absolute -inset-2 bg-zinc-100/50 rounded-xl blur-lg z-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <div className="absolute -inset-2 bg-zinc-100/50 rounded-2xl blur-lg z-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
             </div>
 
-            <div className="flex-1 relative z-10">
-              <h3 className="text-sm font-black text-zinc-900 mb-2 group-hover:text-zinc-700 transition-colors">
+            <div className="flex-1 relative z-10 w-full">
+              <h3 className="text-base font-black text-zinc-900 mb-1 group-hover:text-zinc-700 transition-colors">
                 Setor Langsung ke Pusat
               </h3>
-              <p className="text-zinc-400 text-[11px] leading-relaxed mb-4">
+              <p className="text-zinc-500 text-xs leading-relaxed mb-4">
                 Datang langsung ke titik drop-off kami. Cocok untuk Anda yang
                 ingin menyetor tanpa menunggu jadwal penjemputan.
               </p>
 
-              <div className="space-y-2">
+              <div className="space-y-2 mb-2">
                 {[
                   "Tanpa Biaya Penjemputan",
                   "Proses Lebih Cepat",
@@ -809,20 +809,23 @@ export default function SetorSampahPage() {
                 ].map((f) => (
                   <div
                     key={f}
-                    className="flex items-center gap-2 text-zinc-500 group-hover:text-zinc-800 transition-colors">
-                    <div className="w-4.5 h-4.5 rounded-full bg-zinc-100 flex items-center justify-center shrink-0">
-                      <CheckCircle2 size={10} className="text-zinc-400" />
+                    className="flex items-center gap-2 text-zinc-600 group-hover:text-zinc-800 transition-colors">
+                    <div className="w-5 h-5 rounded-full bg-zinc-100 flex items-center justify-center shrink-0">
+                      <CheckCircle2 size={11} className="text-zinc-500" />
                     </div>
-                    <span className="text-[10px] font-bold">{f}</span>
+                    <span className="text-xs font-semibold">{f}</span>
                   </div>
                 ))}
               </div>
             </div>
 
-            <div className="mt-4 pt-3 w-full border-t border-zinc-50 flex items-center justify-between relative z-10">
-              <span className="text-[10px] font-black text-zinc-500 group-hover:translate-x-1 transition-transform duration-300 uppercase tracking-wider">
-                Input Data Sampah →
-              </span>
+            <div className="mt-5 w-full relative z-10">
+              <div className="w-full py-3.5 px-4 bg-zinc-900 hover:bg-zinc-850 text-white rounded-xl font-bold text-xs text-center transition-all flex items-center justify-center gap-1.5 shadow-sm active:scale-[0.98] group-hover:shadow-md">
+                <span>Input Data Sampah</span>
+                <span className="group-hover:translate-x-1 transition-transform">
+                  →
+                </span>
+              </div>
             </div>
             <div className="absolute -right-10 -bottom-10 w-24 h-24 bg-zinc-100/30 rounded-full blur-2xl group-hover:bg-zinc-200/30 transition-all duration-700" />
           </button>
@@ -831,31 +834,31 @@ export default function SetorSampahPage() {
           <button
             type="button"
             onClick={() => setView("EKSPEDISI")}
-            className="relative group flex flex-col w-full text-left bg-white border border-zinc-200/80 p-5 rounded-2xl transition-all hover:border-primary/30 hover:shadow-xs overflow-hidden">
+            className="relative group flex flex-col w-full text-left bg-white border-2 border-zinc-150/70 p-6 rounded-[24px] transition-all hover:border-primary/30 hover:shadow-lg overflow-hidden cursor-pointer">
             {/* Top Badge */}
             <div className="absolute top-4 right-4">
-              <div className="px-2.5 py-1 bg-primary/10 text-primary rounded-full text-[8px] font-black tracking-widest uppercase">
+              <div className="px-2.5 py-1 bg-primary/10 text-primary rounded-full text-[9px] font-black tracking-wider uppercase">
                 Paling Praktis
               </div>
             </div>
 
             <div className="mb-4 relative">
-              <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center relative z-10 group-hover:scale-105 transition-transform duration-500">
+              <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center relative z-10 group-hover:scale-105 transition-transform duration-500">
                 <Send className="text-primary w-6 h-6 group-hover:rotate-12 transition-transform" />
               </div>
-              <div className="absolute -inset-2 bg-primary/10 rounded-xl blur-lg z-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <div className="absolute -inset-2 bg-primary/10 rounded-2xl blur-lg z-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
             </div>
 
-            <div className="flex-1 relative z-10">
-              <h3 className="text-sm font-black text-zinc-900 mb-2 group-hover:text-primary transition-colors">
+            <div className="flex-1 relative z-10 w-full">
+              <h3 className="text-base font-black text-zinc-900 mb-1 group-hover:text-primary transition-colors">
                 Layanan Jemput Ekspedisi
               </h3>
-              <p className="text-zinc-400 text-[11px] leading-relaxed mb-4 group-hover:text-zinc-500 transition-colors">
+              <p className="text-zinc-500 text-xs leading-relaxed mb-4 group-hover:text-zinc-650 transition-colors">
                 Duduk santai di rumah, kurir profesional kami yang akan datang
                 mengambil sampah ke depan pintu Anda.
               </p>
 
-              <div className="space-y-2">
+              <div className="space-y-2 mb-2">
                 {[
                   "Jadwal Penjemputan Fleksibel",
                   "Tracking Kurir Real-time",
@@ -863,20 +866,23 @@ export default function SetorSampahPage() {
                 ].map((f) => (
                   <div
                     key={f}
-                    className="flex items-center gap-2 text-zinc-500 group-hover:text-zinc-800 transition-colors">
-                    <div className="w-4.5 h-4.5 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0">
-                      <CheckCircle2 size={10} />
+                    className="flex items-center gap-2 text-zinc-600 group-hover:text-zinc-800 transition-colors">
+                    <div className="w-5 h-5 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                      <CheckCircle2 size={11} />
                     </div>
-                    <span className="text-[10px] font-bold">{f}</span>
+                    <span className="text-xs font-semibold">{f}</span>
                   </div>
                 ))}
               </div>
             </div>
 
-            <div className="mt-4 pt-3 w-full border-t border-zinc-50 flex items-center justify-between relative z-10">
-              <span className="text-[10px] font-black text-primary group-hover:translate-x-1 transition-transform duration-300 uppercase tracking-wider">
-                Mulai Ajukan Sekarang →
-              </span>
+            <div className="mt-5 w-full relative z-10">
+              <div className="w-full py-3.5 px-4 bg-primary text-white rounded-xl font-bold text-xs text-center transition-all flex items-center justify-center gap-1.5 shadow-sm active:scale-[0.98] group-hover:bg-primary/95 group-hover:shadow-md">
+                <span>Mulai Ajukan Sekarang</span>
+                <span className="group-hover:translate-x-1 transition-transform">
+                  →
+                </span>
+              </div>
             </div>
 
             {/* Background Decorative Element */}
