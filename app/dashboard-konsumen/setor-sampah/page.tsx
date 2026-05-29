@@ -48,7 +48,7 @@ const fileToBase64 = (
 // Helper to compress and convert file
 const compressAndGetBase64 = async (file: File) => {
   const options = {
-    maxSizeMB: 0.5,
+    maxSizeMB: 0.1,
     maxWidthOrHeight: 800,
     useWebWorker: true,
   };
