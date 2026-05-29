@@ -32,8 +32,8 @@ import type {
 import {
   batchVerifikasiSetorEkspedisi,
   batchVerifikasiSetorLangsung,
+  getAllHargaTerbaru,
   getEkpedisiList,
-  getHargaTerbaru,
   getSetorEkspedisiData,
   getSetorLangsungData,
   konfirmasiSampahDiterima,
@@ -45,6 +45,8 @@ import {
 } from "./actions";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
+
+type HargaMap = Record<string, { harga: number; point: number; bulan: Date }>;
 
 interface EkpedisiItem {
   id: string;
@@ -499,33 +501,23 @@ function PanelVerifikasiAkhir({
   id,
   jenisSampah,
   beratEstimasi,
+  hargaMap,
   onActionSuccess,
 }: {
   id: string;
   jenisSampah: string;
   beratEstimasi: number;
+  hargaMap: HargaMap;
   onActionSuccess: () => void;
 }) {
   const [beratAktual, setBeratAktual] = useState("");
   const [catatan, setCatatan] = useState("");
   const [loading, setLoading] = useState(false);
-  const [loadingHarga, setLoadingHarga] = useState(true);
-  const [hargaDB, setHargaDB] = useState<{
-    harga: number;
-    point: number;
-    bulan: Date;
-  } | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  // Ambil harga langsung dari prop (sudah di-load sekali di level page)
+  const hargaDB = hargaMap[jenisSampah] ?? null;
   const poinPerKg = hargaDB ? hargaDB.point : 0;
-
-  // Auto-load harga terbaru dari DB saat panel dibuka
-  useEffect(() => {
-    getHargaTerbaru(jenisSampah).then((res) => {
-      if (res) setHargaDB(res as { harga: number; point: number; bulan: Date });
-      setLoadingHarga(false);
-    });
-  }, [jenisSampah]);
 
   // Tombol "Data Sudah Benar" — pakai berat estimasi + harga DB
   function handleDataSudahBenar() {
@@ -558,14 +550,7 @@ function PanelVerifikasiAkhir({
       )}
 
       {/* Info harga dari DB */}
-      {loadingHarga ? (
-        <div className="flex items-center gap-2 px-3 py-2 bg-zinc-50 border border-zinc-100 rounded-lg">
-          <Loader2 size={12} className="animate-spin text-zinc-400" />
-          <span className="text-xs text-zinc-400">
-            Memuat harga referensi...
-          </span>
-        </div>
-      ) : hargaDB ? (
+      {hargaDB ? (
         <div className="space-y-2">
           <div className="flex items-center justify-between px-3 py-2 bg-blue-50 border border-blue-100 rounded-lg">
             <div>
@@ -790,40 +775,30 @@ function PanelVerifikasiLangsung({
   jenisSampah,
   beratEstimasi,
   role,
+  hargaMap,
   onActionSuccess,
 }: {
   id: string;
   jenisSampah: string;
   beratEstimasi: number;
   role: string;
+  hargaMap: HargaMap;
   onActionSuccess: () => void;
 }) {
   const [loading, setLoading] = useState(false);
-  const [loadingHarga, setLoadingHarga] = useState(true);
-  const [hargaDB, setHargaDB] = useState<{
-    harga: number;
-    point: number;
-    bulan: Date;
-  } | null>(null);
   const [form, setForm] = useState({
     beratAktual: "",
     catatan: "",
   });
 
+  // Ambil harga langsung dari prop (sudah di-load sekali di level page)
+  const hargaDB = hargaMap[jenisSampah] ?? null;
   const isBankSampah = role === "BANK_SAMPAH";
   const ratePerKg = hargaDB
     ? isBankSampah
       ? hargaDB.harga
       : hargaDB.point
     : 0;
-
-  // Auto-load harga terbaru dari DB saat panel dibuka
-  useEffect(() => {
-    getHargaTerbaru(jenisSampah).then((res) => {
-      if (res) setHargaDB(res as { harga: number; point: number; bulan: Date });
-      setLoadingHarga(false);
-    });
-  }, [jenisSampah]);
 
   // Tombol "Data Sudah Benar" — pakai berat estimasi
   function handleDataSudahBenar() {
@@ -873,14 +848,7 @@ function PanelVerifikasiLangsung({
   return (
     <div className="space-y-3">
       {/* Info harga dari DB */}
-      {loadingHarga ? (
-        <div className="flex items-center gap-2 px-3 py-2 bg-zinc-50 border border-zinc-100 rounded-lg">
-          <Loader2 size={12} className="animate-spin text-zinc-400" />
-          <span className="text-xs text-zinc-400">
-            Memuat harga referensi...
-          </span>
-        </div>
-      ) : hargaDB ? (
+      {hargaDB ? (
         <div className="space-y-2">
           <div className="flex items-center justify-between px-3 py-2 bg-blue-50 border border-blue-100 rounded-lg">
             <div>
@@ -993,10 +961,12 @@ function PanelVerifikasiLangsung({
 function SetorCard({
   item,
   ekpedisiList,
+  hargaMap,
   onActionSuccess,
 }: {
   item: SetorItem;
   ekpedisiList: EkpedisiItem[];
+  hargaMap: HargaMap;
   onActionSuccess: () => void;
 }) {
   const [showModal, setShowModal] = useState(false);
@@ -1374,6 +1344,7 @@ function SetorCard({
                 jenisSampah={item.jenisSampah}
                 beratEstimasi={item.beratEstimasi}
                 role={item.nasabah.user.role}
+                hargaMap={hargaMap}
                 onActionSuccess={onActionSuccess}
               />
             </ActionSection>
@@ -1407,6 +1378,7 @@ function SetorCard({
               id={item.id}
               jenisSampah={item.jenisSampah}
               beratEstimasi={item.beratEstimasi}
+              hargaMap={hargaMap}
               onActionSuccess={onActionSuccess}
             />
           </ActionSection>
@@ -1432,6 +1404,7 @@ const STATUS_FILTERS: { value: string; label: string }[] = [
 export default function SetorSampahAdminPage() {
   const [data, setData] = useState<SetorItem[]>([]);
   const [ekpedisiList, setEkpedisiList] = useState<EkpedisiItem[]>([]);
+  const [hargaMap, setHargaMap] = useState<HargaMap>({});
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, _setActiveTab] = useState<"LANGSUNG" | "EKSPEDISI">(
     "LANGSUNG",
@@ -1469,11 +1442,13 @@ export default function SetorSampahAdminPage() {
   }, []);
 
   const fetchData = useCallback(async () => {
-    const [resLangsung, resEkspedisi, resEkpedisi] = await Promise.all([
-      getSetorLangsungData(),
-      getSetorEkspedisiData(),
-      getEkpedisiList(),
-    ]);
+    const [resLangsung, resEkspedisi, resEkpedisi, resHarga] =
+      await Promise.all([
+        getSetorLangsungData(),
+        getSetorEkspedisiData(),
+        getEkpedisiList(),
+        getAllHargaTerbaru(),
+      ]);
     const langsung = (resLangsung as unknown as SetorLangsungItem[]).map(
       (s) => ({ ...s, jenisSetor: "LANGSUNG" as const }),
     );
@@ -1482,6 +1457,7 @@ export default function SetorSampahAdminPage() {
     );
     setData([...langsung, ...ekspedisi]);
     setEkpedisiList(resEkpedisi as unknown as EkpedisiItem[]);
+    setHargaMap(resHarga as unknown as HargaMap);
     setIsLoading(false);
   }, []);
 
@@ -1702,6 +1678,7 @@ export default function SetorSampahAdminPage() {
                 key={item.id}
                 item={item}
                 ekpedisiList={ekpedisiList}
+                hargaMap={hargaMap}
                 onActionSuccess={fetchData}
               />
             ))}

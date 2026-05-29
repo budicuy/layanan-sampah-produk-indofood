@@ -161,15 +161,6 @@ export default function RiwayatSetorPage() {
     setPage(1);
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex flex-col justify-center items-center h-[60vh] space-y-3">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
-        <p className="text-zinc-400 text-xs font-bold">Memuat riwayat...</p>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-5 animate-in fade-in duration-500 pb-10">
       {/* Header */}
@@ -234,8 +225,14 @@ export default function RiwayatSetorPage() {
       </div>
 
       {/* Card List */}
-      <div className="space-y-3">
-        {filteredHistory.length === 0 ? (
+      <div
+        className={`space-y-3 transition-opacity duration-200 ${isLoading ? "opacity-60" : ""}`}>
+        {isLoading && history.length === 0 ? (
+          <div className="flex flex-col justify-center items-center py-20 space-y-3 bg-white rounded-3xl border border-zinc-100/80 shadow-xs">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+            <p className="text-zinc-450 text-xs font-bold">Memuat riwayat...</p>
+          </div>
+        ) : filteredHistory.length === 0 ? (
           <div className="text-center py-16 px-4 bg-white rounded-3xl border border-zinc-100/80 shadow-xs">
             <Package
               size={40}
@@ -375,7 +372,7 @@ export default function RiwayatSetorPage() {
         <div className="flex items-center justify-between pt-4 border-t border-zinc-200 mt-4 select-none">
           <button
             type="button"
-            disabled={page === 1}
+            disabled={page === 1 || isLoading}
             onClick={() => setPage((p) => Math.max(p - 1, 1))}
             className="px-3.5 py-2 bg-white border border-zinc-200 text-zinc-700 text-[10px] font-bold rounded-xl disabled:opacity-50 hover:bg-zinc-50 transition-all active:scale-95 cursor-pointer">
             ← Sebelum
@@ -385,7 +382,7 @@ export default function RiwayatSetorPage() {
           </span>
           <button
             type="button"
-            disabled={page === totalPages}
+            disabled={page === totalPages || isLoading}
             onClick={() => setPage((p) => Math.min(p + 1, totalPages))}
             className="px-3.5 py-2 bg-white border border-zinc-200 text-zinc-700 text-[10px] font-bold rounded-xl disabled:opacity-50 hover:bg-zinc-50 transition-all active:scale-95 cursor-pointer">
             Berikut →

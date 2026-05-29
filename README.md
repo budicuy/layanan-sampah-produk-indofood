@@ -237,8 +237,27 @@ bun run format
   - Perbaikan warna border: Mengganti utility class warna border tidak valid `border-zinc-150` dan `border-zinc-150/70` menjadi standard `border-zinc-200` pada seluruh halaman pengusulan setoran & riwayat konsumen untuk menghilangkan tampilan border hitam default bawaan browser yang merusak estetika antarmuka.
   - Pembaruan Data Seeder (`SetorEkspedisi`): Mengubah seeder data agar tidak ada lagi data ekspedisi dengan status `MENUNGGU_VERIFIKASI`. Seluruh seed transaksi kurir yang sebelumnya menunggu kini didefinisikan dalam berbagai tahapan status terverifikasi (`TERVERIFIKASI`, `DALAM_PENJEMPUTAN`, `SUDAH_DISERAHKAN`, dan `SAMPAH_DITERIMA`) dengan informasi verifikator dan penugasan kurir ekspedisi yang lengkap.
   - Pembatasan Riwayat Setor Langsung: Membatasi tampilan daftar Riwayat Setor Langsung pada halaman konsumen maksimal sebanyak 3 entri saja (`riwayat.slice(0, 3)`) agar tata letak halaman tetap ringkas, bersih, dan nyaman dibaca tanpa scroll yang terlalu panjang.
-  - Implementasi Pagination Riwayat Konsumen: Menambahkan fitur pagination dinamis pada halaman `/dashboard-konsumen/riwayat` dengan batasan maksimal 20 data per halaman. Data riwayat setoran diambil langsung dari database secara real-time berdasarkan halaman aktif dan tab metode setoran yang dipilih, mengurangi beban render dan meningkatkan performa aplikasi secara signifikan.
+  - Implementasi Pagination Riwayat Konsumen: Menambahkan fitur pagination dinamis pada halaman `/dashboard-konsumen/riwayat` dengan batasan maksimal 20 data per halaman. Data riwayat setoran diambil langsung dari database secara real-time berdasarkan halaman aktif dan tab metode setoran yang dipilih. Menghapus loading screen full-page dan menggantinya dengan efek opacity transisi halus (`opacity-60`) dan *spinner inline* agar navigasi halaman terasa lebih instan, premium, dan dinamis tanpa ada kedipan tata letak (*layout shift*).
 
+- **Optimasi Query: Eliminasi N+1 pada Halaman Admin Setor Sampah**:
+  - Mengidentifikasi dan memperbaiki masalah N+1 query pada halaman `/dashboard-admin/pendataan/setor-sampah` di mana fungsi `getHargaTerbaru()` dipanggil secara terpisah untuk setiap item setoran yang tampil di layar (satu request per jenis sampah per panel).
+  - Menambahkan fungsi baru `getAllHargaTerbaru()` di `actions.ts` yang mengambil seluruh data harga referensi terbaru per jenis sampah dalam **satu query tunggal** (`SELECT ... FROM harga_sampah ORDER BY bulan DESC`), lalu mem-build `Record<jenisSampah, harga>` secara in-memory.
+  - Mengintegrasikan `getAllHargaTerbaru()` ke dalam fungsi `fetchData` halaman utama admin sehingga data harga di-load paralel bersama data setor dan kurir (`Promise.all`), bukan diambil on-demand per komponen.
+  - Meneruskan data harga sebagai prop `hargaMap` ke komponen `SetorCard`, lalu ke `PanelVerifikasiLangsung` dan `PanelVerifikasiAkhir`. Kedua panel kini tidak lagi memanggil `getHargaTerbaru` secara individual maupun menyimpan state `loadingHarga` terpisah.
+  - Hasil: jumlah query database pada batch verifikasi turun drastis dari **N query per item** menjadi **1 query total** untuk seluruh tabel `harga_sampah`, sehingga response time panel verifikasi jauh lebih cepat.
+
+- **Perbaikan Transaction Timeout P2028 pada Batch Verifikasi Setor Langsung**:
+  - Mengidentifikasi error `PrismaClientKnownRequestError P2028` (transaction expired) pada fungsi `batchVerifikasiSetorLangsung` ketika memproses batch besar (≥30 item). Penyebab: *interactive transaction* (`$transaction(async tx => {...})`) menjalankan `await` secara sequential per item di dalam loop, totalnya melebihi timeout default 5000ms.
+  - Refaktor ke **non-interactive batch transaction** (`$transaction([...array ops])`): semua operasi dikalkulasi terlebih dahulu di luar transaksi (pure JS, tidak ada DB roundtrip), lalu dikirim ke database sekaligus dalam satu batch. Non-interactive transaction tidak memiliki batas 5000ms.
+  - Tambahan optimasi **agregasi poin/saldo per nasabah**: jika satu nasabah punya lebih dari satu setoran dalam batch yang sama, poin/saldo-nya kini digabungkan (`poinAggr[nasabahId] += totalValue`) sehingga hanya satu `UPDATE nasabah` per nasabah, bukan satu per setoran. Ini mengurangi jumlah query secara signifikan.
+  - Urutan operasi dalam batch: semua `SetorLangsung.update` → semua `Nasabah.update` (per nasabah unik) → semua `MutasiSaldo.create` (per setoran, agar riwayat tetap detail).
+
+- **Optimasi True Bulk Query pada Batch Verifikasi Setor Langsung (Tahap 2)**:
+  - Mengidentifikasi bahwa non-interactive `$transaction([...])` sebelumnya masih menghasilkan ~100 SQL statement individual (49 UPDATE + 49 INSERT + 2 UPDATE), seluruhnya diselesaikan dalam satu roundtrip ~4.8 detik — terlalu lama untuk UX yang baik.
+  - Ganti 49 individual `SetorLangsung.update` dengan **1 raw SQL** `UPDATE "setor_langsung" FROM (VALUES ...) AS v WHERE s.id = v.id` menggunakan `Prisma.sql` tagged template dan `Prisma.join()`. Database PostgreSQL memproses satu pernyataan UPDATE ini sekaligus untuk semua baris.
+  - Ganti 49 individual `MutasiSaldo.create` dengan **1 `prisma.mutasiSaldo.createMany()`** yang menghasilkan satu `INSERT INTO ... VALUES (...), (...), ...` statement.
+  - `Nasabah.update` tetap individual karena sudah teragregasi per nasabah unik (biasanya hanya 1–5 update) dan harus menjaga atomisitas increment per nasabah.
+  - Hasil akhir: batch verifikasi 49 item kini hanya membutuhkan **~5 SQL statements total** (1 raw UPDATE + N nasabah update + 1 createMany), dibanding ~100 sebelumnya.
 
 
 

@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { getSession } from "@/app/login/auth/session";
 import { prisma } from "@/lib/prisma";
+import { Prisma } from "@/prisma/generated/prisma/client";
 
 const REVALIDATE = "/dashboard-admin/pendataan/setor-sampah";
 
@@ -115,14 +116,15 @@ export async function batchVerifikasiSetorLangsung(ids: string[]) {
   const name = session.user.name || session.user.username || "Admin";
   const now = new Date();
 
-  const setoranList = await prisma.setorLangsung.findMany({
-    where: { id: { in: ids }, status: "MENUNGGU_VERIFIKASI" },
-    include: { nasabah: { include: { user: true } } },
-  });
+  const [setoranList, allPrices] = await Promise.all([
+    prisma.setorLangsung.findMany({
+      where: { id: { in: ids }, status: "MENUNGGU_VERIFIKASI" },
+      include: { nasabah: { include: { user: true } } },
+    }),
+    prisma.hargaSampah.findMany({ orderBy: { bulan: "desc" } }),
+  ]);
 
-  const allPrices = await prisma.hargaSampah.findMany({
-    orderBy: { bulan: "desc" },
-  });
+  // Bangun map harga terbaru per jenis sampah (in-memory, 1 query)
   const latestPrices: Record<string, (typeof allPrices)[0]> = {};
   for (const price of allPrices) {
     if (!latestPrices[price.jenisSampah]) {
@@ -130,55 +132,122 @@ export async function batchVerifikasiSetorLangsung(ids: string[]) {
     }
   }
 
-  await prisma.$transaction(async (tx) => {
-    for (const setor of setoranList) {
-      const hargaDB = latestPrices[setor.jenisSampah];
-      const isBankSampah = setor.nasabah.user.role === "BANK_SAMPAH";
-      const ratePerKg = hargaDB
-        ? isBankSampah
-          ? hargaDB.harga
-          : hargaDB.point
-        : 0;
-      const beratAktual = setor.beratTerbaca ?? setor.beratEstimasi;
-      const totalValue = Math.round(beratAktual * ratePerKg);
-      const isAiValid = setor.statusValidasi === "VALID";
-      const verifiedByLabel = isAiValid
+  // ── Hitung semua nilai di luar transaksi ───────────────────────────────────
+  type ItemPayload = {
+    setor: (typeof setoranList)[0];
+    isBankSampah: boolean;
+    ratePerKg: number;
+    beratAktual: number;
+    totalValue: number;
+    verifiedByLabel: string;
+  };
+
+  const payloads: ItemPayload[] = setoranList.map((setor) => {
+    const hargaDB = latestPrices[setor.jenisSampah];
+    const isBankSampah = setor.nasabah.user.role === "BANK_SAMPAH";
+    const ratePerKg = hargaDB
+      ? isBankSampah
+        ? hargaDB.harga
+        : hargaDB.point
+      : 0;
+    const beratAktual = setor.beratTerbaca ?? setor.beratEstimasi;
+    const totalValue = Math.round(beratAktual * ratePerKg);
+    const verifiedByLabel =
+      setor.statusValidasi === "VALID"
         ? "Sistem (AI)"
         : `Otomatis oleh ${name}`;
+    return {
+      setor,
+      isBankSampah,
+      ratePerKg,
+      beratAktual,
+      totalValue,
+      verifiedByLabel,
+    };
+  });
 
-      await tx.setorLangsung.update({
-        where: { id: setor.id },
-        data: {
-          status: "SELESAI",
-          beratAktual,
-          catatanAdmin: null,
-          verifiedBy: verifiedByLabel,
-          verifikasiAt: now,
-          selesaiAt: now,
-          hargaPerKg: isBankSampah ? ratePerKg : undefined,
-          totalHarga: isBankSampah ? totalValue : undefined,
-          poinPerKg: isBankSampah ? undefined : ratePerKg,
-          totalPoin: isBankSampah ? undefined : totalValue,
-        },
-      });
-      await tx.nasabah.update({
-        where: { id: setor.nasabahId },
-        data: isBankSampah
-          ? { saldo: { increment: totalValue } }
-          : { poin: { increment: totalValue } },
-      });
-      await tx.mutasiSaldo.create({
-        data: {
-          nasabahId: setor.nasabahId,
-          jumlah: totalValue,
-          keterangan: isBankSampah
-            ? `Setor langsung (Cash) ${setor.jenisSampah} ${beratAktual} kg (Batch)`
-            : `Setor langsung ${setor.jenisSampah} ${beratAktual} kg (Batch)`,
-          referensiId: setor.id,
-          jenisReferensi: "LANGSUNG",
-        },
-      });
+  // ── Agregasi poin/saldo per nasabah (hindari N update ke nasabah yang sama) ─
+  // Pisahkan antara nasabah biasa (poin) dan bank sampah (saldo)
+  const poinAggr: Record<string, number> = {}; // nasabahId → total poin
+  const saldoAggr: Record<string, number> = {}; // nasabahId → total saldo
+  for (const { setor, isBankSampah, totalValue } of payloads) {
+    if (isBankSampah) {
+      saldoAggr[setor.nasabahId] =
+        (saldoAggr[setor.nasabahId] ?? 0) + totalValue;
+    } else {
+      poinAggr[setor.nasabahId] = (poinAggr[setor.nasabahId] ?? 0) + totalValue;
     }
+  }
+
+  // ── 1. Bulk UPDATE setor_langsung via raw SQL (1 query untuk semua item) ───
+  // PostgreSQL UPDATE ... FROM (VALUES ...) AS v — jauh lebih efisien dari N individual UPDATE
+  const valueRows = payloads.map(
+    ({
+      setor,
+      isBankSampah,
+      ratePerKg,
+      beratAktual,
+      totalValue,
+      verifiedByLabel,
+    }) =>
+      Prisma.sql`(
+        ${setor.id}::text,
+        ${beratAktual}::float8,
+        ${verifiedByLabel}::text,
+        ${isBankSampah ? ratePerKg : null}::int,
+        ${isBankSampah ? totalValue : null}::int,
+        ${isBankSampah ? null : ratePerKg}::int,
+        ${isBankSampah ? null : totalValue}::int
+      )`,
+  );
+
+  await prisma.$executeRaw`
+    UPDATE "public"."setor_langsung" AS s
+    SET
+      "status"       = 'SELESAI'::"public"."StatusSetorLangsung",
+      "beratAktual"  = v.berat_aktual,
+      "catatanAdmin" = NULL,
+      "verifiedBy"   = v.verified_by,
+      "verifikasiAt" = ${now},
+      "selesaiAt"    = ${now},
+      "hargaPerKg"   = v.harga_per_kg,
+      "totalHarga"   = v.total_harga,
+      "poinPerKg"    = v.poin_per_kg,
+      "totalPoin"    = v.total_poin,
+      "updatedAt"    = ${now}
+    FROM (VALUES ${Prisma.join(valueRows)})
+      AS v(id, berat_aktual, verified_by, harga_per_kg, total_harga, poin_per_kg, total_poin)
+    WHERE s.id = v.id
+  `;
+
+  // ── 2. Update poin/saldo nasabah (sudah teragregasi, hanya N nasabah unik) ─
+  const nasabahOps = [
+    ...Object.entries(poinAggr).map(([nasabahId, totalPoin]) =>
+      prisma.nasabah.update({
+        where: { id: nasabahId },
+        data: { poin: { increment: totalPoin } },
+      }),
+    ),
+    ...Object.entries(saldoAggr).map(([nasabahId, totalSaldo]) =>
+      prisma.nasabah.update({
+        where: { id: nasabahId },
+        data: { saldo: { increment: totalSaldo } },
+      }),
+    ),
+  ];
+  if (nasabahOps.length > 0) await prisma.$transaction(nasabahOps);
+
+  // ── 3. Bulk INSERT mutasi_saldo via createMany (1 query untuk semua mutasi) ─
+  await prisma.mutasiSaldo.createMany({
+    data: payloads.map(({ setor, isBankSampah, beratAktual, totalValue }) => ({
+      nasabahId: setor.nasabahId,
+      jumlah: totalValue,
+      keterangan: isBankSampah
+        ? `Setor langsung (Cash) ${setor.jenisSampah} ${beratAktual} kg (Batch)`
+        : `Setor langsung ${setor.jenisSampah} ${beratAktual} kg (Batch)`,
+      referensiId: setor.id,
+      jenisReferensi: "LANGSUNG",
+    })),
   });
 
   revalidatePath(REVALIDATE);
@@ -389,4 +458,26 @@ export async function getHargaTerbaru(jenisSampah: string) {
     orderBy: { bulan: "desc" },
     select: { harga: true, point: true, bulan: true },
   });
+}
+
+/**
+ * Mengambil semua harga terbaru per jenis sampah sekaligus (1 query).
+ * Menghindari masalah N+1 ketika digunakan di halaman yang menampilkan banyak item.
+ * Mengembalikan Record<jenisSampah, { harga, point, bulan }>.
+ */
+export async function getAllHargaTerbaru() {
+  await getAdminSession();
+  const allPrices = await prisma.hargaSampah.findMany({
+    orderBy: { bulan: "desc" },
+    select: { jenisSampah: true, harga: true, point: true, bulan: true },
+  });
+  // Ambil hanya entry pertama (terbaru) per jenisSampah
+  const map: Record<string, { harga: number; point: number; bulan: Date }> = {};
+  for (const price of allPrices) {
+    const key = price.jenisSampah as string;
+    if (!map[key]) {
+      map[key] = { harga: price.harga, point: price.point, bulan: price.bulan };
+    }
+  }
+  return map;
 }
