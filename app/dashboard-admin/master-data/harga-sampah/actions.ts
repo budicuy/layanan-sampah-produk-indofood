@@ -1,9 +1,10 @@
 "use server";
 
+import { desc, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { getSession } from "@/app/login/auth/session";
-import { prisma } from "@/lib/prisma";
-import type { JenisSampah } from "@/prisma/generated/prisma/client";
+import { db } from "@/lib/db";
+import { hargaSampah, type JenisSampah } from "@/lib/db/schema";
 
 async function checkAdminAuth() {
   const session = await getSession();
@@ -21,8 +22,9 @@ export async function createHargaSampah(data: {
 }) {
   await checkAdminAuth();
   try {
-    await prisma.hargaSampah.create({
-      data,
+    await db.insert(hargaSampah).values({
+      id: crypto.randomUUID(),
+      ...data,
     });
     revalidatePath("/dashboard-admin/master-data/harga-sampah");
     return { success: true };
@@ -44,10 +46,13 @@ export async function updateHargaSampah(
 ) {
   await checkAdminAuth();
   try {
-    await prisma.hargaSampah.update({
-      where: { id },
-      data,
-    });
+    await db
+      .update(hargaSampah)
+      .set({
+        ...data,
+        updatedAt: new Date(),
+      })
+      .where(eq(hargaSampah.id, id));
     revalidatePath("/dashboard-admin/master-data/harga-sampah");
     return { success: true };
   } catch (error) {
@@ -59,9 +64,7 @@ export async function updateHargaSampah(
 export async function deleteHargaSampah(id: string) {
   await checkAdminAuth();
   try {
-    await prisma.hargaSampah.delete({
-      where: { id },
-    });
+    await db.delete(hargaSampah).where(eq(hargaSampah.id, id));
     revalidatePath("/dashboard-admin/master-data/harga-sampah");
     return { success: true };
   } catch (error) {
@@ -72,8 +75,9 @@ export async function deleteHargaSampah(id: string) {
 
 export async function getHargaSampahData() {
   await checkAdminAuth();
-  const hargaSampah = await prisma.hargaSampah.findMany({
-    orderBy: { bulan: "desc" },
-  });
-  return hargaSampah;
+  const data = await db
+    .select()
+    .from(hargaSampah)
+    .orderBy(desc(hargaSampah.bulan));
+  return data;
 }

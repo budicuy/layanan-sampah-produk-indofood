@@ -1,9 +1,11 @@
 "use server";
 
 import { compare } from "bcryptjs";
+import { eq } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import * as v from "valibot";
-import { prisma } from "@/lib/prisma";
+import { db } from "@/lib/db";
+import { account, user } from "@/lib/db/schema";
 import { signJwt } from "./auth";
 import { deleteAuthCookie, setAuthCookie } from "./auth/cookies";
 
@@ -28,32 +30,48 @@ export async function loginAction(
   const { username, password } = parsed.output;
 
   // Cari user beserta password-nya di tabel account
-  const account = await prisma.account.findFirst({
-    where: { user: { username } },
-    include: { user: true },
-  });
+  const accountList = await db
+    .select({
+      id: account.id,
+      userId: account.userId,
+      password: account.password,
+      user: {
+        id: user.id,
+        name: user.name,
+        username: user.username,
+        email: user.email,
+        role: user.role,
+        status: user.status,
+      },
+    })
+    .from(account)
+    .innerJoin(user, eq(account.userId, user.id))
+    .where(eq(user.username, username))
+    .limit(1);
 
-  if (!account) {
+  const accountData = accountList[0] || null;
+
+  if (!accountData) {
     return { msg: "Username atau kata sandi salah." };
   }
 
-  const passwordMatch = await compare(password, account.password);
+  const passwordMatch = await compare(password, accountData.password);
   if (!passwordMatch) {
     return { msg: "Username atau kata sandi salah." };
   }
 
-  const { user } = account;
+  const { user: userData } = accountData;
 
-  if (user.status === "NONAKTIF") {
+  if (userData.status === "NONAKTIF") {
     return { msg: "Akun Anda dinonaktifkan. Hubungi administrator." };
   }
 
   const token = await signJwt({
-    sub: user.id,
-    username: user.username,
-    name: user.name,
-    email: user.email,
-    role: user.role,
+    sub: userData.id,
+    username: userData.username,
+    name: userData.name,
+    email: userData.email,
+    role: userData.role,
   });
 
   await setAuthCookie(token);
@@ -61,7 +79,7 @@ export async function loginAction(
   return {
     msg: "Login berhasil! Mengalihkan...",
     ok: true,
-    role: user.role,
+    role: userData.role,
   };
 }
 

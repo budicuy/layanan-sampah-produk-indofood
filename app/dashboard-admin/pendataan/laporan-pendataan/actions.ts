@@ -1,7 +1,7 @@
 "use server";
 
 import { getSession } from "@/app/login/auth/session";
-import { prisma } from "@/lib/prisma";
+import { db } from "@/lib/db";
 
 async function checkAdminAuth() {
   const session = await getSession();
@@ -13,79 +13,113 @@ async function checkAdminAuth() {
 export async function getLaporanData() {
   await checkAdminAuth();
 
-  const [setorLangsung, setorEkspedisi, pencairan, kupon] = await Promise.all([
-    // 1a. Setor Langsung selesai
-    prisma.setorLangsung.findMany({
-      where: { status: "SELESAI" },
-      orderBy: { selesaiAt: "desc" },
-      include: {
-        nasabah: {
-          select: {
-            id: true,
-            nik: true,
-            kategori: true,
-            user: { select: { name: true } },
+  const [setorLangsungData, setorEkspedisiData, pencairanData, kuponData] =
+    await Promise.all([
+      // 1a. Setor Langsung selesai
+      db.query.setorLangsung.findMany({
+        where: (setorLangsung, { eq }) => eq(setorLangsung.status, "SELESAI"),
+        orderBy: (setorLangsung, { desc }) => [desc(setorLangsung.selesaiAt)],
+        with: {
+          nasabah: {
+            columns: {
+              id: true,
+              nik: true,
+              kategori: true,
+            },
+            with: {
+              user: {
+                columns: {
+                  name: true,
+                },
+              },
+            },
           },
         },
-      },
-    }),
-    // 1b. Setor Ekspedisi selesai
-    prisma.setorEkspedisi.findMany({
-      where: { status: "SELESAI" },
-      orderBy: { selesaiAt: "desc" },
-      include: {
-        nasabah: {
-          select: {
-            id: true,
-            nik: true,
-            kategori: true,
-            user: { select: { name: true } },
+      }),
+      // 1b. Setor Ekspedisi selesai
+      db.query.setorEkspedisi.findMany({
+        where: (setorEkspedisi, { eq }) => eq(setorEkspedisi.status, "SELESAI"),
+        orderBy: (setorEkspedisi, { desc }) => [desc(setorEkspedisi.selesaiAt)],
+        with: {
+          nasabah: {
+            columns: {
+              id: true,
+              nik: true,
+              kategori: true,
+            },
+            with: {
+              user: {
+                columns: {
+                  name: true,
+                },
+              },
+            },
+          },
+          ekpedisi: {
+            columns: {
+              alamat: true,
+              noTelp: true,
+            },
           },
         },
-        ekpedisi: { select: { alamat: true, noTelp: true } },
-      },
-    }),
-    // 2. Semua Pencairan
-    prisma.pencairan.findMany({
-      orderBy: { createdAt: "desc" },
-      include: {
-        nasabah: {
-          select: {
-            id: true,
-            nik: true,
-            user: { select: { name: true, username: true } },
+      }),
+      // 2. Semua Pencairan
+      db.query.pencairan.findMany({
+        orderBy: (pencairan, { desc }) => [desc(pencairan.createdAt)],
+        with: {
+          nasabah: {
+            columns: {
+              id: true,
+              nik: true,
+            },
+            with: {
+              user: {
+                columns: {
+                  name: true,
+                  username: true,
+                },
+              },
+            },
           },
         },
-      },
-    }),
-    // 3. Semua Kupon
-    prisma.kupon.findMany({
-      orderBy: { createdAt: "desc" },
-      include: {
-        nasabah: {
-          select: {
-            id: true,
-            nik: true,
-            user: { select: { name: true } },
+      }),
+      // 3. Semua Kupon
+      db.query.kupon.findMany({
+        orderBy: (kupon, { desc }) => [desc(kupon.createdAt)],
+        with: {
+          nasabah: {
+            columns: {
+              id: true,
+              nik: true,
+            },
+            with: {
+              user: {
+                columns: {
+                  name: true,
+                },
+              },
+            },
           },
         },
-      },
-    }),
-  ]);
+      }),
+    ]);
 
   // Gabungkan setor langsung + ekspedisi, tandai jenisnya
   const setoran = [
-    ...setorLangsung.map((s) => ({
+    ...setorLangsungData.map((s) => ({
       ...s,
       jenisSetor: "LANGSUNG" as const,
       ekpedisi: null,
     })),
-    ...setorEkspedisi.map((s) => ({ ...s, jenisSetor: "EKSPEDISI" as const })),
+    ...setorEkspedisiData.map((s) => ({
+      ...s,
+      jenisSetor: "EKSPEDISI" as const,
+    })),
   ].sort(
     (a, b) =>
       new Date(b.selesaiAt ?? b.createdAt).getTime() -
       new Date(a.selesaiAt ?? a.createdAt).getTime(),
   );
 
-  return { setoran, pencairan, kupon };
+  return { setoran, pencairan: pencairanData, kupon: kuponData };
 }

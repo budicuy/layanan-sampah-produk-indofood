@@ -1,10 +1,11 @@
 "use server";
 
 import { hash } from "bcryptjs";
+import { desc, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { getSession } from "@/app/login/auth/session";
-import { prisma } from "@/lib/prisma";
-import type { Role, StatusUser } from "@/prisma/generated/prisma/client";
+import { db } from "@/lib/db";
+import { account, type Role, type StatusUser, user } from "@/lib/db/schema";
 
 async function checkAdminAuth() {
   const session = await getSession();
@@ -24,20 +25,24 @@ export async function createUser(data: {
   try {
     const hashedPassword = await hash("password", 12);
 
-    await prisma.user.create({
-      data: {
+    await db.transaction(async (tx) => {
+      const userId = crypto.randomUUID();
+      await tx.insert(user).values({
+        id: userId,
         name: data.name,
         username: data.username,
         email: data.email,
         role: data.role,
         status: data.status,
-        accounts: {
-          create: {
-            password: hashedPassword,
-          },
-        },
-      },
+      });
+
+      await tx.insert(account).values({
+        id: crypto.randomUUID(),
+        userId,
+        password: hashedPassword,
+      });
     });
+
     revalidatePath("/dashboard-admin/master-data/users");
     return { success: true };
   } catch (error) {
@@ -58,10 +63,13 @@ export async function updateUser(
 ) {
   await checkAdminAuth();
   try {
-    await prisma.user.update({
-      where: { id },
-      data,
-    });
+    await db
+      .update(user)
+      .set({
+        ...data,
+        updatedAt: new Date(),
+      })
+      .where(eq(user.id, id));
     revalidatePath("/dashboard-admin/master-data/users");
     return { success: true };
   } catch (error) {
@@ -73,9 +81,7 @@ export async function updateUser(
 export async function deleteUser(id: string) {
   await checkAdminAuth();
   try {
-    await prisma.user.delete({
-      where: { id },
-    });
+    await db.delete(user).where(eq(user.id, id));
     revalidatePath("/dashboard-admin/master-data/users");
     return { success: true };
   } catch (error) {
@@ -89,10 +95,10 @@ export async function resetPassword(id: string) {
   try {
     const hashedPassword = await hash("password", 12);
 
-    await prisma.account.updateMany({
-      where: { userId: id },
-      data: { password: hashedPassword },
-    });
+    await db
+      .update(account)
+      .set({ password: hashedPassword, updatedAt: new Date() })
+      .where(eq(account.userId, id));
     return { success: true };
   } catch (error) {
     console.error("Failed to reset password:", error);
@@ -102,8 +108,6 @@ export async function resetPassword(id: string) {
 
 export async function getUserData() {
   await checkAdminAuth();
-  const users = await prisma.user.findMany({
-    orderBy: { updatedAt: "desc" },
-  });
-  return users;
+  const data = await db.select().from(user).orderBy(desc(user.updatedAt));
+  return data;
 }

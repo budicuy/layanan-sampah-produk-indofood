@@ -1,7 +1,9 @@
 "use server";
 
+import { eq, sql } from "drizzle-orm";
 import { getSession } from "@/app/login/auth/session";
-import { prisma } from "@/lib/prisma";
+import { db } from "@/lib/db";
+import { setorEkspedisi, setorLangsung } from "@/lib/db/schema";
 
 export async function getSetorSampahHistory(
   type: "LANGSUNG" | "EKSPEDISI",
@@ -13,24 +15,32 @@ export async function getSetorSampahHistory(
     throw new Error("Unauthorized");
   }
 
-  const nasabah = await prisma.nasabah.findUnique({
-    where: { userId: session.user.sub },
-    select: { id: true },
+  const nasabahData = await db.query.nasabah.findFirst({
+    where: (nasabah, { eq }) => eq(nasabah.userId, session.user.sub),
+    columns: { id: true },
   });
-  if (!nasabah) {
+  if (!nasabahData) {
     throw new Error("Nasabah profile not found");
   }
 
   // Fetch overall statistics for the cards
   const [langsungStats, ekspedisiStats] = await Promise.all([
-    prisma.setorLangsung.findMany({
-      where: { nasabahId: nasabah.id },
-      select: { beratEstimasi: true, beratAktual: true, totalPoin: true },
-    }),
-    prisma.setorEkspedisi.findMany({
-      where: { nasabahId: nasabah.id },
-      select: { beratEstimasi: true, beratAktual: true, totalPoin: true },
-    }),
+    db
+      .select({
+        beratEstimasi: setorLangsung.beratEstimasi,
+        beratAktual: setorLangsung.beratAktual,
+        totalPoin: setorLangsung.totalPoin,
+      })
+      .from(setorLangsung)
+      .where(eq(setorLangsung.nasabahId, nasabahData.id)),
+    db
+      .select({
+        beratEstimasi: setorEkspedisi.beratEstimasi,
+        beratAktual: setorEkspedisi.beratAktual,
+        totalPoin: setorEkspedisi.totalPoin,
+      })
+      .from(setorEkspedisi)
+      .where(eq(setorEkspedisi.nasabahId, nasabahData.id)),
   ]);
 
   const totalSetoran = langsungStats.length + ekspedisiStats.length;
@@ -69,17 +79,20 @@ export async function getSetorSampahHistory(
   let totalCount = 0;
 
   if (type === "LANGSUNG") {
-    const [list, count] = await Promise.all([
-      prisma.setorLangsung.findMany({
-        where: { nasabahId: nasabah.id },
-        orderBy: { createdAt: "desc" },
-        skip: (page - 1) * limit,
-        take: limit,
+    const [list, countResult] = await Promise.all([
+      db.query.setorLangsung.findMany({
+        where: (setorLangsung, { eq }) =>
+          eq(setorLangsung.nasabahId, nasabahData.id),
+        orderBy: (setorLangsung, { desc }) => [desc(setorLangsung.createdAt)],
+        offset: (page - 1) * limit,
+        limit: limit,
       }),
-      prisma.setorLangsung.count({
-        where: { nasabahId: nasabah.id },
-      }),
+      db
+        .select({ count: sql<number>`count(*)::int` })
+        .from(setorLangsung)
+        .where(eq(setorLangsung.nasabahId, nasabahData.id)),
     ]);
+    const count = countResult[0]?.count ?? 0;
     data = list.map((s) => ({
       ...s,
       jenisSetor: "LANGSUNG" as const,
@@ -87,20 +100,25 @@ export async function getSetorSampahHistory(
     }));
     totalCount = count;
   } else {
-    const [list, count] = await Promise.all([
-      prisma.setorEkspedisi.findMany({
-        where: { nasabahId: nasabah.id },
-        orderBy: { createdAt: "desc" },
-        skip: (page - 1) * limit,
-        take: limit,
-        include: {
-          ekpedisi: { select: { nama: true, noTelp: true, alamat: true } },
+    const [list, countResult] = await Promise.all([
+      db.query.setorEkspedisi.findMany({
+        where: (setorEkspedisi, { eq }) =>
+          eq(setorEkspedisi.nasabahId, nasabahData.id),
+        orderBy: (setorEkspedisi, { desc }) => [desc(setorEkspedisi.createdAt)],
+        offset: (page - 1) * limit,
+        limit: limit,
+        with: {
+          ekpedisi: {
+            columns: { nama: true, noTelp: true, alamat: true },
+          },
         },
       }),
-      prisma.setorEkspedisi.count({
-        where: { nasabahId: nasabah.id },
-      }),
+      db
+        .select({ count: sql<number>`count(*)::int` })
+        .from(setorEkspedisi)
+        .where(eq(setorEkspedisi.nasabahId, nasabahData.id)),
     ]);
+    const count = countResult[0]?.count ?? 0;
     data = list.map((s) => ({
       ...s,
       jenisSetor: "EKSPEDISI" as const,

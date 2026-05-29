@@ -20,10 +20,7 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import type {
-  KategoriNasabah,
-  StatusNasabah,
-} from "@/prisma/generated/prisma/client";
+import type { KategoriNasabah, StatusNasabah } from "@/lib/db/schema";
 import {
   createNasabah,
   deleteNasabah,

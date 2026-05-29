@@ -1,11 +1,18 @@
 "use server";
 
+import { eq, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { getSession } from "@/app/login/auth/session";
+import { db } from "@/lib/db";
+import {
+  type JenisSampah,
+  mutasiSaldo,
+  nasabah,
+  setorEkspedisi,
+  setorLangsung,
+} from "@/lib/db/schema";
 import { analyzeScaleImage } from "@/lib/gemini";
-import { prisma } from "@/lib/prisma";
 import { uploadToR2 } from "@/lib/r2";
-import type { JenisSampah } from "@/prisma/generated/prisma/client";
 
 const REVALIDATE_PATHS = [
   "/dashboard-konsumen/setor-sampah",
@@ -27,10 +34,10 @@ async function prepareSubmission(data: SubmitBaseData) {
   const session = await getSession();
   if (!session) throw new Error("Unauthorized");
 
-  const nasabah = await prisma.nasabah.findUnique({
-    where: { userId: session.user.sub },
+  const nasabahData = await db.query.nasabah.findFirst({
+    where: (nasabah, { eq }) => eq(nasabah.userId, session.user.sub),
   });
-  if (!nasabah)
+  if (!nasabahData)
     throw new Error("Profil nasabah belum terdaftar. Hubungi admin.");
 
   // 1. Analisis gambar timbangan via AI
@@ -92,7 +99,13 @@ async function prepareSubmission(data: SubmitBaseData) {
     );
   }
 
-  return { nasabah, scaleUrl, proofUrls, statusValidasi, beratTerbacaKg };
+  return {
+    nasabah: nasabahData,
+    scaleUrl,
+    proofUrls,
+    statusValidasi,
+    beratTerbacaKg,
+  };
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -101,65 +114,69 @@ async function prepareSubmission(data: SubmitBaseData) {
 
 export async function submitSetorLangsung(data: SubmitBaseData) {
   try {
-    const { nasabah, scaleUrl, proofUrls, statusValidasi, beratTerbacaKg } =
-      await prepareSubmission(data);
+    const {
+      nasabah: nsb,
+      scaleUrl,
+      proofUrls,
+      statusValidasi,
+      beratTerbacaKg,
+    } = await prepareSubmission(data);
 
     if (statusValidasi === "VALID") {
-      const hargaDB = await prisma.hargaSampah.findFirst({
-        where: { jenisSampah: data.jenisSampah },
-        orderBy: { bulan: "desc" },
+      const hargaDB = await db.query.hargaSampah.findFirst({
+        where: (hargaSampah, { eq }) =>
+          eq(hargaSampah.jenisSampah, data.jenisSampah),
+        orderBy: (hargaSampah, { desc }) => [desc(hargaSampah.bulan)],
       });
       const poinPerKg = hargaDB?.point ?? 0;
       const beratFinal = beratTerbacaKg ?? data.beratEstimasi;
       const totalPoin = Math.round(beratFinal * poinPerKg);
 
-      await prisma.$transaction(async (tx) => {
-        const newSetor = await tx.setorLangsung.create({
-          data: {
-            nasabahId: nasabah.id,
-            jenisSampah: data.jenisSampah,
-            beratEstimasi: data.beratEstimasi,
-            beratAktual: beratFinal,
-            keterangan: data.keterangan,
-            gambarTimbangan: scaleUrl,
-            gambarBukti: proofUrls,
-            statusValidasi,
-            beratTerbaca: beratTerbacaKg,
-            status: "SELESAI",
-            poinPerKg,
-            totalPoin,
-            verifiedBy: "Sistem (AI)",
-            verifikasiAt: new Date(),
-            selesaiAt: new Date(),
-          },
-        });
-        await tx.nasabah.update({
-          where: { id: nasabah.id },
-          data: { poin: { increment: totalPoin } },
-        });
-        await tx.mutasiSaldo.create({
-          data: {
-            nasabahId: nasabah.id,
-            jumlah: totalPoin,
-            keterangan: `Setor langsung (AI) ${data.jenisSampah} ${beratFinal.toFixed(2)} kg`,
-            referensiId: newSetor.id,
-            jenisReferensi: "LANGSUNG",
-          },
-        });
-      });
-    } else {
-      await prisma.setorLangsung.create({
-        data: {
-          nasabahId: nasabah.id,
+      await db.transaction(async (tx) => {
+        const newId = crypto.randomUUID();
+        await tx.insert(setorLangsung).values({
+          id: newId,
+          nasabahId: nsb.id,
           jenisSampah: data.jenisSampah,
           beratEstimasi: data.beratEstimasi,
-          keterangan: data.keterangan,
+          beratAktual: beratFinal,
+          keterangan: data.keterangan || null,
           gambarTimbangan: scaleUrl,
           gambarBukti: proofUrls,
           statusValidasi,
           beratTerbaca: beratTerbacaKg,
-          status: "MENUNGGU_VERIFIKASI",
-        },
+          status: "SELESAI",
+          poinPerKg,
+          totalPoin,
+          verifiedBy: "Sistem (AI)",
+          verifikasiAt: new Date(),
+          selesaiAt: new Date(),
+        });
+        await tx
+          .update(nasabah)
+          .set({ poin: sql`poin + ${totalPoin}`, updatedAt: new Date() })
+          .where(eq(nasabah.id, nsb.id));
+        await tx.insert(mutasiSaldo).values({
+          id: crypto.randomUUID(),
+          nasabahId: nsb.id,
+          jumlah: totalPoin,
+          keterangan: `Setor langsung (AI) ${data.jenisSampah} ${beratFinal.toFixed(2)} kg`,
+          referensiId: newId,
+          jenisReferensi: "LANGSUNG",
+        });
+      });
+    } else {
+      await db.insert(setorLangsung).values({
+        id: crypto.randomUUID(),
+        nasabahId: nsb.id,
+        jenisSampah: data.jenisSampah,
+        beratEstimasi: data.beratEstimasi,
+        keterangan: data.keterangan || null,
+        gambarTimbangan: scaleUrl,
+        gambarBukti: proofUrls,
+        statusValidasi,
+        beratTerbaca: beratTerbacaKg,
+        status: "MENUNGGU_VERIFIKASI",
       });
     }
 
@@ -185,22 +202,26 @@ export async function submitSetorSampah(
   data: SubmitBaseData & { alamatPenjemputan: string },
 ) {
   try {
-    const { nasabah, scaleUrl, proofUrls, statusValidasi, beratTerbacaKg } =
-      await prepareSubmission(data);
+    const {
+      nasabah: nsb,
+      scaleUrl,
+      proofUrls,
+      statusValidasi,
+      beratTerbacaKg,
+    } = await prepareSubmission(data);
 
-    await prisma.setorEkspedisi.create({
-      data: {
-        nasabahId: nasabah.id,
-        jenisSampah: data.jenisSampah,
-        beratEstimasi: data.beratEstimasi,
-        keterangan: data.keterangan,
-        alamatPenjemputan: data.alamatPenjemputan,
-        gambarTimbangan: scaleUrl,
-        gambarBukti: proofUrls,
-        statusValidasi,
-        beratTerbaca: beratTerbacaKg,
-        status: "MENUNGGU_VERIFIKASI",
-      },
+    await db.insert(setorEkspedisi).values({
+      id: crypto.randomUUID(),
+      nasabahId: nsb.id,
+      jenisSampah: data.jenisSampah,
+      beratEstimasi: data.beratEstimasi,
+      keterangan: data.keterangan || null,
+      alamatPenjemputan: data.alamatPenjemputan,
+      gambarTimbangan: scaleUrl,
+      gambarBukti: proofUrls,
+      statusValidasi,
+      beratTerbaca: beratTerbacaKg,
+      status: "MENUNGGU_VERIFIKASI",
     });
 
     for (const p of REVALIDATE_PATHS) revalidatePath(p);
@@ -221,22 +242,30 @@ export async function konfirmasiSerahTerima(setorEkspedisiId: string) {
     const session = await getSession();
     if (!session) throw new Error("Unauthorized");
 
-    const nasabah = await prisma.nasabah.findUnique({
-      where: { userId: session.user.sub },
+    const nasabahData = await db.query.nasabah.findFirst({
+      where: (nasabah, { eq }) => eq(nasabah.userId, session.user.sub),
     });
-    if (!nasabah) throw new Error("Nasabah tidak ditemukan");
+    if (!nasabahData) throw new Error("Nasabah tidak ditemukan");
 
-    const setor = await prisma.setorEkspedisi.findFirst({
-      where: { id: setorEkspedisiId, nasabahId: nasabah.id },
+    const setor = await db.query.setorEkspedisi.findFirst({
+      where: (setorEkspedisi, { and, eq }) =>
+        and(
+          eq(setorEkspedisi.id, setorEkspedisiId),
+          eq(setorEkspedisi.nasabahId, nasabahData.id),
+        ),
     });
     if (!setor) throw new Error("Data setor tidak ditemukan");
     if (setor.status !== "DALAM_PENJEMPUTAN")
       throw new Error("Status tidak valid untuk aksi ini");
 
-    await prisma.setorEkspedisi.update({
-      where: { id: setorEkspedisiId },
-      data: { status: "SUDAH_DISERAHKAN", diserahkanAt: new Date() },
-    });
+    await db
+      .update(setorEkspedisi)
+      .set({
+        status: "SUDAH_DISERAHKAN",
+        diserahkanAt: new Date(),
+        updatedAt: new Date(),
+      })
+      .where(eq(setorEkspedisi.id, setorEkspedisiId));
 
     for (const p of REVALIDATE_PATHS) revalidatePath(p);
     return { success: true };
@@ -257,27 +286,35 @@ export async function getSetorSampahKonsumenData() {
   const session = await getSession();
   if (!session) throw new Error("Unauthorized");
 
-  const nasabah = await prisma.nasabah.findUnique({
-    where: { userId: session.user.sub },
-    select: { id: true, alamat: true, poin: true, saldo: true },
+  const nasabahData = await db.query.nasabah.findFirst({
+    where: (nasabah, { eq }) => eq(nasabah.userId, session.user.sub),
+    columns: { id: true, alamat: true, poin: true, saldo: true },
   });
-  if (!nasabah) return { nasabah: null };
+  if (!nasabahData) return { nasabah: null };
 
-  const [setorLangsung, setorEkspedisi] = await Promise.all([
-    prisma.setorLangsung.findMany({
-      where: { nasabahId: nasabah.id },
-      orderBy: { createdAt: "desc" },
-      take: 15,
+  const [setorLangsungList, setorEkspedisiList] = await Promise.all([
+    db.query.setorLangsung.findMany({
+      where: (setorLangsung, { eq }) =>
+        eq(setorLangsung.nasabahId, nasabahData.id),
+      orderBy: (setorLangsung, { desc }) => [desc(setorLangsung.createdAt)],
+      limit: 15,
     }),
-    prisma.setorEkspedisi.findMany({
-      where: { nasabahId: nasabah.id },
-      orderBy: { createdAt: "desc" },
-      take: 15,
-      include: {
-        ekpedisi: { select: { nama: true, noTelp: true, alamat: true } },
+    db.query.setorEkspedisi.findMany({
+      where: (setorEkspedisi, { eq }) =>
+        eq(setorEkspedisi.nasabahId, nasabahData.id),
+      orderBy: (setorEkspedisi, { desc }) => [desc(setorEkspedisi.createdAt)],
+      limit: 15,
+      with: {
+        ekpedisi: {
+          columns: { nama: true, noTelp: true, alamat: true },
+        },
       },
     }),
   ]);
 
-  return { nasabah, setorLangsung, setorEkspedisi };
+  return {
+    nasabah: nasabahData,
+    setorLangsung: setorLangsungList,
+    setorEkspedisi: setorEkspedisiList,
+  };
 }

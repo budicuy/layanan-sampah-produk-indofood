@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import type { JenisSampah } from "@/prisma/generated/prisma/client";
+import type { JenisSampah } from "@/lib/db/schema";
 import {
   createHargaSampah,
   deleteHargaSampah,

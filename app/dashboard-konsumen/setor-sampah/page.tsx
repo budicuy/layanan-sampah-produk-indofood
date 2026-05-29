@@ -18,7 +18,7 @@ import {
   Wallet,
 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
-import type { JenisSampah } from "@/prisma/generated/prisma/client";
+import type { JenisSampah } from "@/lib/db/schema";
 import {
   getSetorSampahKonsumenData,
   konfirmasiSerahTerima,
@@ -295,7 +295,7 @@ function FormSetorSampah({
 
   if (success) {
     return (
-      <div className="bg-green-50 border border-green-200 rounded-[24px] p-8 text-center space-y-3">
+      <div className="bg-green-50 border border-green-200 rounded-3xl p-8 text-center space-y-3">
         <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto">
           <Recycle className="text-green-600 w-8 h-8" />
         </div>
@@ -1193,7 +1193,7 @@ export default function SetorSampahPage() {
           <button
             type="button"
             onClick={() => setView("LANGSUNG")}
-            className="relative group flex flex-col w-full text-left bg-white border-2 border-zinc-200 p-6 rounded-[24px] transition-all hover:border-zinc-300 hover:shadow-lg overflow-hidden cursor-pointer">
+            className="relative group flex flex-col w-full text-left bg-white border-2 border-zinc-200 p-6 rounded-3xl transition-all hover:border-zinc-300 hover:shadow-lg overflow-hidden cursor-pointer">
             <div className="mb-4 relative">
               <div className="w-12 h-12 bg-zinc-100 rounded-2xl flex items-center justify-center relative z-10 group-hover:scale-105 transition-transform duration-500">
                 <Recycle className="text-zinc-600 w-6 h-6 group-hover:rotate-12 transition-transform" />
@@ -1243,7 +1243,7 @@ export default function SetorSampahPage() {
           <button
             type="button"
             onClick={() => setView("EKSPEDISI")}
-            className="relative group flex flex-col w-full text-left bg-white border-2 border-zinc-200 p-6 rounded-[24px] transition-all hover:border-primary/30 hover:shadow-lg overflow-hidden cursor-pointer">
+            className="relative group flex flex-col w-full text-left bg-white border-2 border-zinc-200 p-6 rounded-3xl transition-all hover:border-primary/30 hover:shadow-lg overflow-hidden cursor-pointer">
             {/* Top Badge */}
             <div className="absolute top-4 right-4">
               <div className="px-2.5 py-1 bg-primary/10 text-primary rounded-full text-[9px] font-black tracking-wider uppercase">

@@ -1,8 +1,10 @@
 "use server";
 
+import { desc, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { getSession } from "@/app/login/auth/session";
-import { prisma } from "@/lib/prisma";
+import { db } from "@/lib/db";
+import { tierKupon } from "@/lib/db/schema";
 
 async function checkAdminAuth() {
   const session = await getSession();
@@ -13,9 +15,10 @@ async function checkAdminAuth() {
 
 export async function getTiersData() {
   await checkAdminAuth();
-  const tiers = await prisma.tierKupon.findMany({
-    orderBy: { poinMin: "desc" },
-  });
+  const tiers = await db
+    .select()
+    .from(tierKupon)
+    .orderBy(desc(tierKupon.poinMin));
   return tiers;
 }
 
@@ -29,10 +32,14 @@ export async function updateTier(
 ) {
   await checkAdminAuth();
   try {
-    const updated = await prisma.tierKupon.update({
-      where: { id },
-      data,
-    });
+    const [updated] = await db
+      .update(tierKupon)
+      .set({
+        ...data,
+        updatedAt: new Date(),
+      })
+      .where(eq(tierKupon.id, id))
+      .returning();
     revalidatePath("/dashboard-admin/reward-poin/tier");
     revalidatePath("/dashboard-konsumen/tukar-kupon");
     return { success: true, data: updated };

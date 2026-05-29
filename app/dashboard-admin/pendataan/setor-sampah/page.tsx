@@ -28,7 +28,7 @@ import toast from "react-hot-toast";
 import type {
   StatusSetorEkspedisi,
   StatusSetorLangsung,
-} from "@/prisma/generated/prisma/client";
+} from "@/lib/db/schema";
 import {
   batchVerifikasiSetorEkspedisi,
   batchVerifikasiSetorLangsung,

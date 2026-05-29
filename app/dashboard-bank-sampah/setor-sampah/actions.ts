@@ -2,8 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { getSession } from "@/app/login/auth/session";
-import { prisma } from "@/lib/prisma";
-import type { JenisSampah } from "@/prisma/generated/prisma/client";
+import { db } from "@/lib/db";
+import { type JenisSampah, setorLangsung } from "@/lib/db/schema";
 
 // Bank sampah submit setor langsung (tanpa AI, tanpa penjemputan)
 export async function submitSetorLangsung(data: {
@@ -14,21 +14,20 @@ export async function submitSetorLangsung(data: {
   const session = await getSession();
   if (!session) throw new Error("Unauthorized");
 
-  const nasabah = await prisma.nasabah.findUnique({
-    where: { userId: session.user.sub },
+  const nasabahData = await db.query.nasabah.findFirst({
+    where: (nasabah, { eq }) => eq(nasabah.userId, session.user.sub),
   });
-  if (!nasabah) {
+  if (!nasabahData) {
     throw new Error("Profil nasabah belum terdaftar. Hubungi admin.");
   }
 
-  await prisma.setorLangsung.create({
-    data: {
-      nasabahId: nasabah.id,
-      jenisSampah: data.jenisSampah,
-      beratEstimasi: data.beratEstimasi,
-      keterangan: data.keterangan,
-      status: "MENUNGGU_VERIFIKASI",
-    },
+  await db.insert(setorLangsung).values({
+    id: crypto.randomUUID(),
+    nasabahId: nasabahData.id,
+    jenisSampah: data.jenisSampah,
+    beratEstimasi: data.beratEstimasi,
+    keterangan: data.keterangan || null,
+    status: "MENUNGGU_VERIFIKASI",
   });
 
   revalidatePath("/dashboard-bank-sampah/setor-sampah");
@@ -38,17 +37,18 @@ export async function getSetorSampahBankSampahData() {
   const session = await getSession();
   if (!session) throw new Error("Unauthorized");
 
-  const nasabah = await prisma.nasabah.findUnique({
-    where: { userId: session.user.sub },
-    select: { id: true, saldo: true, poin: true, alamat: true },
+  const nasabahData = await db.query.nasabah.findFirst({
+    where: (nasabah, { eq }) => eq(nasabah.userId, session.user.sub),
+    columns: { id: true, saldo: true, poin: true, alamat: true },
   });
-  if (!nasabah) return { nasabah: null, setorLangsung: [] };
+  if (!nasabahData) return { nasabah: null, setorLangsung: [] };
 
-  const setorLangsung = await prisma.setorLangsung.findMany({
-    where: { nasabahId: nasabah.id },
-    orderBy: { createdAt: "desc" },
-    take: 20,
+  const setorLangsungData = await db.query.setorLangsung.findMany({
+    where: (setorLangsung, { eq }) =>
+      eq(setorLangsung.nasabahId, nasabahData.id),
+    orderBy: (setorLangsung, { desc }) => [desc(setorLangsung.createdAt)],
+    limit: 20,
   });
 
-  return { nasabah, setorLangsung };
+  return { nasabah: nasabahData, setorLangsung: setorLangsungData };
 }

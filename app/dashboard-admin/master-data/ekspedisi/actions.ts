@@ -1,8 +1,10 @@
 "use server";
 
+import { desc, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { getSession } from "@/app/login/auth/session";
-import { prisma } from "@/lib/prisma";
+import { db } from "@/lib/db";
+import { ekpedisi } from "@/lib/db/schema";
 
 async function checkAdminAuth() {
   const session = await getSession();
@@ -18,8 +20,9 @@ export async function createEkpedisi(data: {
 }) {
   await checkAdminAuth();
   try {
-    await prisma.ekpedisi.create({
-      data,
+    await db.insert(ekpedisi).values({
+      id: crypto.randomUUID(),
+      ...data,
     });
     revalidatePath("/dashboard-admin/master-data/ekspedisi");
     return { success: true };
@@ -39,10 +42,13 @@ export async function updateEkpedisi(
 ) {
   await checkAdminAuth();
   try {
-    await prisma.ekpedisi.update({
-      where: { id },
-      data,
-    });
+    await db
+      .update(ekpedisi)
+      .set({
+        ...data,
+        updatedAt: new Date(),
+      })
+      .where(eq(ekpedisi.id, id));
     revalidatePath("/dashboard-admin/master-data/ekspedisi");
     return { success: true };
   } catch (error) {
@@ -54,9 +60,7 @@ export async function updateEkpedisi(
 export async function deleteEkpedisi(id: string) {
   await checkAdminAuth();
   try {
-    await prisma.ekpedisi.delete({
-      where: { id },
-    });
+    await db.delete(ekpedisi).where(eq(ekpedisi.id, id));
     revalidatePath("/dashboard-admin/master-data/ekspedisi");
     return { success: true };
   } catch (error) {
@@ -67,8 +71,9 @@ export async function deleteEkpedisi(id: string) {
 
 export async function getEkpedisiData() {
   await checkAdminAuth();
-  const ekpedisi = await prisma.ekpedisi.findMany({
-    orderBy: { updatedAt: "desc" },
-  });
-  return { ekpedisi };
+  const data = await db
+    .select()
+    .from(ekpedisi)
+    .orderBy(desc(ekpedisi.updatedAt));
+  return { ekpedisi: data };
 }

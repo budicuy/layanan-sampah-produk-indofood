@@ -1,12 +1,25 @@
 import "dotenv/config";
 import { randomUUID } from "node:crypto";
 import { hash } from "bcryptjs";
-import type {
-  JenisSampah,
-  KategoriNasabah,
-  Role,
-  StatusNasabah,
-} from "./generated/prisma/enums";
+import { db } from "../lib/db";
+import {
+  account,
+  ekpedisi,
+  hargaSampah,
+  type JenisSampah,
+  type KategoriNasabah,
+  kupon,
+  mutasiSaldo,
+  nasabah,
+  pencairan,
+  type Role,
+  type StatusNasabah,
+  type StatusSetorEkspedisi,
+  type StatusSetorLangsung,
+  setorEkspedisi,
+  setorLangsung,
+  user,
+} from "../lib/db/schema";
 
 import { AdminSeed } from "./seeder/seed_admin";
 import { EkpedisiSeed } from "./seeder/seed_ekspedisi";
@@ -16,17 +29,17 @@ import { SetorEkspedisiSeed } from "./seeder/seed_setor_ekspedisi";
 import { SetorLangsungSeed } from "./seeder/seed_setor_langsung";
 
 async function main() {
-  const { prisma } = await import("../lib/prisma");
-
   console.log("🧹 Cleaning up database...");
-  await prisma.mutasiSaldo.deleteMany();
-  await prisma.setorLangsung.deleteMany();
-  await prisma.setorEkspedisi.deleteMany();
-  await prisma.nasabah.deleteMany();
-  await prisma.ekpedisi.deleteMany();
-  await prisma.account.deleteMany();
-  await prisma.user.deleteMany();
-  await prisma.hargaSampah.deleteMany();
+  await db.delete(mutasiSaldo);
+  await db.delete(setorLangsung);
+  await db.delete(setorEkspedisi);
+  await db.delete(nasabah);
+  await db.delete(ekpedisi);
+  await db.delete(account);
+  await db.delete(user);
+  await db.delete(hargaSampah);
+  await db.delete(pencairan);
+  await db.delete(kupon);
 
   console.log("👥 Preparing seed data...");
   const adminUserId = randomUUID();
@@ -76,8 +89,9 @@ async function main() {
   ];
 
   const accountsData = [
-    { userId: adminUserId, password: adminPassword },
+    { id: randomUUID(), userId: adminUserId, password: adminPassword },
     ...nasabahUsers.map((n) => ({
+      id: randomUUID(),
       userId: n.userId,
       password: defaultPassword,
     })),
@@ -92,48 +106,62 @@ async function main() {
     nik: n.nik,
     noRek: n.noRek,
     jenisBank: n.jenisBank,
-    titikLokasi: n.titikLokasi,
+    titikLokasi: n.titikLokasi || null,
     status: n.status as StatusNasabah,
     poin: poinSumMap.get(n.username) || 0,
     saldo: saldoSumMap.get(n.username) || 0,
   }));
 
-  await prisma.user.createMany({ data: usersData });
-  await prisma.account.createMany({ data: accountsData });
-  await prisma.nasabah.createMany({ data: nasabahsData });
+  // Insert master data
+  for (const u of usersData) {
+    await db.insert(user).values(u);
+  }
+  for (const a of accountsData) {
+    await db.insert(account).values(a);
+  }
+  for (const n of nasabahsData) {
+    await db.insert(nasabah).values(n);
+  }
 
-  const ekpedisiList = await Promise.all(
-    EkpedisiSeed.map((e) =>
-      prisma.ekpedisi.create({
-        data: { nama: e.nama, noTelp: e.noTelp, alamat: e.alamat },
-      }),
-    ),
-  );
+  const ekpedisiList: (typeof ekpedisi.$inferSelect)[] = [];
+  for (const e of EkpedisiSeed) {
+    const [res] = await db
+      .insert(ekpedisi)
+      .values({
+        id: randomUUID(),
+        nama: e.nama,
+        noTelp: e.noTelp,
+        alamat: e.alamat,
+      })
+      .returning();
+    ekpedisiList.push(res);
+  }
 
-  await prisma.hargaSampah.createMany({
-    data: HargaSampahSeed.map((h) => ({
+  for (const h of HargaSampahSeed) {
+    await db.insert(hargaSampah).values({
+      id: randomUUID(),
       harga: h.harga,
       point: h.point,
       bulan: new Date(h.bulan),
       jenisSampah: h.jenisSampah as JenisSampah,
       berat: h.berat,
-    })),
-  });
+    });
+  }
 
   const nasabahMap = new Map(nasabahUsers.map((n) => [n.username, n]));
 
   // ─── Seed SetorLangsung ───────────────────────────────────────────────
   const langsungData = SetorLangsungSeed.map((item) => {
-    const nasabah = nasabahMap.get(item.username) || nasabahUsers[0];
-    const isBS = nasabah.kategori === "BANK_SAMPAH";
+    const nasabahItem = nasabahMap.get(item.username) || nasabahUsers[0];
+    const isBS = nasabahItem.kategori === "BANK_SAMPAH";
     const id = randomUUID();
     return {
       id,
-      nasabahId: nasabah.nasabahId,
+      nasabahId: nasabahItem.nasabahId,
       jenisSampah: item.jenisSampah as JenisSampah,
       beratEstimasi: item.beratEstimasi,
       beratAktual: item.beratAktual ?? null,
-      status: item.status,
+      status: item.status as StatusSetorLangsung,
       poinPerKg: isBS ? null : (item.poinPerKg ?? null),
       totalPoin: isBS ? null : (item.totalPoin ?? null),
       hargaPerKg: isBS ? (item.poinPerKg ?? 0) * 1000 : null,
@@ -144,14 +172,15 @@ async function main() {
     };
   });
 
-  await prisma.setorLangsung.createMany({ data: langsungData as never });
+  for (const l of langsungData) {
+    await db.insert(setorLangsung).values(l);
+  }
 
   // ─── Seed SetorEkspedisi ──────────────────────────────────────────────
   const ekspedisiData = SetorEkspedisiSeed.map((item, idx) => {
-    const nasabah = nasabahMap.get(item.username) || nasabahUsers[0];
-    const isBS = nasabah.kategori === "BANK_SAMPAH";
+    const nasabahItem = nasabahMap.get(item.username) || nasabahUsers[0];
+    const isBS = nasabahItem.kategori === "BANK_SAMPAH";
     const id = randomUUID();
-    // Assign a kurir to completed/assigned ones (round-robin)
     const ekpedisiId =
       (item.status === "SELESAI" ||
         item.status === "DALAM_PENJEMPUTAN" ||
@@ -162,12 +191,12 @@ async function main() {
         : null;
     return {
       id,
-      nasabahId: nasabah.nasabahId,
+      nasabahId: nasabahItem.nasabahId,
       jenisSampah: item.jenisSampah as JenisSampah,
       beratEstimasi: item.beratEstimasi,
       beratAktual: item.beratAktual ?? null,
-      alamatPenjemputan: nasabah.alamat,
-      status: item.status,
+      alamatPenjemputan: nasabahItem.alamat,
+      status: item.status as StatusSetorEkspedisi,
       poinPerKg: isBS ? null : (item.poinPerKg ?? null),
       totalPoin: isBS ? null : (item.totalPoin ?? null),
       hargaPerKg: isBS ? (item.poinPerKg ?? 0) * 1000 : null,
@@ -184,7 +213,9 @@ async function main() {
     };
   });
 
-  await prisma.setorEkspedisi.createMany({ data: ekspedisiData as never });
+  for (const e of ekspedisiData) {
+    await db.insert(setorEkspedisi).values(e);
+  }
 
   // ─── MutasiSaldo ─────────────────────────────────────────────────────
   const mutasiLangsung = langsungData
@@ -193,6 +224,7 @@ async function main() {
       const isBS = s.hargaPerKg !== null;
       const jumlah = isBS ? (s.totalHarga ?? 0) : (s.totalPoin ?? 0);
       return {
+        id: randomUUID(),
         nasabahId: s.nasabahId,
         jumlah,
         keterangan: `Setor langsung ${s.jenisSampah} ${s.beratAktual} kg`,
@@ -207,6 +239,7 @@ async function main() {
       const isBS = s.hargaPerKg !== null;
       const jumlah = isBS ? (s.totalHarga ?? 0) : (s.totalPoin ?? 0);
       return {
+        id: randomUUID(),
         nasabahId: s.nasabahId,
         jumlah,
         keterangan: `Setor ekspedisi ${s.jenisSampah} ${s.beratAktual} kg`,
@@ -216,26 +249,14 @@ async function main() {
     });
 
   const allMutasi = [...mutasiLangsung, ...mutasiEkspedisi];
-  if (allMutasi.length > 0) {
-    await prisma.mutasiSaldo.createMany({ data: allMutasi });
+  for (const m of allMutasi) {
+    await db.insert(mutasiSaldo).values(m);
   }
 
   console.log(`✨ Seeding completed!`);
-  console.log(
-    `   - ${langsungData.length} SetorLangsung (${langsungData.filter((s) => s.status === "SELESAI").length} selesai)`,
-  );
-  console.log(
-    `   - ${ekspedisiData.length} SetorEkspedisi (${ekspedisiData.filter((s) => s.status === "SELESAI").length} selesai)`,
-  );
-  console.log(`   - ${allMutasi.length} MutasiSaldo`);
 }
 
-main()
-  .catch((err) => {
-    console.error("❌ Error during seeding:", err);
-    process.exit(1);
-  })
-  .finally(async () => {
-    const { prisma } = await import("../lib/prisma");
-    await prisma.$disconnect();
-  });
+main().catch((err) => {
+  console.error("❌ Error during seeding:", err);
+  process.exit(1);
+});

@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import type { Role, StatusUser } from "@/prisma/generated/prisma/client";
+import type { Role, StatusUser } from "@/lib/db/schema";
 import {
   createUser,
   deleteUser,

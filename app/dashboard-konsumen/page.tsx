@@ -7,7 +7,8 @@ import {
   Wallet,
 } from "lucide-react";
 import { getSession } from "@/app/login/auth/session";
-import { prisma } from "@/lib/prisma";
+import { db } from "@/lib/db";
+
 import {
   ConsumerDonutChart,
   ConsumerLineChart,
@@ -51,39 +52,20 @@ export default async function ConsumerDashboardPage() {
 
   // Fetch nasabah linked to this user
   const nasabah = user
-    ? await prisma.nasabah.findUnique({
-        where: { userId: user.sub },
-        select: {
-          poin: true,
-          noRek: true,
-          alamat: true,
+    ? await db.query.nasabah.findFirst({
+        where: (nasabah, { eq }) => eq(nasabah.userId, user.sub),
+        with: {
           setorLangsung: {
-            orderBy: { createdAt: "desc" },
-            take: 10,
-            select: {
-              id: true,
-              jenisSampah: true,
-              beratEstimasi: true,
-              beratAktual: true,
-              totalPoin: true,
-              status: true,
-              selesaiAt: true,
-              createdAt: true,
-            },
+            orderBy: (setorLangsung, { desc }) => [
+              desc(setorLangsung.createdAt),
+            ],
+            limit: 10,
           },
           setorEkspedisi: {
-            orderBy: { createdAt: "desc" },
-            take: 10,
-            select: {
-              id: true,
-              jenisSampah: true,
-              beratEstimasi: true,
-              beratAktual: true,
-              totalPoin: true,
-              status: true,
-              selesaiAt: true,
-              createdAt: true,
-            },
+            orderBy: (setorEkspedisi, { desc }) => [
+              desc(setorEkspedisi.createdAt),
+            ],
+            limit: 10,
           },
         },
       })

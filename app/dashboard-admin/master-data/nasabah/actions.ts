@@ -1,12 +1,15 @@
 "use server";
 
+import { and, eq, inArray, isNull } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { getSession } from "@/app/login/auth/session";
-import { prisma } from "@/lib/prisma";
-import type {
-  KategoriNasabah,
-  StatusNasabah,
-} from "@/prisma/generated/prisma/client";
+import { db } from "@/lib/db";
+import {
+  type KategoriNasabah,
+  nasabah,
+  type StatusNasabah,
+  user,
+} from "@/lib/db/schema";
 
 async function checkAdminAuth() {
   const session = await getSession();
@@ -28,18 +31,17 @@ export async function createNasabah(data: {
 }) {
   await checkAdminAuth();
 
-  await prisma.nasabah.create({
-    data: {
-      userId: data.userId,
-      alamat: data.alamat,
-      noTelp: data.noTelp,
-      kategori: data.kategori,
-      nik: data.nik,
-      noRek: data.noRek,
-      jenisBank: data.jenisBank,
-      titikLokasi: data.titikLokasi,
-      status: data.status,
-    },
+  await db.insert(nasabah).values({
+    id: crypto.randomUUID(),
+    userId: data.userId,
+    alamat: data.alamat,
+    noTelp: data.noTelp,
+    kategori: data.kategori,
+    nik: data.nik,
+    noRek: data.noRek,
+    jenisBank: data.jenisBank,
+    titikLokasi: data.titikLokasi || null,
+    status: data.status,
   });
 
   revalidatePath("/dashboard-admin/master-data/nasabah");
@@ -60,45 +62,54 @@ export async function updateNasabah(
 ) {
   await checkAdminAuth();
 
-  await prisma.nasabah.update({
-    where: { id },
-    data,
-  });
+  await db
+    .update(nasabah)
+    .set({
+      ...data,
+      titikLokasi: data.titikLokasi || null,
+      updatedAt: new Date(),
+    })
+    .where(eq(nasabah.id, id));
 
   revalidatePath("/dashboard-admin/master-data/nasabah");
 }
 
 export async function deleteNasabah(id: string) {
   await checkAdminAuth();
-  await prisma.nasabah.delete({ where: { id } });
+  await db.delete(nasabah).where(eq(nasabah.id, id));
   revalidatePath("/dashboard-admin/master-data/nasabah");
 }
 
 export async function getNasabahData() {
   await checkAdminAuth();
-  const nasabahs = await prisma.nasabah.findMany({
-    orderBy: { updatedAt: "desc" },
-    include: {
+  const data = await db.query.nasabah.findMany({
+    orderBy: (nasabah, { desc }) => [desc(nasabah.updatedAt)],
+    with: {
       user: {
-        select: { id: true, name: true, username: true, email: true },
+        columns: {
+          id: true,
+          name: true,
+          username: true,
+          email: true,
+        },
       },
     },
   });
-  return nasabahs;
+  return data;
 }
 
 export async function getAvailableUsers() {
   await checkAdminAuth();
-  const users = await prisma.user.findMany({
-    where: {
-      role: { in: ["KONSUMEN", "BANK_SAMPAH"] },
-      nasabah: null,
-    },
-    select: {
-      id: true,
-      name: true,
-      username: true,
-    },
-  });
-  return users;
+  const data = await db
+    .select({
+      id: user.id,
+      name: user.name,
+      username: user.username,
+    })
+    .from(user)
+    .leftJoin(nasabah, eq(user.id, nasabah.userId))
+    .where(
+      and(inArray(user.role, ["KONSUMEN", "BANK_SAMPAH"]), isNull(nasabah.id)),
+    );
+  return data;
 }

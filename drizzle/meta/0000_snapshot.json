@@ -1,0 +1,1377 @@
+{
+  "id": "f5cd77e8-d7b9-40de-9660-9a6d24073d29",
+  "prevId": "00000000-0000-0000-0000-000000000000",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.account": {
+      "name": "account",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "userId": {
+          "name": "userId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "password": {
+          "name": "password",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp (3)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updatedAt": {
+          "name": "updatedAt",
+          "type": "timestamp (3)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "account_userId_idx": {
+          "name": "account_userId_idx",
+          "columns": [
+            {
+              "expression": "userId",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "account_userId_user_id_fk": {
+          "name": "account_userId_user_id_fk",
+          "tableFrom": "account",
+          "tableTo": "user",
+          "columnsFrom": ["userId"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.ekpedisi": {
+      "name": "ekpedisi",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "nama": {
+          "name": "nama",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "noTelp": {
+          "name": "noTelp",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "alamat": {
+          "name": "alamat",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp (3)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updatedAt": {
+          "name": "updatedAt",
+          "type": "timestamp (3)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.harga_sampah": {
+      "name": "harga_sampah",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "harga": {
+          "name": "harga",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "point": {
+          "name": "point",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "bulan": {
+          "name": "bulan",
+          "type": "timestamp (3)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "jenisSampah": {
+          "name": "jenisSampah",
+          "type": "JenisSampah",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "berat": {
+          "name": "berat",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp (3)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updatedAt": {
+          "name": "updatedAt",
+          "type": "timestamp (3)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.kupon": {
+      "name": "kupon",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "kode": {
+          "name": "kode",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "nama": {
+          "name": "nama",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "deskripsi": {
+          "name": "deskripsi",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "poinCost": {
+          "name": "poinCost",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "KuponStatus",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'AKTIF'"
+        },
+        "nasabahId": {
+          "name": "nasabahId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp (3)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updatedAt": {
+          "name": "updatedAt",
+          "type": "timestamp (3)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "digunakanAt": {
+          "name": "digunakanAt",
+          "type": "timestamp (3)",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "kupon_nasabahId_idx": {
+          "name": "kupon_nasabahId_idx",
+          "columns": [
+            {
+              "expression": "nasabahId",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "kupon_nasabahId_nasabah_id_fk": {
+          "name": "kupon_nasabahId_nasabah_id_fk",
+          "tableFrom": "kupon",
+          "tableTo": "nasabah",
+          "columnsFrom": ["nasabahId"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "kupon_kode_unique": {
+          "name": "kupon_kode_unique",
+          "nullsNotDistinct": false,
+          "columns": ["kode"]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.mutasi_saldo": {
+      "name": "mutasi_saldo",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "nasabahId": {
+          "name": "nasabahId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "jumlah": {
+          "name": "jumlah",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "keterangan": {
+          "name": "keterangan",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "referensiId": {
+          "name": "referensiId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "jenisReferensi": {
+          "name": "jenisReferensi",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp (3)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "mutasi_saldo_nasabahId_idx": {
+          "name": "mutasi_saldo_nasabahId_idx",
+          "columns": [
+            {
+              "expression": "nasabahId",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "mutasi_saldo_nasabahId_nasabah_id_fk": {
+          "name": "mutasi_saldo_nasabahId_nasabah_id_fk",
+          "tableFrom": "mutasi_saldo",
+          "tableTo": "nasabah",
+          "columnsFrom": ["nasabahId"],
+          "columnsTo": ["id"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.nasabah": {
+      "name": "nasabah",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "userId": {
+          "name": "userId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "alamat": {
+          "name": "alamat",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "noTelp": {
+          "name": "noTelp",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "kategori": {
+          "name": "kategori",
+          "type": "KategoriNasabah",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "nik": {
+          "name": "nik",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "noRek": {
+          "name": "noRek",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "jenisBank": {
+          "name": "jenisBank",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "titikLokasi": {
+          "name": "titikLokasi",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "status": {
+          "name": "status",
+          "type": "StatusNasabah",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'AKTIF'"
+        },
+        "poin": {
+          "name": "poin",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "saldo": {
+          "name": "saldo",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp (3)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updatedAt": {
+          "name": "updatedAt",
+          "type": "timestamp (3)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "nasabah_userId_user_id_fk": {
+          "name": "nasabah_userId_user_id_fk",
+          "tableFrom": "nasabah",
+          "tableTo": "user",
+          "columnsFrom": ["userId"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "nasabah_userId_unique": {
+          "name": "nasabah_userId_unique",
+          "nullsNotDistinct": false,
+          "columns": ["userId"]
+        },
+        "nasabah_nik_unique": {
+          "name": "nasabah_nik_unique",
+          "nullsNotDistinct": false,
+          "columns": ["nik"]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.pencairan": {
+      "name": "pencairan",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "nasabahId": {
+          "name": "nasabahId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "jumlah": {
+          "name": "jumlah",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "StatusPencairan",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'DIAJUKAN'"
+        },
+        "catatan": {
+          "name": "catatan",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "catatanAdmin": {
+          "name": "catatanAdmin",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "buktiFoto": {
+          "name": "buktiFoto",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "diajukanAt": {
+          "name": "diajukanAt",
+          "type": "timestamp (3)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "diverifikasi": {
+          "name": "diverifikasi",
+          "type": "timestamp (3)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "dicairkan": {
+          "name": "dicairkan",
+          "type": "timestamp (3)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp (3)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updatedAt": {
+          "name": "updatedAt",
+          "type": "timestamp (3)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "pencairan_nasabahId_status_idx": {
+          "name": "pencairan_nasabahId_status_idx",
+          "columns": [
+            {
+              "expression": "nasabahId",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "status",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "pencairan_status_idx": {
+          "name": "pencairan_status_idx",
+          "columns": [
+            {
+              "expression": "status",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "pencairan_nasabahId_nasabah_id_fk": {
+          "name": "pencairan_nasabahId_nasabah_id_fk",
+          "tableFrom": "pencairan",
+          "tableTo": "nasabah",
+          "columnsFrom": ["nasabahId"],
+          "columnsTo": ["id"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.raw_material": {
+      "name": "raw_material",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "periode": {
+          "name": "periode",
+          "type": "timestamp (3)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "kategori": {
+          "name": "kategori",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "klasifikasi": {
+          "name": "klasifikasi",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "beratGr": {
+          "name": "beratGr",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "beratKg": {
+          "name": "beratKg",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp (3)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updatedAt": {
+          "name": "updatedAt",
+          "type": "timestamp (3)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "raw_material_periode_kategori_klasifikasi_key": {
+          "name": "raw_material_periode_kategori_klasifikasi_key",
+          "nullsNotDistinct": false,
+          "columns": ["periode", "kategori", "klasifikasi"]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.setor_ekspedisi": {
+      "name": "setor_ekspedisi",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "nasabahId": {
+          "name": "nasabahId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "jenisSampah": {
+          "name": "jenisSampah",
+          "type": "JenisSampah",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "beratEstimasi": {
+          "name": "beratEstimasi",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "beratAktual": {
+          "name": "beratAktual",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "keterangan": {
+          "name": "keterangan",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "alamatPenjemputan": {
+          "name": "alamatPenjemputan",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "''"
+        },
+        "status": {
+          "name": "status",
+          "type": "StatusSetorEkspedisi",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'MENUNGGU_VERIFIKASI'"
+        },
+        "catatanAdmin": {
+          "name": "catatanAdmin",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "verifiedBy": {
+          "name": "verifiedBy",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "verifikasiAt": {
+          "name": "verifikasiAt",
+          "type": "timestamp (3)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ekpedisiId": {
+          "name": "ekpedisiId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "penjemputanAt": {
+          "name": "penjemputanAt",
+          "type": "timestamp (3)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "diserahkanAt": {
+          "name": "diserahkanAt",
+          "type": "timestamp (3)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "sampahDiterimaAt": {
+          "name": "sampahDiterimaAt",
+          "type": "timestamp (3)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "selesaiAt": {
+          "name": "selesaiAt",
+          "type": "timestamp (3)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "poinPerKg": {
+          "name": "poinPerKg",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "totalPoin": {
+          "name": "totalPoin",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "hargaPerKg": {
+          "name": "hargaPerKg",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "totalHarga": {
+          "name": "totalHarga",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "gambarTimbangan": {
+          "name": "gambarTimbangan",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "gambarBukti": {
+          "name": "gambarBukti",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'{}'::text[]"
+        },
+        "statusValidasi": {
+          "name": "statusValidasi",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "beratTerbaca": {
+          "name": "beratTerbaca",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp (3)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updatedAt": {
+          "name": "updatedAt",
+          "type": "timestamp (3)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "setor_ekspedisi_nasabahId_status_idx": {
+          "name": "setor_ekspedisi_nasabahId_status_idx",
+          "columns": [
+            {
+              "expression": "nasabahId",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "status",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "setor_ekspedisi_status_idx": {
+          "name": "setor_ekspedisi_status_idx",
+          "columns": [
+            {
+              "expression": "status",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "setor_ekspedisi_selesaiAt_idx": {
+          "name": "setor_ekspedisi_selesaiAt_idx",
+          "columns": [
+            {
+              "expression": "selesaiAt",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "setor_ekspedisi_nasabahId_nasabah_id_fk": {
+          "name": "setor_ekspedisi_nasabahId_nasabah_id_fk",
+          "tableFrom": "setor_ekspedisi",
+          "tableTo": "nasabah",
+          "columnsFrom": ["nasabahId"],
+          "columnsTo": ["id"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "setor_ekspedisi_ekpedisiId_ekpedisi_id_fk": {
+          "name": "setor_ekspedisi_ekpedisiId_ekpedisi_id_fk",
+          "tableFrom": "setor_ekspedisi",
+          "tableTo": "ekpedisi",
+          "columnsFrom": ["ekpedisiId"],
+          "columnsTo": ["id"],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.setor_langsung": {
+      "name": "setor_langsung",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "nasabahId": {
+          "name": "nasabahId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "jenisSampah": {
+          "name": "jenisSampah",
+          "type": "JenisSampah",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "beratEstimasi": {
+          "name": "beratEstimasi",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "beratAktual": {
+          "name": "beratAktual",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "keterangan": {
+          "name": "keterangan",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "status": {
+          "name": "status",
+          "type": "StatusSetorLangsung",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'MENUNGGU_VERIFIKASI'"
+        },
+        "catatanAdmin": {
+          "name": "catatanAdmin",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "verifiedBy": {
+          "name": "verifiedBy",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "verifikasiAt": {
+          "name": "verifikasiAt",
+          "type": "timestamp (3)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "selesaiAt": {
+          "name": "selesaiAt",
+          "type": "timestamp (3)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "poinPerKg": {
+          "name": "poinPerKg",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "totalPoin": {
+          "name": "totalPoin",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "hargaPerKg": {
+          "name": "hargaPerKg",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "totalHarga": {
+          "name": "totalHarga",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "gambarTimbangan": {
+          "name": "gambarTimbangan",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "gambarBukti": {
+          "name": "gambarBukti",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'{}'::text[]"
+        },
+        "statusValidasi": {
+          "name": "statusValidasi",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "beratTerbaca": {
+          "name": "beratTerbaca",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp (3)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updatedAt": {
+          "name": "updatedAt",
+          "type": "timestamp (3)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "setor_langsung_nasabahId_status_idx": {
+          "name": "setor_langsung_nasabahId_status_idx",
+          "columns": [
+            {
+              "expression": "nasabahId",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "status",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "setor_langsung_status_idx": {
+          "name": "setor_langsung_status_idx",
+          "columns": [
+            {
+              "expression": "status",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "setor_langsung_selesaiAt_idx": {
+          "name": "setor_langsung_selesaiAt_idx",
+          "columns": [
+            {
+              "expression": "selesaiAt",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "setor_langsung_nasabahId_nasabah_id_fk": {
+          "name": "setor_langsung_nasabahId_nasabah_id_fk",
+          "tableFrom": "setor_langsung",
+          "tableTo": "nasabah",
+          "columnsFrom": ["nasabahId"],
+          "columnsTo": ["id"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.tier_kupon": {
+      "name": "tier_kupon",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "tier": {
+          "name": "tier",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "poinMin": {
+          "name": "poinMin",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "nama": {
+          "name": "nama",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "deskripsi": {
+          "name": "deskripsi",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp (3)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updatedAt": {
+          "name": "updatedAt",
+          "type": "timestamp (3)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "tier_kupon_tier_unique": {
+          "name": "tier_kupon_tier_unique",
+          "nullsNotDistinct": false,
+          "columns": ["tier"]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.user": {
+      "name": "user",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "email": {
+          "name": "email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "username": {
+          "name": "username",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "role": {
+          "name": "role",
+          "type": "Role",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'KONSUMEN'"
+        },
+        "status": {
+          "name": "status",
+          "type": "StatusUser",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'AKTIF'"
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp (3)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updatedAt": {
+          "name": "updatedAt",
+          "type": "timestamp (3)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "user_email_unique": {
+          "name": "user_email_unique",
+          "nullsNotDistinct": false,
+          "columns": ["email"]
+        },
+        "user_username_unique": {
+          "name": "user_username_unique",
+          "nullsNotDistinct": false,
+          "columns": ["username"]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {
+    "public.JenisSampah": {
+      "name": "JenisSampah",
+      "schema": "public",
+      "values": ["PLASTIK", "KARTON", "PAPER_CUP"]
+    },
+    "public.KategoriNasabah": {
+      "name": "KategoriNasabah",
+      "schema": "public",
+      "values": ["BANK_SAMPAH", "WARMIENDO", "PERORANGAN"]
+    },
+    "public.KuponStatus": {
+      "name": "KuponStatus",
+      "schema": "public",
+      "values": ["AKTIF", "DIGUNAKAN", "EXPIRED"]
+    },
+    "public.Role": {
+      "name": "Role",
+      "schema": "public",
+      "values": ["KONSUMEN", "ADMIN", "HRD", "BANK_SAMPAH"]
+    },
+    "public.StatusNasabah": {
+      "name": "StatusNasabah",
+      "schema": "public",
+      "values": ["AKTIF", "NONAKTIF"]
+    },
+    "public.StatusPencairan": {
+      "name": "StatusPencairan",
+      "schema": "public",
+      "values": ["DIAJUKAN", "DIVERIFIKASI", "DICAIRKAN", "DITOLAK"]
+    },
+    "public.StatusSetorEkspedisi": {
+      "name": "StatusSetorEkspedisi",
+      "schema": "public",
+      "values": [
+        "MENUNGGU_VERIFIKASI",
+        "TERVERIFIKASI",
+        "DITOLAK",
+        "DALAM_PENJEMPUTAN",
+        "SUDAH_DISERAHKAN",
+        "SAMPAH_DITERIMA",
+        "SELESAI"
+      ]
+    },
+    "public.StatusSetorLangsung": {
+      "name": "StatusSetorLangsung",
+      "schema": "public",
+      "values": ["MENUNGGU_VERIFIKASI", "DITOLAK", "SELESAI"]
+    },
+    "public.StatusUser": {
+      "name": "StatusUser",
+      "schema": "public",
+      "values": ["AKTIF", "NONAKTIF"]
+    }
+  },
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}

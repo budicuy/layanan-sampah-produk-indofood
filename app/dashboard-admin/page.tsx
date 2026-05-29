@@ -1,3 +1,4 @@
+import { and, eq, gte, lte, sql } from "drizzle-orm";
 import {
   Calendar,
   ClipboardList,
@@ -8,7 +9,13 @@ import {
   Wallet,
 } from "lucide-react";
 import { getSession } from "@/app/login/auth/session";
-import { prisma } from "@/lib/prisma";
+import { db } from "@/lib/db";
+import {
+  nasabah,
+  pencairan,
+  setorEkspedisi,
+  setorLangsung,
+} from "@/lib/db/schema";
 import { WasteLineChart, WasteTypeChart } from "./components/Charts";
 import LiveClock from "./components/Clock";
 
@@ -28,6 +35,16 @@ export default async function DashboardPage() {
     };
   }).reverse();
 
+  const startDate = new Date(last6Months[0].year, last6Months[0].month, 1);
+  const endDate = new Date(
+    last6Months[last6Months.length - 1].year,
+    last6Months[last6Months.length - 1].month + 1,
+    0,
+    23,
+    59,
+    59,
+  );
+
   const [
     totalNasabah,
     langsungSelesai,
@@ -41,70 +58,171 @@ export default async function DashboardPage() {
     paperCupLangsung,
     paperCupEkspedisi,
     pencairanPendingCount,
-    monthlyStats,
+    langsungPeriod,
+    ekspedisiPeriod,
   ] = await Promise.all([
-    prisma.nasabah.count(),
-    prisma.setorLangsung.findMany({
-      where: { status: "SELESAI" },
-      select: { beratAktual: true, totalPoin: true },
+    db
+      .select({ count: sql<number>`count(*)::int` })
+      .from(nasabah)
+      .then((r) => r[0]?.count ?? 0),
+    db
+      .select({
+        beratAktual: setorLangsung.beratAktual,
+        totalPoin: setorLangsung.totalPoin,
+      })
+      .from(setorLangsung)
+      .where(eq(setorLangsung.status, "SELESAI")),
+    db
+      .select({
+        beratAktual: setorEkspedisi.beratAktual,
+        totalPoin: setorEkspedisi.totalPoin,
+      })
+      .from(setorEkspedisi)
+      .where(eq(setorEkspedisi.status, "SELESAI")),
+    db.query.setorLangsung.findMany({
+      orderBy: (setorLangsung, { desc }) => [desc(setorLangsung.createdAt)],
+      limit: 3,
+      with: {
+        nasabah: {
+          columns: {},
+          with: {
+            user: {
+              columns: { name: true },
+            },
+          },
+        },
+      },
     }),
-    prisma.setorEkspedisi.findMany({
-      where: { status: "SELESAI" },
-      select: { beratAktual: true, totalPoin: true },
+    db.query.setorEkspedisi.findMany({
+      orderBy: (setorEkspedisi, { desc }) => [desc(setorEkspedisi.createdAt)],
+      limit: 3,
+      with: {
+        nasabah: {
+          columns: {},
+          with: {
+            user: {
+              columns: { name: true },
+            },
+          },
+        },
+      },
     }),
-    prisma.setorLangsung.findMany({
-      orderBy: { createdAt: "desc" },
-      take: 3,
-      include: { nasabah: { select: { user: { select: { name: true } } } } },
-    }),
-    prisma.setorEkspedisi.findMany({
-      orderBy: { createdAt: "desc" },
-      take: 3,
-      include: { nasabah: { select: { user: { select: { name: true } } } } },
-    }),
-    prisma.setorLangsung.aggregate({
-      where: { status: "SELESAI", jenisSampah: "PLASTIK" },
-      _sum: { beratAktual: true },
-    }),
-    prisma.setorEkspedisi.aggregate({
-      where: { status: "SELESAI", jenisSampah: "PLASTIK" },
-      _sum: { beratAktual: true },
-    }),
-    prisma.setorLangsung.aggregate({
-      where: { status: "SELESAI", jenisSampah: "KARTON" },
-      _sum: { beratAktual: true },
-    }),
-    prisma.setorEkspedisi.aggregate({
-      where: { status: "SELESAI", jenisSampah: "KARTON" },
-      _sum: { beratAktual: true },
-    }),
-    prisma.setorLangsung.aggregate({
-      where: { status: "SELESAI", jenisSampah: "PAPER_CUP" },
-      _sum: { beratAktual: true },
-    }),
-    prisma.setorEkspedisi.aggregate({
-      where: { status: "SELESAI", jenisSampah: "PAPER_CUP" },
-      _sum: { beratAktual: true },
-    }),
-    prisma.pencairan.count({ where: { status: "DIAJUKAN" } }),
-    Promise.all(
-      last6Months.map(async (m) => {
-        const start = new Date(m.year, m.month, 1);
-        const end = new Date(m.year, m.month + 1, 0, 23, 59, 59);
-        const [aggL, aggE] = await Promise.all([
-          prisma.setorLangsung.aggregate({
-            where: { status: "SELESAI", createdAt: { gte: start, lte: end } },
-            _sum: { beratAktual: true },
-          }),
-          prisma.setorEkspedisi.aggregate({
-            where: { status: "SELESAI", createdAt: { gte: start, lte: end } },
-            _sum: { beratAktual: true },
-          }),
-        ]);
-        return (aggL._sum.beratAktual || 0) + (aggE._sum.beratAktual || 0);
-      }),
-    ),
+    db
+      .select({ sum: sql<number>`sum(${setorLangsung.beratAktual})::float8` })
+      .from(setorLangsung)
+      .where(
+        and(
+          eq(setorLangsung.status, "SELESAI"),
+          eq(setorLangsung.jenisSampah, "PLASTIK"),
+        ),
+      )
+      .then((r) => ({ _sum: { beratAktual: r[0]?.sum ?? 0 } })),
+    db
+      .select({ sum: sql<number>`sum(${setorEkspedisi.beratAktual})::float8` })
+      .from(setorEkspedisi)
+      .where(
+        and(
+          eq(setorEkspedisi.status, "SELESAI"),
+          eq(setorEkspedisi.jenisSampah, "PLASTIK"),
+        ),
+      )
+      .then((r) => ({ _sum: { beratAktual: r[0]?.sum ?? 0 } })),
+    db
+      .select({ sum: sql<number>`sum(${setorLangsung.beratAktual})::float8` })
+      .from(setorLangsung)
+      .where(
+        and(
+          eq(setorLangsung.status, "SELESAI"),
+          eq(setorLangsung.jenisSampah, "KARTON"),
+        ),
+      )
+      .then((r) => ({ _sum: { beratAktual: r[0]?.sum ?? 0 } })),
+    db
+      .select({ sum: sql<number>`sum(${setorEkspedisi.beratAktual})::float8` })
+      .from(setorEkspedisi)
+      .where(
+        and(
+          eq(setorEkspedisi.status, "SELESAI"),
+          eq(setorEkspedisi.jenisSampah, "KARTON"),
+        ),
+      )
+      .then((r) => ({ _sum: { beratAktual: r[0]?.sum ?? 0 } })),
+    db
+      .select({ sum: sql<number>`sum(${setorLangsung.beratAktual})::float8` })
+      .from(setorLangsung)
+      .where(
+        and(
+          eq(setorLangsung.status, "SELESAI"),
+          eq(setorLangsung.jenisSampah, "PAPER_CUP"),
+        ),
+      )
+      .then((r) => ({ _sum: { beratAktual: r[0]?.sum ?? 0 } })),
+    db
+      .select({ sum: sql<number>`sum(${setorEkspedisi.beratAktual})::float8` })
+      .from(setorEkspedisi)
+      .where(
+        and(
+          eq(setorEkspedisi.status, "SELESAI"),
+          eq(setorEkspedisi.jenisSampah, "PAPER_CUP"),
+        ),
+      )
+      .then((r) => ({ _sum: { beratAktual: r[0]?.sum ?? 0 } })),
+    db
+      .select({ count: sql<number>`count(*)::int` })
+      .from(pencairan)
+      .where(eq(pencairan.status, "DIAJUKAN"))
+      .then((r) => r[0]?.count ?? 0),
+    db
+      .select({
+        beratAktual: setorLangsung.beratAktual,
+        createdAt: setorLangsung.createdAt,
+      })
+      .from(setorLangsung)
+      .where(
+        and(
+          eq(setorLangsung.status, "SELESAI"),
+          gte(setorLangsung.createdAt, startDate),
+          lte(setorLangsung.createdAt, endDate),
+        ),
+      ),
+    db
+      .select({
+        beratAktual: setorEkspedisi.beratAktual,
+        createdAt: setorEkspedisi.createdAt,
+      })
+      .from(setorEkspedisi)
+      .where(
+        and(
+          eq(setorEkspedisi.status, "SELESAI"),
+          gte(setorEkspedisi.createdAt, startDate),
+          lte(setorEkspedisi.createdAt, endDate),
+        ),
+      ),
   ]);
+
+  const monthlyStats = last6Months.map((m) => {
+    const start = new Date(m.year, m.month, 1).getTime();
+    const end = new Date(m.year, m.month + 1, 0, 23, 59, 59).getTime();
+
+    let sum = 0;
+    for (const s of langsungPeriod) {
+      if (s.createdAt) {
+        const time = new Date(s.createdAt).getTime();
+        if (time >= start && time <= end) {
+          sum += s.beratAktual || 0;
+        }
+      }
+    }
+    for (const s of ekspedisiPeriod) {
+      if (s.createdAt) {
+        const time = new Date(s.createdAt).getTime();
+        if (time >= start && time <= end) {
+          sum += s.beratAktual || 0;
+        }
+      }
+    }
+    return sum;
+  });
 
   const setoranSelesai = [...langsungSelesai, ...ekspedisiSelesai];
   const recentActivities = [

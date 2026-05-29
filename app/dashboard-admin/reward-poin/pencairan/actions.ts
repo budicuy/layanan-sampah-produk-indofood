@@ -1,8 +1,10 @@
 "use server";
 
+import { eq, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { getSession } from "@/app/login/auth/session";
-import { prisma } from "@/lib/prisma";
+import { db } from "@/lib/db";
+import { mutasiSaldo, nasabah, pencairan } from "@/lib/db/schema";
 import { uploadToR2 } from "@/lib/r2";
 
 async function checkAdminAuth() {
@@ -18,11 +20,11 @@ async function checkAdminAuth() {
 
 export async function getPencairanAdminList() {
   await checkAdminAuth();
-  return prisma.pencairan.findMany({
-    orderBy: { createdAt: "desc" },
-    include: {
+  return db.query.pencairan.findMany({
+    orderBy: (pencairan, { desc }) => [desc(pencairan.createdAt)],
+    with: {
       nasabah: {
-        include: { user: { select: { name: true, username: true } } },
+        with: { user: { columns: { name: true, username: true } } },
       },
     },
   });
@@ -31,14 +33,15 @@ export async function getPencairanAdminList() {
 export async function verifikasiPencairan(id: string, catatan: string) {
   await checkAdminAuth();
 
-  await prisma.pencairan.update({
-    where: { id },
-    data: {
+  await db
+    .update(pencairan)
+    .set({
       status: "DIVERIFIKASI",
       catatanAdmin: catatan || null,
       diverifikasi: new Date(),
-    },
-  });
+      updatedAt: new Date(),
+    })
+    .where(eq(pencairan.id, id));
 
   revalidatePath("/dashboard-admin/reward-poin/pencairan");
   return { success: true };
@@ -51,12 +54,12 @@ export async function cairkanPencairan(formData: FormData) {
   const catatanAdmin = String(formData.get("catatanAdmin") || "");
   const fotoFile = formData.get("buktiFoto") as File | null;
 
-  const pencairan = await prisma.pencairan.findUnique({
-    where: { id },
-    include: { nasabah: true },
+  const pencairanItem = await db.query.pencairan.findFirst({
+    where: (pencairan, { eq }) => eq(pencairan.id, id),
+    with: { nasabah: true },
   });
 
-  if (!pencairan) throw new Error("Pencairan tidak ditemukan");
+  if (!pencairanItem) throw new Error("Pencairan tidak ditemukan");
 
   // Foto bukti WAJIB untuk pencairan
   if (!fotoFile || fotoFile.size === 0) {
@@ -73,29 +76,34 @@ export async function cairkanPencairan(formData: FormData) {
   const buktiFotoUrl = await uploadToR2(buffer, fotoFile.type, "pencairan");
 
   // Update pencairan menjadi DICAIRKAN dan kurangi saldo nasabah
-  await prisma.$transaction([
-    prisma.pencairan.update({
-      where: { id },
-      data: {
+  await db.transaction(async (tx) => {
+    await tx
+      .update(pencairan)
+      .set({
         status: "DICAIRKAN",
         catatanAdmin: catatanAdmin || null,
         buktiFoto: buktiFotoUrl,
         dicairkan: new Date(),
-      },
-    }),
-    prisma.nasabah.update({
-      where: { id: pencairan.nasabahId },
-      data: { saldo: { decrement: pencairan.jumlah } },
-    }),
-    prisma.mutasiSaldo.create({
-      data: {
-        nasabahId: pencairan.nasabahId,
-        jumlah: -pencairan.jumlah,
-        keterangan: `Pencairan dana Rp ${pencairan.jumlah.toLocaleString("id-ID")}`,
-        referensiId: id,
-      },
-    }),
-  ]);
+        updatedAt: new Date(),
+      })
+      .where(eq(pencairan.id, id));
+
+    await tx
+      .update(nasabah)
+      .set({
+        saldo: sql`saldo - ${pencairanItem.jumlah}`,
+        updatedAt: new Date(),
+      })
+      .where(eq(nasabah.id, pencairanItem.nasabahId));
+
+    await tx.insert(mutasiSaldo).values({
+      id: crypto.randomUUID(),
+      nasabahId: pencairanItem.nasabahId,
+      jumlah: -pencairanItem.jumlah,
+      keterangan: `Pencairan dana Rp ${pencairanItem.jumlah.toLocaleString("id-ID")}`,
+      referensiId: id,
+    });
+  });
 
   revalidatePath("/dashboard-admin/reward-poin/pencairan");
   return { success: true };
@@ -104,13 +112,14 @@ export async function cairkanPencairan(formData: FormData) {
 export async function tolakPencairan(id: string, catatan: string) {
   await checkAdminAuth();
 
-  await prisma.pencairan.update({
-    where: { id },
-    data: {
+  await db
+    .update(pencairan)
+    .set({
       status: "DITOLAK",
       catatanAdmin: catatan || null,
-    },
-  });
+      updatedAt: new Date(),
+    })
+    .where(eq(pencairan.id, id));
 
   revalidatePath("/dashboard-admin/reward-poin/pencairan");
   return { success: true };

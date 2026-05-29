@@ -32,7 +32,7 @@ Platform digital pengelolaan sampah modern berbasis web, dibangun untuk membantu
 | Extension | Link | 
 | --- | --- |
 | Biome | https://marketplace.visualstudio.com/items?itemName=biomejs.biome |
-| Prisma | https://marketplace.visualstudio.com/items?itemName=Prisma.prisma |
+| Drizzle | https://marketplace.visualstudio.com/items?itemName=drizzle-team.drizzle-vscode |
 | Tailwind CSS IntelliSense | https://marketplace.visualstudio.com/items?itemName=bradlc.vscode-tailwindcss |
 | PostCSS Language Support | https://marketplace.visualstudio.com/items?itemName=csstools.postcss |
 
@@ -45,7 +45,7 @@ Platform digital pengelolaan sampah modern berbasis web, dibangun untuk membantu
 | Bahasa | TypeScript |
 | Styling | Tailwind CSS 4 |
 | Database | Neon PostgreSQL |
-| ORM | Prisma |
+| ORM | Drizzle |
 | Autentikasi | JWT (Custom) |
 | Linting | Biome |
 
@@ -150,19 +150,17 @@ app/
   globals.css            # Global styling framework Tailwind CSS v4.
   providers.tsx          # Client notification provider (Toaster).
 lib/
-  prisma.ts              # Prisma Client singleton dengan Neon serverless adapter.
+  db.ts                  # Client singleton Drizzle ORM dengan deteksi N+1 query.
+  db/
+    schema.ts            # Skema pemodelan database relational Drizzle.
 prisma/
-  generated/             # Generated Prisma Client (auto-generated).
-  migrations/            # Kumpulan berkas database migration.
   seeder/                # Sub-seeder modular pemisah data dummy awal:
     seed_admin.ts        # Data kredensial admin awal.
     seed_ekspedisi.ts    # Data dummy driver & kurir ekspedisi.
     seed_harga_sampah.ts # Data dummy rate harga/poin bulanan.
     seed_nasabah.ts      # Data dummy profil nasabah awal & username.
     seed_setor_sampah.ts # Data dummy transaksi setoran sampah awal.
-  migrate.ts             # Script migrasi custom via HTTP adapter (bypass port 5432 terblokir).
-  schema.prisma          # Skema pemodelan database relational Prisma.
-  seed.ts                # Main seeder untuk inisialisasi awal database.
+  seed.ts                # Main seeder untuk inisialisasi awal database menggunakan Drizzle.
 public/                  # Aset statis favicon, robots, gambar, dll.
 package.json             # Konfigurasi scripts run & dependencies project.
 next.config.ts           # Konfigurasi Next.js app compiler & proxy middleware.
@@ -195,14 +193,8 @@ Terdapat beberapa akun bawaan untuk simulasi:
 # Jalankan development server
 bun dev
 
-# Sinkronisasi database (Menggunakan direct TCP port 5432 - dapat gagal jika diblokir provider internet)
-bun prisma db push
-
-# Sinkronisasi database alternatif (Direkomendasikan jika port 5432 diblokir, menggunakan Neon HTTP adapter)
-bun run prisma/migrate.ts
-
-# Generate Prisma client
-bun run db:generate
+# Sinkronisasi database Drizzle (membuat file migrasi)
+bunx drizzle-kit generate
 
 # Seed data awal & reset transaksi (Mempopulasi data poin default)
 bun run db:seed

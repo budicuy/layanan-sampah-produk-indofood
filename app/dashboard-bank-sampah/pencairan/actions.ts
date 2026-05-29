@@ -2,7 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { getSession } from "@/app/login/auth/session";
-import { prisma } from "@/lib/prisma";
+import { db } from "@/lib/db";
+import { pencairan } from "@/lib/db/schema";
 
 async function checkBankSampahAuth() {
   const session = await getSession();
@@ -14,24 +15,24 @@ async function checkBankSampahAuth() {
 
 export async function getNasabahSaldo() {
   const session = await checkBankSampahAuth();
-  const nasabah = await prisma.nasabah.findUnique({
-    where: { userId: session.user.sub },
-    select: { id: true, saldo: true, poin: true },
+  const data = await db.query.nasabah.findFirst({
+    where: (nasabah, { eq }) => eq(nasabah.userId, session.user.sub),
+    columns: { id: true, saldo: true, poin: true },
   });
-  return nasabah;
+  return data;
 }
 
 export async function getPencairanList() {
   const session = await checkBankSampahAuth();
-  const nasabah = await prisma.nasabah.findUnique({
-    where: { userId: session.user.sub },
-    select: { id: true },
+  const nasabahData = await db.query.nasabah.findFirst({
+    where: (nasabah, { eq }) => eq(nasabah.userId, session.user.sub),
+    columns: { id: true },
   });
-  if (!nasabah) return [];
+  if (!nasabahData) return [];
 
-  return prisma.pencairan.findMany({
-    where: { nasabahId: nasabah.id },
-    orderBy: { createdAt: "desc" },
+  return db.query.pencairan.findMany({
+    where: (pencairan, { eq }) => eq(pencairan.nasabahId, nasabahData.id),
+    orderBy: (pencairan, { desc }) => [desc(pencairan.createdAt)],
   });
 }
 
@@ -47,21 +48,20 @@ export async function ajukanPencairan(formData: FormData) {
     );
   }
 
-  const nasabah = await prisma.nasabah.findUnique({
-    where: { userId: session.user.sub },
-    select: { id: true, saldo: true },
+  const nasabahData = await db.query.nasabah.findFirst({
+    where: (nasabah, { eq }) => eq(nasabah.userId, session.user.sub),
+    columns: { id: true, saldo: true },
   });
 
-  if (!nasabah) throw new Error("Data nasabah tidak ditemukan");
-  if (nasabah.saldo < jumlah) throw new Error("Saldo tidak mencukupi");
+  if (!nasabahData) throw new Error("Data nasabah tidak ditemukan");
+  if (nasabahData.saldo < jumlah) throw new Error("Saldo tidak mencukupi");
 
-  await prisma.pencairan.create({
-    data: {
-      nasabahId: nasabah.id,
-      jumlah,
-      catatan: catatan || null,
-      status: "DIAJUKAN",
-    },
+  await db.insert(pencairan).values({
+    id: crypto.randomUUID(),
+    nasabahId: nasabahData.id,
+    jumlah,
+    catatan: catatan || null,
+    status: "DIAJUKAN",
   });
 
   revalidatePath("/dashboard-bank-sampah/pencairan");

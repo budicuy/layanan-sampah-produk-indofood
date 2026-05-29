@@ -1,8 +1,10 @@
 "use server";
 
+import { asc, desc, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { getSession } from "@/app/login/auth/session";
-import { prisma } from "@/lib/prisma";
+import { db } from "@/lib/db";
+import { rawMaterial } from "@/lib/db/schema";
 
 async function checkAdminAuth() {
   const session = await getSession();
@@ -14,9 +16,14 @@ async function checkAdminAuth() {
 export async function getRawMaterials() {
   await checkAdminAuth();
 
-  const materials = await prisma.rawMaterial.findMany({
-    orderBy: [{ periode: "desc" }, { kategori: "asc" }, { klasifikasi: "asc" }],
-  });
+  const materials = await db
+    .select()
+    .from(rawMaterial)
+    .orderBy(
+      desc(rawMaterial.periode),
+      asc(rawMaterial.kategori),
+      asc(rawMaterial.klasifikasi),
+    );
 
   return materials;
 }
@@ -48,30 +55,32 @@ export async function createRawMaterials(
     { kategori: "Cup", klasifikasi: "CN", beratGr: weights.cupCN },
   ];
 
-  await prisma.$transaction(
-    items.map((item) =>
-      prisma.rawMaterial.upsert({
-        where: {
-          periode_kategori_klasifikasi: {
-            periode: periodDate,
-            kategori: item.kategori,
-            klasifikasi: item.klasifikasi,
-          },
-        },
-        create: {
+  await db.transaction(async (tx) => {
+    for (const item of items) {
+      await tx
+        .insert(rawMaterial)
+        .values({
+          id: crypto.randomUUID(),
           periode: periodDate,
           kategori: item.kategori,
           klasifikasi: item.klasifikasi,
           beratGr: item.beratGr,
           beratKg: item.beratGr / 1000,
-        },
-        update: {
-          beratGr: item.beratGr,
-          beratKg: item.beratGr / 1000,
-        },
-      }),
-    ),
-  );
+        })
+        .onConflictDoUpdate({
+          target: [
+            rawMaterial.periode,
+            rawMaterial.kategori,
+            rawMaterial.klasifikasi,
+          ],
+          set: {
+            beratGr: item.beratGr,
+            beratKg: item.beratGr / 1000,
+            updatedAt: new Date(),
+          },
+        });
+    }
+  });
 
   revalidatePath("/dashboard-admin/master-data/raw-material");
   return { success: true };
@@ -80,13 +89,15 @@ export async function createRawMaterials(
 export async function updateRawMaterial(id: string, beratGr: number) {
   await checkAdminAuth();
 
-  const updated = await prisma.rawMaterial.update({
-    where: { id },
-    data: {
+  const [updated] = await db
+    .update(rawMaterial)
+    .set({
       beratGr,
       beratKg: beratGr / 1000,
-    },
-  });
+      updatedAt: new Date(),
+    })
+    .where(eq(rawMaterial.id, id))
+    .returning();
 
   revalidatePath("/dashboard-admin/master-data/raw-material");
   return { success: true, data: updated };
@@ -95,9 +106,7 @@ export async function updateRawMaterial(id: string, beratGr: number) {
 export async function deleteRawMaterial(id: string) {
   await checkAdminAuth();
 
-  await prisma.rawMaterial.delete({
-    where: { id },
-  });
+  await db.delete(rawMaterial).where(eq(rawMaterial.id, id));
 
   revalidatePath("/dashboard-admin/master-data/raw-material");
   return { success: true };

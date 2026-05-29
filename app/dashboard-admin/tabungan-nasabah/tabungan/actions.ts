@@ -1,7 +1,7 @@
 "use server";
 
 import { getSession } from "@/app/login/auth/session";
-import { prisma } from "@/lib/prisma";
+import { db } from "@/lib/db";
 
 async function checkAdminAuth() {
   const session = await getSession();
@@ -12,31 +12,33 @@ async function checkAdminAuth() {
 
 export async function getTabunganData() {
   await checkAdminAuth();
-  const nasabahs = await prisma.nasabah.findMany({
-    orderBy: { poin: "desc" },
-    include: {
+  const data = await db.query.nasabah.findMany({
+    orderBy: (nasabah, { desc }) => [desc(nasabah.poin)],
+    with: {
       user: {
-        select: { name: true, role: true },
+        columns: { name: true, role: true },
       },
       setorLangsung: {
-        orderBy: { createdAt: "desc" },
-        take: 10,
+        orderBy: (setorLangsung, { desc }) => [desc(setorLangsung.createdAt)],
+        limit: 10,
       },
       setorEkspedisi: {
-        orderBy: { createdAt: "desc" },
-        take: 10,
-        include: {
-          ekpedisi: { select: { alamat: true, noTelp: true } },
+        orderBy: (setorEkspedisi, { desc }) => [desc(setorEkspedisi.createdAt)],
+        limit: 10,
+        with: {
+          ekpedisi: {
+            columns: { alamat: true, noTelp: true },
+          },
         },
       },
       mutasiSaldo: {
-        orderBy: { createdAt: "desc" },
-        take: 20,
+        orderBy: (mutasiSaldo, { desc }) => [desc(mutasiSaldo.createdAt)],
+        limit: 20,
       },
     },
   });
 
-  return nasabahs.map((nasabah) => {
+  return data.map((nasabah) => {
     const combinedSetor = [
       ...nasabah.setorLangsung.map((s) => ({
         ...s,

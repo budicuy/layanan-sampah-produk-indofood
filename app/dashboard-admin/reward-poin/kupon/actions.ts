@@ -1,8 +1,10 @@
 "use server";
 
+import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { getSession } from "@/app/login/auth/session";
-import { prisma } from "@/lib/prisma";
+import { db } from "@/lib/db";
+import { kupon } from "@/lib/db/schema";
 
 async function checkAdminAuth() {
   const session = await getSession();
@@ -13,12 +15,12 @@ async function checkAdminAuth() {
 
 export async function getClaimedCouponsData() {
   await checkAdminAuth();
-  const kupons = await prisma.kupon.findMany({
-    include: {
+  const data = await db.query.kupon.findMany({
+    with: {
       nasabah: {
-        include: {
+        with: {
           user: {
-            select: {
+            columns: {
               name: true,
               username: true,
             },
@@ -26,21 +28,23 @@ export async function getClaimedCouponsData() {
         },
       },
     },
-    orderBy: { createdAt: "desc" },
+    orderBy: (kupon, { desc }) => [desc(kupon.createdAt)],
   });
-  return kupons;
+  return data;
 }
 
 export async function markCouponAsUsed(id: string) {
   await checkAdminAuth();
   try {
-    const updated = await prisma.kupon.update({
-      where: { id },
-      data: {
+    const [updated] = await db
+      .update(kupon)
+      .set({
         status: "DIGUNAKAN",
         digunakanAt: new Date(),
-      },
-    });
+        updatedAt: new Date(),
+      })
+      .where(eq(kupon.id, id))
+      .returning();
     revalidatePath("/dashboard-admin/reward-poin/kupon");
     revalidatePath("/dashboard-konsumen/tukar-kupon");
     return { success: true, data: updated };

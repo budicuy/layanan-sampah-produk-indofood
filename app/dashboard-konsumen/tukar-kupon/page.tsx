@@ -503,7 +503,7 @@ export default function TukarKuponPage() {
                 KUPON REWARD AKTIF
               </h3>
 
-              <p className="text-[10px] text-zinc-500 leading-normal max-w-[280px] mx-auto">
+              <p className="text-[10px] text-zinc-500 leading-normal max-w-70 mx-auto">
                 Tunjukkan QR Code ini ke petugas atau merchant untuk
                 memverifikasi dan menggunakan reward Anda.
               </p>

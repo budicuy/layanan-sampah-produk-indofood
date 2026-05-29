@@ -1,9 +1,18 @@
 "use server";
 
+import { desc, eq, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { getSession } from "@/app/login/auth/session";
-import { prisma } from "@/lib/prisma";
-import { Prisma } from "@/prisma/generated/prisma/client";
+import { db } from "@/lib/db";
+import {
+  ekpedisi,
+  hargaSampah,
+  type JenisSampah,
+  mutasiSaldo,
+  nasabah,
+  setorEkspedisi,
+  setorLangsung,
+} from "@/lib/db/schema";
 
 const REVALIDATE = "/dashboard-admin/pendataan/setor-sampah";
 
@@ -39,9 +48,9 @@ export async function verifikasiSetorLangsung(
 ) {
   const session = await getAdminSession();
 
-  const setor = await prisma.setorLangsung.findUnique({
-    where: { id },
-    include: { nasabah: { include: { user: true } } },
+  const setor = await db.query.setorLangsung.findFirst({
+    where: (setorLangsung, { eq }) => eq(setorLangsung.id, id),
+    with: { nasabah: { with: { user: true } } },
   });
   if (!setor) throw new Error("Data tidak ditemukan");
   if (setor.status !== "MENUNGGU_VERIFIKASI")
@@ -56,40 +65,47 @@ export async function verifikasiSetorLangsung(
     isAutoFill,
   );
 
-  await prisma.$transaction([
-    prisma.setorLangsung.update({
-      where: { id },
-      data: {
+  await db.transaction(async (tx) => {
+    await tx
+      .update(setorLangsung)
+      .set({
         status: "SELESAI",
         beratAktual,
         catatanAdmin: catatan ?? null,
         verifiedBy: verifiedByLabel,
         verifikasiAt: now,
         selesaiAt: now,
-        hargaPerKg: isBankSampah ? ratePerKg : undefined,
-        totalHarga: isBankSampah ? totalValue : undefined,
-        poinPerKg: isBankSampah ? undefined : ratePerKg,
-        totalPoin: isBankSampah ? undefined : totalValue,
-      },
-    }),
-    prisma.nasabah.update({
-      where: { id: setor.nasabahId },
-      data: isBankSampah
-        ? { saldo: { increment: totalValue } }
-        : { poin: { increment: totalValue } },
-    }),
-    prisma.mutasiSaldo.create({
-      data: {
-        nasabahId: setor.nasabahId,
-        jumlah: totalValue,
-        keterangan: isBankSampah
-          ? `Setor langsung (Cash) ${setor.jenisSampah} ${beratAktual} kg`
-          : `Setor langsung ${setor.jenisSampah} ${beratAktual} kg`,
-        referensiId: id,
-        jenisReferensi: "LANGSUNG",
-      },
-    }),
-  ]);
+        hargaPerKg: isBankSampah ? ratePerKg : null,
+        totalHarga: isBankSampah ? totalValue : null,
+        poinPerKg: isBankSampah ? null : ratePerKg,
+        totalPoin: isBankSampah ? null : totalValue,
+        updatedAt: now,
+      })
+      .where(eq(setorLangsung.id, id));
+
+    const nasabahUpdate = {
+      updatedAt: now,
+      ...(isBankSampah
+        ? { saldo: sql`saldo + ${totalValue}` }
+        : { poin: sql`poin + ${totalValue}` }),
+    };
+
+    await tx
+      .update(nasabah)
+      .set(nasabahUpdate)
+      .where(eq(nasabah.id, setor.nasabahId));
+
+    await tx.insert(mutasiSaldo).values({
+      id: crypto.randomUUID(),
+      nasabahId: setor.nasabahId,
+      jumlah: totalValue,
+      keterangan: isBankSampah
+        ? `Setor langsung (Cash) ${setor.jenisSampah} ${beratAktual} kg`
+        : `Setor langsung ${setor.jenisSampah} ${beratAktual} kg`,
+      referensiId: id,
+      jenisReferensi: "LANGSUNG",
+    });
+  });
 
   revalidatePath(REVALIDATE);
 }
@@ -98,15 +114,16 @@ export async function verifikasiSetorLangsung(
 export async function tolakSetorLangsung(id: string, catatan: string) {
   const session = await getAdminSession();
   const name = session.user.name || session.user.username || "Admin";
-  await prisma.setorLangsung.update({
-    where: { id },
-    data: {
+  await db
+    .update(setorLangsung)
+    .set({
       status: "DITOLAK",
       catatanAdmin: catatan,
       verifiedBy: `Manual oleh ${name}`,
       verifikasiAt: new Date(),
-    },
-  });
+      updatedAt: new Date(),
+    })
+    .where(eq(setorLangsung.id, id));
   revalidatePath(REVALIDATE);
 }
 
@@ -117,11 +134,15 @@ export async function batchVerifikasiSetorLangsung(ids: string[]) {
   const now = new Date();
 
   const [setoranList, allPrices] = await Promise.all([
-    prisma.setorLangsung.findMany({
-      where: { id: { in: ids }, status: "MENUNGGU_VERIFIKASI" },
-      include: { nasabah: { include: { user: true } } },
+    db.query.setorLangsung.findMany({
+      where: (setorLangsung, { and, inArray, eq }) =>
+        and(
+          inArray(setorLangsung.id, ids),
+          eq(setorLangsung.status, "MENUNGGU_VERIFIKASI"),
+        ),
+      with: { nasabah: { with: { user: true } } },
     }),
-    prisma.hargaSampah.findMany({ orderBy: { bulan: "desc" } }),
+    db.select().from(hargaSampah).orderBy(desc(hargaSampah.bulan)),
   ]);
 
   // Bangun map harga terbaru per jenis sampah (in-memory, 1 query)
@@ -166,6 +187,8 @@ export async function batchVerifikasiSetorLangsung(ids: string[]) {
     };
   });
 
+  if (payloads.length === 0) return;
+
   // ── Agregasi poin/saldo per nasabah (hindari N update ke nasabah yang sama) ─
   // Pisahkan antara nasabah biasa (poin) dan bank sampah (saldo)
   const poinAggr: Record<string, number> = {}; // nasabahId → total poin
@@ -180,7 +203,6 @@ export async function batchVerifikasiSetorLangsung(ids: string[]) {
   }
 
   // ── 1. Bulk UPDATE setor_langsung via raw SQL (1 query untuk semua item) ───
-  // PostgreSQL UPDATE ... FROM (VALUES ...) AS v — jauh lebih efisien dari N individual UPDATE
   const valueRows = payloads.map(
     ({
       setor,
@@ -190,7 +212,7 @@ export async function batchVerifikasiSetorLangsung(ids: string[]) {
       totalValue,
       verifiedByLabel,
     }) =>
-      Prisma.sql`(
+      sql`(
         ${setor.id}::text,
         ${beratAktual}::float8,
         ${verifiedByLabel}::text,
@@ -201,10 +223,10 @@ export async function batchVerifikasiSetorLangsung(ids: string[]) {
       )`,
   );
 
-  await prisma.$executeRaw`
-    UPDATE "public"."setor_langsung" AS s
+  await db.execute(sql`
+    UPDATE "setor_langsung" AS s
     SET
-      "status"       = 'SELESAI'::"public"."StatusSetorLangsung",
+      "status"       = 'SELESAI'::"StatusSetorLangsung",
       "beratAktual"  = v.berat_aktual,
       "catatanAdmin" = NULL,
       "verifiedBy"   = v.verified_by,
@@ -215,31 +237,31 @@ export async function batchVerifikasiSetorLangsung(ids: string[]) {
       "poinPerKg"    = v.poin_per_kg,
       "totalPoin"    = v.total_poin,
       "updatedAt"    = ${now}
-    FROM (VALUES ${Prisma.join(valueRows)})
+    FROM (VALUES ${sql.join(valueRows, sql`, `)})
       AS v(id, berat_aktual, verified_by, harga_per_kg, total_harga, poin_per_kg, total_poin)
     WHERE s.id = v.id
-  `;
+  `);
 
   // ── 2. Update poin/saldo nasabah (sudah teragregasi, hanya N nasabah unik) ─
-  const nasabahOps = [
-    ...Object.entries(poinAggr).map(([nasabahId, totalPoin]) =>
-      prisma.nasabah.update({
-        where: { id: nasabahId },
-        data: { poin: { increment: totalPoin } },
-      }),
-    ),
-    ...Object.entries(saldoAggr).map(([nasabahId, totalSaldo]) =>
-      prisma.nasabah.update({
-        where: { id: nasabahId },
-        data: { saldo: { increment: totalSaldo } },
-      }),
-    ),
-  ];
-  if (nasabahOps.length > 0) await prisma.$transaction(nasabahOps);
+  await db.transaction(async (tx) => {
+    for (const [nasabahId, totalPoin] of Object.entries(poinAggr)) {
+      await tx
+        .update(nasabah)
+        .set({ poin: sql`poin + ${totalPoin}`, updatedAt: now })
+        .where(eq(nasabah.id, nasabahId));
+    }
+    for (const [nasabahId, totalSaldo] of Object.entries(saldoAggr)) {
+      await tx
+        .update(nasabah)
+        .set({ saldo: sql`saldo + ${totalSaldo}`, updatedAt: now })
+        .where(eq(nasabah.id, nasabahId));
+    }
+  });
 
-  // ── 3. Bulk INSERT mutasi_saldo via createMany (1 query untuk semua mutasi) ─
-  await prisma.mutasiSaldo.createMany({
-    data: payloads.map(({ setor, isBankSampah, beratAktual, totalValue }) => ({
+  // ── 3. Bulk INSERT mutasi_saldo via values (1 query untuk semua mutasi) ─
+  await db.insert(mutasiSaldo).values(
+    payloads.map(({ setor, isBankSampah, beratAktual, totalValue }) => ({
+      id: crypto.randomUUID(),
       nasabahId: setor.nasabahId,
       jumlah: totalValue,
       keterangan: isBankSampah
@@ -248,7 +270,7 @@ export async function batchVerifikasiSetorLangsung(ids: string[]) {
       referensiId: setor.id,
       jenisReferensi: "LANGSUNG",
     })),
-  });
+  );
 
   revalidatePath(REVALIDATE);
 }
@@ -265,47 +287,57 @@ export async function verifikasiSetorEkspedisi(
 ) {
   const session = await getAdminSession();
   const name = session.user.name || session.user.username || "Admin";
-  await prisma.setorEkspedisi.update({
-    where: { id },
-    data: {
+  await db
+    .update(setorEkspedisi)
+    .set({
       status: approve ? "TERVERIFIKASI" : "DITOLAK",
       catatanAdmin: catatan ?? null,
       verifiedBy: `Manual oleh ${name}`,
       verifikasiAt: new Date(),
-    },
-  });
+      updatedAt: new Date(),
+    })
+    .where(eq(setorEkspedisi.id, id));
   revalidatePath(REVALIDATE);
 }
 
 /** Tugaskan kurir ekspedisi */
 export async function tugaskanEkpedisi(id: string, ekpedisiId: string) {
   await getAdminSession();
-  const setor = await prisma.setorEkspedisi.findUnique({ where: { id } });
+  const setor = await db.query.setorEkspedisi.findFirst({
+    where: (setorEkspedisi, { eq }) => eq(setorEkspedisi.id, id),
+  });
   if (!setor) throw new Error("Data tidak ditemukan");
   if (setor.status !== "TERVERIFIKASI")
     throw new Error("Status harus TERVERIFIKASI");
-  await prisma.setorEkspedisi.update({
-    where: { id },
-    data: {
+  await db
+    .update(setorEkspedisi)
+    .set({
       ekpedisiId,
       status: "DALAM_PENJEMPUTAN",
       penjemputanAt: new Date(),
-    },
-  });
+      updatedAt: new Date(),
+    })
+    .where(eq(setorEkspedisi.id, id));
   revalidatePath(REVALIDATE);
 }
 
 /** Admin konfirmasi sampah sudah diterima di pusat */
 export async function konfirmasiSampahDiterima(id: string) {
   await getAdminSession();
-  const setor = await prisma.setorEkspedisi.findUnique({ where: { id } });
+  const setor = await db.query.setorEkspedisi.findFirst({
+    where: (setorEkspedisi, { eq }) => eq(setorEkspedisi.id, id),
+  });
   if (!setor) throw new Error("Data tidak ditemukan");
   if (setor.status !== "SUDAH_DISERAHKAN")
     throw new Error("Konsumen belum konfirmasi serah terima");
-  await prisma.setorEkspedisi.update({
-    where: { id },
-    data: { status: "SAMPAH_DITERIMA", sampahDiterimaAt: new Date() },
-  });
+  await db
+    .update(setorEkspedisi)
+    .set({
+      status: "SAMPAH_DITERIMA",
+      sampahDiterimaAt: new Date(),
+      updatedAt: new Date(),
+    })
+    .where(eq(setorEkspedisi.id, id));
   revalidatePath(REVALIDATE);
 }
 
@@ -318,9 +350,9 @@ export async function verifikasiAkhirSetorEkspedisi(
   isAutoFill?: boolean,
 ) {
   const session = await getAdminSession();
-  const setor = await prisma.setorEkspedisi.findUnique({
-    where: { id },
-    include: { nasabah: { include: { user: true } } },
+  const setor = await db.query.setorEkspedisi.findFirst({
+    where: (setorEkspedisi, { eq }) => eq(setorEkspedisi.id, id),
+    with: { nasabah: { with: { user: true } } },
   });
   if (!setor) throw new Error("Data tidak ditemukan");
   if (setor.status !== "SAMPAH_DITERIMA")
@@ -335,39 +367,46 @@ export async function verifikasiAkhirSetorEkspedisi(
   );
   const now = new Date();
 
-  await prisma.$transaction([
-    prisma.setorEkspedisi.update({
-      where: { id },
-      data: {
+  await db.transaction(async (tx) => {
+    await tx
+      .update(setorEkspedisi)
+      .set({
         status: "SELESAI",
         beratAktual,
         catatanAdmin: catatan ?? null,
         verifiedBy: verifiedByLabel,
         selesaiAt: now,
-        hargaPerKg: isBankSampah ? ratePerKg : undefined,
-        totalHarga: isBankSampah ? totalValue : undefined,
-        poinPerKg: isBankSampah ? undefined : ratePerKg,
-        totalPoin: isBankSampah ? undefined : totalValue,
-      },
-    }),
-    prisma.nasabah.update({
-      where: { id: setor.nasabahId },
-      data: isBankSampah
-        ? { saldo: { increment: totalValue } }
-        : { poin: { increment: totalValue } },
-    }),
-    prisma.mutasiSaldo.create({
-      data: {
-        nasabahId: setor.nasabahId,
-        jumlah: totalValue,
-        keterangan: isBankSampah
-          ? `Setor ekspedisi (Cash) ${setor.jenisSampah} ${beratAktual} kg`
-          : `Setor ekspedisi ${setor.jenisSampah} ${beratAktual} kg`,
-        referensiId: id,
-        jenisReferensi: "EKSPEDISI",
-      },
-    }),
-  ]);
+        hargaPerKg: isBankSampah ? ratePerKg : null,
+        totalHarga: isBankSampah ? totalValue : null,
+        poinPerKg: isBankSampah ? null : ratePerKg,
+        totalPoin: isBankSampah ? null : totalValue,
+        updatedAt: now,
+      })
+      .where(eq(setorEkspedisi.id, id));
+
+    const nasabahUpdate = {
+      updatedAt: now,
+      ...(isBankSampah
+        ? { saldo: sql`saldo + ${totalValue}` }
+        : { poin: sql`poin + ${totalValue}` }),
+    };
+
+    await tx
+      .update(nasabah)
+      .set(nasabahUpdate)
+      .where(eq(nasabah.id, setor.nasabahId));
+
+    await tx.insert(mutasiSaldo).values({
+      id: crypto.randomUUID(),
+      nasabahId: setor.nasabahId,
+      jumlah: totalValue,
+      keterangan: isBankSampah
+        ? `Setor ekspedisi (Cash) ${setor.jenisSampah} ${beratAktual} kg`
+        : `Setor ekspedisi ${setor.jenisSampah} ${beratAktual} kg`,
+      referensiId: id,
+      jenisReferensi: "EKSPEDISI",
+    });
+  });
 
   revalidatePath(REVALIDATE);
 }
@@ -378,22 +417,27 @@ export async function batchVerifikasiSetorEkspedisi(ids: string[]) {
   const name = session.user.name || session.user.username || "Admin";
   const now = new Date();
 
-  const setoranList = await prisma.setorEkspedisi.findMany({
-    where: { id: { in: ids }, status: "MENUNGGU_VERIFIKASI" },
+  const setoranList = await db.query.setorEkspedisi.findMany({
+    where: (setorEkspedisi, { and, inArray, eq }) =>
+      and(
+        inArray(setorEkspedisi.id, ids),
+        eq(setorEkspedisi.status, "MENUNGGU_VERIFIKASI"),
+      ),
   });
 
-  await prisma.$transaction(async (tx) => {
+  await db.transaction(async (tx) => {
     for (const setor of setoranList) {
       const isAiValid = setor.statusValidasi === "VALID";
-      await tx.setorEkspedisi.update({
-        where: { id: setor.id },
-        data: {
+      await tx
+        .update(setorEkspedisi)
+        .set({
           status: "TERVERIFIKASI",
           catatanAdmin: null,
           verifiedBy: isAiValid ? "Sistem (AI)" : `Otomatis oleh ${name}`,
           verifikasiAt: now,
-        },
-      });
+          updatedAt: now,
+        })
+        .where(eq(setorEkspedisi.id, setor.id));
     }
   });
 
@@ -406,16 +450,23 @@ export async function batchVerifikasiSetorEkspedisi(ids: string[]) {
 
 export async function getSetorLangsungData() {
   await getAdminSession();
-  return prisma.setorLangsung.findMany({
-    orderBy: { createdAt: "desc" },
-    include: {
+  return db.query.setorLangsung.findMany({
+    orderBy: (setorLangsung, { desc }) => [desc(setorLangsung.createdAt)],
+    with: {
       nasabah: {
-        select: {
+        columns: {
           id: true,
           noTelp: true,
           alamat: true,
           nik: true,
-          user: { select: { name: true, role: true } },
+        },
+        with: {
+          user: {
+            columns: {
+              name: true,
+              role: true,
+            },
+          },
         },
       },
     },
@@ -424,20 +475,32 @@ export async function getSetorLangsungData() {
 
 export async function getSetorEkspedisiData() {
   await getAdminSession();
-  return prisma.setorEkspedisi.findMany({
-    orderBy: { createdAt: "desc" },
-    include: {
+  return db.query.setorEkspedisi.findMany({
+    orderBy: (setorEkspedisi, { desc }) => [desc(setorEkspedisi.createdAt)],
+    with: {
       nasabah: {
-        select: {
+        columns: {
           id: true,
           noTelp: true,
           alamat: true,
           nik: true,
-          user: { select: { name: true, role: true } },
+        },
+        with: {
+          user: {
+            columns: {
+              name: true,
+              role: true,
+            },
+          },
         },
       },
       ekpedisi: {
-        select: { id: true, nama: true, noTelp: true, alamat: true },
+        columns: {
+          id: true,
+          nama: true,
+          noTelp: true,
+          alamat: true,
+        },
       },
     },
   });
@@ -445,19 +508,30 @@ export async function getSetorEkspedisiData() {
 
 export async function getEkpedisiList() {
   await getAdminSession();
-  return prisma.ekpedisi.findMany({
-    select: { id: true, nama: true, noTelp: true, alamat: true },
-    orderBy: { createdAt: "desc" },
-  });
+  return db
+    .select({
+      id: ekpedisi.id,
+      nama: ekpedisi.nama,
+      noTelp: ekpedisi.noTelp,
+      alamat: ekpedisi.alamat,
+    })
+    .from(ekpedisi)
+    .orderBy(desc(ekpedisi.createdAt));
 }
 
 export async function getHargaTerbaru(jenisSampah: string) {
   await getAdminSession();
-  return prisma.hargaSampah.findFirst({
-    where: { jenisSampah: jenisSampah as never },
-    orderBy: { bulan: "desc" },
-    select: { harga: true, point: true, bulan: true },
-  });
+  const hargaList = await db
+    .select({
+      harga: hargaSampah.harga,
+      point: hargaSampah.point,
+      bulan: hargaSampah.bulan,
+    })
+    .from(hargaSampah)
+    .where(eq(hargaSampah.jenisSampah, jenisSampah as JenisSampah))
+    .orderBy(desc(hargaSampah.bulan))
+    .limit(1);
+  return hargaList[0] || null;
 }
 
 /**
@@ -467,10 +541,15 @@ export async function getHargaTerbaru(jenisSampah: string) {
  */
 export async function getAllHargaTerbaru() {
   await getAdminSession();
-  const allPrices = await prisma.hargaSampah.findMany({
-    orderBy: { bulan: "desc" },
-    select: { jenisSampah: true, harga: true, point: true, bulan: true },
-  });
+  const allPrices = await db
+    .select({
+      jenisSampah: hargaSampah.jenisSampah,
+      harga: hargaSampah.harga,
+      point: hargaSampah.point,
+      bulan: hargaSampah.bulan,
+    })
+    .from(hargaSampah)
+    .orderBy(desc(hargaSampah.bulan));
   // Ambil hanya entry pertama (terbaru) per jenisSampah
   const map: Record<string, { harga: number; point: number; bulan: Date }> = {};
   for (const price of allPrices) {

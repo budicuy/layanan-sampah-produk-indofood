@@ -2,10 +2,7 @@
 
 import { CheckCircle, Info, Loader2, Recycle, Wallet } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
-import type {
-  JenisSampah,
-  StatusSetorLangsung,
-} from "@/prisma/generated/prisma/client";
+import type { JenisSampah, StatusSetorLangsung } from "@/lib/db/schema";
 import { getSetorSampahBankSampahData, submitSetorLangsung } from "./actions";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────

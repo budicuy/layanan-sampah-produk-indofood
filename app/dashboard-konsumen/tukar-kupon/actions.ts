@@ -1,19 +1,21 @@
 "use server";
 
+import { eq, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { getSession } from "@/app/login/auth/session";
-import { prisma } from "@/lib/prisma";
+import { db } from "@/lib/db";
+import { kupon, mutasiSaldo, nasabah } from "@/lib/db/schema";
 
 async function getNasabahProfile(userId: string) {
-  const nasabah = await prisma.nasabah.findUnique({
-    where: { userId },
+  const nasabahData = await db.query.nasabah.findFirst({
+    where: (nasabah, { eq }) => eq(nasabah.userId, userId),
   });
-  if (!nasabah) {
+  if (!nasabahData) {
     throw new Error(
       "Nasabah profile not found. Please contact administration.",
     );
   }
-  return nasabah;
+  return nasabahData;
 }
 
 export async function getConsumerPointsAndCoupons() {
@@ -22,19 +24,19 @@ export async function getConsumerPointsAndCoupons() {
     throw new Error("Unauthorized");
   }
 
-  const nasabah = await getNasabahProfile(session.user.sub);
+  const nasabahData = await getNasabahProfile(session.user.sub);
 
-  const kupons = await prisma.kupon.findMany({
-    where: { nasabahId: nasabah.id },
-    orderBy: { createdAt: "desc" },
+  const kupons = await db.query.kupon.findMany({
+    where: (kupon, { eq }) => eq(kupon.nasabahId, nasabahData.id),
+    orderBy: (kupon, { desc }) => [desc(kupon.createdAt)],
   });
 
-  const tiers = await prisma.tierKupon.findMany({
-    orderBy: { poinMin: "asc" },
+  const tiers = await db.query.tierKupon.findMany({
+    orderBy: (tierKupon, { asc }) => [asc(tierKupon.poinMin)],
   });
 
   return {
-    poin: nasabah.poin,
+    poin: nasabahData.poin,
     kupons,
     tiers,
   };
@@ -46,16 +48,16 @@ export async function redeemCoupon(tierId: string) {
     throw new Error("Unauthorized");
   }
 
-  const tier = await prisma.tierKupon.findUnique({
-    where: { id: tierId },
+  const tier = await db.query.tierKupon.findFirst({
+    where: (tierKupon, { eq }) => eq(tierKupon.id, tierId),
   });
   if (!tier) {
     throw new Error("Tier reward tidak ditemukan");
   }
 
-  const nasabah = await getNasabahProfile(session.user.sub);
+  const nasabahData = await getNasabahProfile(session.user.sub);
 
-  if (nasabah.poin < tier.poinMin) {
+  if (nasabahData.poin < tier.poinMin) {
     throw new Error("Poin tidak cukup untuk menukarkan reward tier ini");
   }
 
@@ -64,32 +66,32 @@ export async function redeemCoupon(tierId: string) {
     Math.random().toString(36).substring(2, 8).toUpperCase();
   const couponCode = `SCN-${generateSegment()}-${generateSegment()}`;
 
-  await prisma.$transaction([
+  await db.transaction(async (tx) => {
     // Deduct points
-    prisma.nasabah.update({
-      where: { id: nasabah.id },
-      data: { poin: { decrement: tier.poinMin } },
-    }),
+    await tx
+      .update(nasabah)
+      .set({ poin: sql`poin - ${tier.poinMin}`, updatedAt: new Date() })
+      .where(eq(nasabah.id, nasabahData.id));
+
     // Create Coupon record
-    prisma.kupon.create({
-      data: {
-        kode: couponCode,
-        nama: `Kupon Tier ${tier.nama}`,
-        deskripsi: tier.deskripsi,
-        poinCost: tier.poinMin,
-        status: "AKTIF",
-        nasabahId: nasabah.id,
-      },
-    }),
+    await tx.insert(kupon).values({
+      id: crypto.randomUUID(),
+      kode: couponCode,
+      nama: `Kupon Tier ${tier.nama}`,
+      deskripsi: tier.deskripsi,
+      poinCost: tier.poinMin,
+      status: "AKTIF",
+      nasabahId: nasabahData.id,
+    });
+
     // Create point mutation history
-    prisma.mutasiSaldo.create({
-      data: {
-        nasabahId: nasabah.id,
-        jumlah: -tier.poinMin,
-        keterangan: `Penukaran Kupon Tier ${tier.nama}`,
-      },
-    }),
-  ]);
+    await tx.insert(mutasiSaldo).values({
+      id: crypto.randomUUID(),
+      nasabahId: nasabahData.id,
+      jumlah: -tier.poinMin,
+      keterangan: `Penukaran Kupon Tier ${tier.nama}`,
+    });
+  });
 
   revalidatePath("/dashboard-konsumen/tukar-kupon");
   return { success: true, code: couponCode };

@@ -1,17 +1,19 @@
 "use server";
 
+import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
-import { prisma } from "@/lib/prisma";
+import { db } from "@/lib/db";
+import { kupon } from "@/lib/db/schema";
 
 export async function getCouponDetails(code: string) {
   try {
-    const coupon = await prisma.kupon.findUnique({
-      where: { kode: code },
-      include: {
+    const data = await db.query.kupon.findFirst({
+      where: (kupon, { eq }) => eq(kupon.kode, code),
+      with: {
         nasabah: {
-          include: {
+          with: {
             user: {
-              select: {
+              columns: {
                 name: true,
                 username: true,
               },
@@ -20,7 +22,7 @@ export async function getCouponDetails(code: string) {
         },
       },
     });
-    return coupon;
+    return data || null;
   } catch (error) {
     console.error("Error fetching coupon details:", error);
     return null;
@@ -29,25 +31,26 @@ export async function getCouponDetails(code: string) {
 
 export async function claimCoupon(code: string) {
   try {
-    const coupon = await prisma.kupon.findUnique({
-      where: { kode: code },
+    const couponItem = await db.query.kupon.findFirst({
+      where: (kupon, { eq }) => eq(kupon.kode, code),
     });
 
-    if (!coupon) {
+    if (!couponItem) {
       throw new Error("Kupon tidak ditemukan");
     }
 
-    if (coupon.status !== "AKTIF") {
+    if (couponItem.status !== "AKTIF") {
       throw new Error("Kupon sudah tidak aktif atau telah digunakan");
     }
 
-    await prisma.kupon.update({
-      where: { kode: code },
-      data: {
+    await db
+      .update(kupon)
+      .set({
         status: "DIGUNAKAN",
         digunakanAt: new Date(),
-      },
-    });
+        updatedAt: new Date(),
+      })
+      .where(eq(kupon.kode, code));
 
     revalidatePath(`/kupon-validasi/${code}`);
     return { success: true };
