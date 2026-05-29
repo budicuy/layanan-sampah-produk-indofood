@@ -498,6 +498,55 @@ async function main() {
     await db.insert(mutasiSaldo).values(m);
   }
 
+  // Seed 100 Kupon
+  console.log("🎫 Seeding 100 kupon data...");
+  const kuponList = [];
+  const namaKuponTemplates = [
+    "Voucher Belanja Indomaret Rp 10.000",
+    "Voucher Belanja Alfamart Rp 20.000",
+    "Diskon Produk Indofood 15%",
+    "Gratis Paket Sembako Premium",
+    "Potongan Token Listrik PLN Rp 20.000",
+    "Kupon Undian Mobil Listrik Wuling",
+    "Voucher Pulsa Telkomsel Rp 10.000",
+    "Diskon Warmiendo Spesial 20%",
+  ];
+
+  for (let i = 0; i < 100; i++) {
+    const templateIndex = i % namaKuponTemplates.length;
+    const isDigunakan = i % 3 === 0;
+    const isExpired = i % 7 === 0;
+
+    let status: "AKTIF" | "DIGUNAKAN" | "EXPIRED" = "AKTIF";
+    if (isDigunakan) {
+      status = "DIGUNAKAN";
+    } else if (isExpired) {
+      status = "EXPIRED";
+    }
+
+    const nasabahIndex = i % nasabahsData.length;
+    const randomNasabah = nasabahsData[nasabahIndex];
+
+    kuponList.push({
+      id: randomUUID(),
+      kode: `KPN-${100000 + i}-${String.fromCharCode(65 + (i % 26))}${String.fromCharCode(65 + ((i + 3) % 26))}`,
+      nama: namaKuponTemplates[templateIndex],
+      deskripsi: `Kupon reward untuk ditukarkan dengan ${namaKuponTemplates[templateIndex].toLowerCase()}.`,
+      poinCost: (templateIndex + 1) * 50,
+      status,
+      nasabahId: randomNasabah.id,
+      createdAt: new Date(Date.now() - (100 - i) * 60 * 60 * 1000),
+      digunakanAt:
+        status === "DIGUNAKAN"
+          ? new Date(Date.now() - (100 - i) * 30 * 60 * 1000)
+          : null,
+    });
+  }
+
+  for (const kp of kuponList) {
+    await db.insert(kupon).values(kp);
+  }
+
   console.log(`✨ Seeding completed!`);
 }
 

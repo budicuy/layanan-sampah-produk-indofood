@@ -256,3 +256,8 @@ bun run format
   - Memindahkan perhitungan statistik global (`totalPoin`, `totalSaldo`, `totalSetoranSelesai`, `nasabahAktif`) langsung ke query database agregat di sisi server.
   - Menggunakan query teroptimasi `findMany` dengan inArray ID nasabah terfilter untuk mencegah kelebihan pemuatan data relasional (`setorLangsung`, `setorEkspedisi`, `mutasiSaldo`).
   - Menambahkan *inline loading spinner* di dalam body tabel untuk mempertahankan layout visual yang mulus tanpa geseran tata letak (*layout shift*), dan pagination footer premium yang intuitif.
+
+- **Pagination & Seeder Kupon Terklaim (Dashboard Admin)**:
+  - Menambahkan **100 data seeder kupon** dengan berbagai variasi status (`AKTIF`, `DIGUNAKAN`, `EXPIRED`), tanggal klaim, biaya poin, serta nasabah asosiasi di file `lib/db/seed.ts`.
+  - Mengimplementasikan server-side pagination dan pencarian debounced pada halaman **Riwayat Kupon Terklaim** (`/dashboard-admin/reward-poin/kupon`) agar pencarian nama nasabah, kode kupon, atau voucher belanja berjalan cepat dan terpaginasi langsung dari database.
+  - Menyediakan *inline loading state* pada tabel kupon dan footer pagination navigasi yang seragam.
