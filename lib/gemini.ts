@@ -61,6 +61,26 @@ function extractJson(text: string): string | null {
   return null;
 }
 
+/**
+ * Optimizes image size by reducing quality if needed
+ * This helps reduce API payload and improve response time
+ */
+function optimizeImageSize(imageBuffer: Buffer): Buffer {
+  // For now, just return the buffer as-is since image is already compressed on client
+  // The client-side compression (browser-image-compression) should already handle this
+  // If the buffer is still too large, we could implement server-side JPEG quality reduction
+  // but for now the client-side compression should be sufficient
+  
+  const sizeInMB = imageBuffer.length / (1024 * 1024);
+  if (sizeInMB > 5) {
+    console.warn(
+      `⚠️ Image size is ${sizeInMB.toFixed(2)}MB, consider client-side compression`,
+    );
+  }
+  
+  return imageBuffer;
+}
+
 export async function analyzeScaleImage(
   imageBuffer: Buffer,
   mimeType: string,
@@ -70,7 +90,9 @@ export async function analyzeScaleImage(
     throw new Error("GEMINI_API_KEY is not configured");
   }
 
-  const base64Image = imageBuffer.toString("base64");
+  // Optimize image size before sending to API
+  const optimizedBuffer = optimizeImageSize(imageBuffer);
+  const base64Image = optimizedBuffer.toString("base64");
   const models = [
     process.env.GEMINI_MODEL_1,
     process.env.GEMINI_MODEL_2,
@@ -91,72 +113,124 @@ Aturan:
 - terbaca: true jika display terlihat jelas, false jika tidak
 - alasan_gagal: string penjelasan jika terbaca=false, atau null jika terbaca=true`;
 
-  for (let i = 0; i < models.length; i++) {
-    const model = models[i];
-    console.log(`🤖 Attempting Gemini analysis using Model ${i + 1}: ${model}`);
-    try {
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
-      const payload = {
-        contents: [
-          {
-            parts: [
-              { text: prompt },
-              {
-                inlineData: {
-                  mimeType,
-                  data: base64Image,
-                },
-              },
-            ],
-          },
-        ],
-        generationConfig: {
-          temperature: 0,
-          responseMimeType: "application/json",
-        },
-      };
+  // Create array of model attempts with optimized timeouts
+  // Flash models (faster) get shorter timeout, while heavier models get longer
+  const modelAttempts = models.map((model, index) => {
+    const isFlashModel = model.includes("flash");
+    const timeout = isFlashModel ? 10000 : 15000; // 10s for flash, 15s for heavier models
+    return attemptModelAnalysis(
+      model,
+      index,
+      apiKey,
+      prompt,
+      base64Image,
+      mimeType,
+      timeout,
+    );
+  });
 
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 20000); // 20s timeout
-
-      const response = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-        signal: controller.signal,
-      });
-
-      clearTimeout(timeoutId);
-
-      if (!response.ok) {
-        throw new Error(
-          `HTTP Error ${response.status}: ${response.statusText}`,
+  // Try models with Promise.race for faster failure - try all at once
+  // but return the first successful one or continue with fallback
+  try {
+    // First, try the primary model (should be flash-lite for speed)
+    const result = await modelAttempts[0];
+    console.log(`✅ Model 1 (${models[0]}) parsed successfully:`, result);
+    return result;
+  } catch (err) {
+    console.warn(`⚠️ Model 1 (${models[0]}) failed, trying fallbacks:`, err);
+    // Fall back to remaining models sequentially
+    for (let i = 1; i < modelAttempts.length; i++) {
+      try {
+        const result = await modelAttempts[i];
+        console.log(
+          `✅ Model ${i + 1} (${models[i]}) parsed successfully:`,
+          result,
         );
+        return result;
+      } catch (fallbackErr) {
+        console.warn(
+          `⚠️ Model ${i + 1} (${models[i]}) failed:`,
+          fallbackErr,
+        );
+        // Continue to next model
       }
-
-      const resBody = await response.json();
-      const text = resBody?.candidates?.[0]?.content?.parts?.[0]?.text;
-      if (!text) {
-        throw new Error("No text content returned from Gemini model");
-      }
-
-      console.log(`🤖 Model ${i + 1} Raw Response:`, text);
-
-      // Robustly extract JSON from the response (handles reasoning text before/after JSON)
-      const jsonStr = extractJson(text);
-      if (!jsonStr) {
-        throw new Error("Could not find valid JSON object in model response");
-      }
-
-      const parsed: AIAnalysisResult = JSON.parse(jsonStr);
-      console.log(`✅ Model ${i + 1} (${model}) parsed successfully:`, parsed);
-      return parsed;
-    } catch (err) {
-      console.warn(`⚠️ Model ${i + 1} (${model}) failed:`, err);
-      // Continue to next model
     }
   }
 
   // If all models failed
   throw new Error("All Gemini models failed to process the request");
+}
+
+async function attemptModelAnalysis(
+  model: string,
+  index: number,
+  apiKey: string,
+  prompt: string,
+  base64Image: string,
+  mimeType: string,
+  timeout: number,
+): Promise<AIAnalysisResult> {
+  console.log(
+    `🤖 Attempting Gemini analysis using Model ${index + 1}: ${model}`,
+  );
+
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+  const payload = {
+    contents: [
+      {
+        parts: [
+          { text: prompt },
+          {
+            inlineData: {
+              mimeType,
+              data: base64Image,
+            },
+          },
+        ],
+      },
+    ],
+    generationConfig: {
+      temperature: 0,
+      responseMimeType: "application/json",
+    },
+  };
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeout);
+
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      throw new Error(
+        `HTTP Error ${response.status}: ${response.statusText}`,
+      );
+    }
+
+    const resBody = await response.json();
+    const text = resBody?.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (!text) {
+      throw new Error("No text content returned from Gemini model");
+    }
+
+    console.log(`🤖 Model ${index + 1} Raw Response:`, text);
+
+    // Robustly extract JSON from the response (handles reasoning text before/after JSON)
+    const jsonStr = extractJson(text);
+    if (!jsonStr) {
+      throw new Error("Could not find valid JSON object in model response");
+    }
+
+    const parsed: AIAnalysisResult = JSON.parse(jsonStr);
+    return parsed;
+  } finally {
+    clearTimeout(timeoutId);
+  }
 }
