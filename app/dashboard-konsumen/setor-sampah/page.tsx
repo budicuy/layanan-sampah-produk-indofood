@@ -66,37 +66,37 @@ const STATUS_STEPS: {
   label: string;
   desc: string;
 }[] = [
-    {
-      key: "MENUNGGU_VERIFIKASI",
-      label: "Menunggu Verifikasi",
-      desc: "Admin sedang meninjau data setoran Anda",
-    },
-    {
-      key: "TERVERIFIKASI",
-      label: "Terverifikasi",
-      desc: "Data valid, menunggu penjemputan",
-    },
-    {
-      key: "DALAM_PENJEMPUTAN",
-      label: "Dalam Penjemputan",
-      desc: "Kurir sedang dalam perjalanan ke lokasi Anda",
-    },
-    {
-      key: "SUDAH_DISERAHKAN",
-      label: "Sudah Diserahkan",
-      desc: "Sampah telah diserahkan kepada kurir",
-    },
-    {
-      key: "SAMPAH_DITERIMA",
-      label: "Sampah Diterima",
-      desc: "Sampah telah tiba di pusat pengolahan",
-    },
-    {
-      key: "SELESAI",
-      label: "Selesai",
-      desc: "Poin telah dikreditkan ke akun Anda",
-    },
-  ];
+  {
+    key: "MENUNGGU_VERIFIKASI",
+    label: "Menunggu Verifikasi",
+    desc: "Admin sedang meninjau data setoran Anda",
+  },
+  {
+    key: "TERVERIFIKASI",
+    label: "Terverifikasi",
+    desc: "Data valid, menunggu penjemputan",
+  },
+  {
+    key: "DALAM_PENJEMPUTAN",
+    label: "Dalam Penjemputan",
+    desc: "Kurir sedang dalam perjalanan ke lokasi Anda",
+  },
+  {
+    key: "SUDAH_DISERAHKAN",
+    label: "Sudah Diserahkan",
+    desc: "Sampah telah diserahkan kepada kurir",
+  },
+  {
+    key: "SAMPAH_DITERIMA",
+    label: "Sampah Diterima",
+    desc: "Sampah telah tiba di pusat pengolahan",
+  },
+  {
+    key: "SELESAI",
+    label: "Selesai",
+    desc: "Poin telah dikreditkan ke akun Anda",
+  },
+];
 
 function getStepIndex(status: string): number {
   if (status === "DITOLAK") return -1;
@@ -1029,33 +1029,33 @@ function FormSetorLangsung({
               }
 
               const statusMap: Record<string, { label: string; cls: string }> =
-              {
-                MENUNGGU_VERIFIKASI: {
-                  label: "Menunggu",
-                  cls: "bg-amber-100 text-amber-700",
-                },
-                TERVERIFIKASI: {
-                  label: "Terverifikasi",
-                  cls: "bg-blue-100 text-blue-700",
-                },
-                DITOLAK: { label: "Ditolak", cls: "bg-red-100 text-red-700" },
-                DALAM_PENJEMPUTAN: {
-                  label: "Penjemputan",
-                  cls: "bg-purple-100 text-purple-700",
-                },
-                SUDAH_DISERAHKAN: {
-                  label: "Diserahkan",
-                  cls: "bg-indigo-100 text-indigo-700",
-                },
-                SAMPAH_DITERIMA: {
-                  label: "Diterima",
-                  cls: "bg-teal-100 text-teal-700",
-                },
-                SELESAI: {
-                  label: "Selesai ✓",
-                  cls: "bg-green-100 text-green-700",
-                },
-              };
+                {
+                  MENUNGGU_VERIFIKASI: {
+                    label: "Menunggu",
+                    cls: "bg-amber-100 text-amber-700",
+                  },
+                  TERVERIFIKASI: {
+                    label: "Terverifikasi",
+                    cls: "bg-blue-100 text-blue-700",
+                  },
+                  DITOLAK: { label: "Ditolak", cls: "bg-red-100 text-red-700" },
+                  DALAM_PENJEMPUTAN: {
+                    label: "Penjemputan",
+                    cls: "bg-purple-100 text-purple-700",
+                  },
+                  SUDAH_DISERAHKAN: {
+                    label: "Diserahkan",
+                    cls: "bg-indigo-100 text-indigo-700",
+                  },
+                  SAMPAH_DITERIMA: {
+                    label: "Diterima",
+                    cls: "bg-teal-100 text-teal-700",
+                  },
+                  SELESAI: {
+                    label: "Selesai ✓",
+                    cls: "bg-green-100 text-green-700",
+                  },
+                };
               const { label, cls } = statusMap[item.status];
 
               return (

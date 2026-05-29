@@ -1,11 +1,12 @@
+import { and, eq, sql } from "drizzle-orm";
 import { Calendar, Clock, Package, Recycle, Scale, Wallet } from "lucide-react";
-import { getSession } from "@/app/login/auth/session";
-import { db } from "@/lib/db";
-
 import {
   ConsumerDonutChart,
   ConsumerLineChart,
-} from "./components/ConsumerCharts";
+} from "@/app/dashboard-admin/components/Charts";
+import { getSession } from "@/app/login/auth/session";
+import { db } from "@/lib/db";
+import { setorEkspedisi, setorLangsung } from "@/lib/db/schema";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -56,18 +57,6 @@ export default async function BankSampahDashboardPage() {
     ? await db.query.nasabah.findFirst({
         where: (nasabah, { eq }) => eq(nasabah.userId, user.sub),
         with: {
-          setorLangsung: {
-            orderBy: (setorLangsung, { desc }) => [
-              desc(setorLangsung.createdAt),
-            ],
-            limit: 10,
-          },
-          setorEkspedisi: {
-            orderBy: (setorEkspedisi, { desc }) => [
-              desc(setorEkspedisi.createdAt),
-            ],
-            limit: 10,
-          },
           pencairan: {
             orderBy: (pencairan, { desc }) => [desc(pencairan.createdAt)],
             limit: 1,
@@ -76,12 +65,85 @@ export default async function BankSampahDashboardPage() {
       })
     : null;
 
+  // Ambil data detail & analitik secara paralel jika nasabah ditemukan
+  const [
+    setoranLangsungList,
+    setoranEkspedisiList,
+    allSelesaiLangsung,
+    allSelesaiEkspedisi,
+    totalLangsungStats,
+    totalEkspedisiStats,
+  ] = nasabah
+    ? await Promise.all([
+        db.query.setorLangsung.findMany({
+          where: (setorLangsung, { eq }) =>
+            eq(setorLangsung.nasabahId, nasabah.id),
+          orderBy: (setorLangsung, { desc }) => [desc(setorLangsung.createdAt)],
+          limit: 10,
+        }),
+        db.query.setorEkspedisi.findMany({
+          where: (setorEkspedisi, { eq }) =>
+            eq(setorEkspedisi.nasabahId, nasabah.id),
+          orderBy: (setorEkspedisi, { desc }) => [
+            desc(setorEkspedisi.createdAt),
+          ],
+          limit: 10,
+        }),
+        db
+          .select({
+            beratAktual: setorLangsung.beratAktual,
+            beratEstimasi: setorLangsung.beratEstimasi,
+            jenisSampah: setorLangsung.jenisSampah,
+            createdAt: setorLangsung.createdAt,
+            selesaiAt: setorLangsung.selesaiAt,
+          })
+          .from(setorLangsung)
+          .where(
+            and(
+              eq(setorLangsung.nasabahId, nasabah.id),
+              eq(setorLangsung.status, "SELESAI"),
+            ),
+          ),
+        db
+          .select({
+            beratAktual: setorEkspedisi.beratAktual,
+            beratEstimasi: setorEkspedisi.beratEstimasi,
+            jenisSampah: setorEkspedisi.jenisSampah,
+            createdAt: setorEkspedisi.createdAt,
+            selesaiAt: setorEkspedisi.selesaiAt,
+          })
+          .from(setorEkspedisi)
+          .where(
+            and(
+              eq(setorEkspedisi.nasabahId, nasabah.id),
+              eq(setorEkspedisi.status, "SELESAI"),
+            ),
+          ),
+        db
+          .select({
+            count: sql<number>`count(*)::int`,
+          })
+          .from(setorLangsung)
+          .where(eq(setorLangsung.nasabahId, nasabah.id)),
+        db
+          .select({
+            count: sql<number>`count(*)::int`,
+          })
+          .from(setorEkspedisi)
+          .where(eq(setorEkspedisi.nasabahId, nasabah.id)),
+      ])
+    : [[], [], [], [], [], []];
+
   // Combine and sort setoran by createdAt desc
-  const setoranLangsungList = nasabah?.setorLangsung ?? [];
-  const setoranEkspedisiList = nasabah?.setorEkspedisi ?? [];
   const setoran = [
-    ...setoranLangsungList.map((s) => ({ ...s, jenisSetor: "LANGSUNG" })),
-    ...setoranEkspedisiList.map((s) => ({ ...s, jenisSetor: "EKSPEDISI" })),
+    ...setoranLangsungList.map((s) => ({
+      ...s,
+      jenisSetor: "LANGSUNG" as const,
+    })),
+    ...setoranEkspedisiList.map((s) => ({
+      ...s,
+      jenisSetor: "EKSPEDISI" as const,
+    })),
   ]
     .sort(
       (a, b) =>
@@ -89,18 +151,18 @@ export default async function BankSampahDashboardPage() {
     )
     .slice(0, 10);
 
-  const setoranSelesai = [
-    ...setoranLangsungList.filter((s) => s.status === "SELESAI"),
-    ...setoranEkspedisiList.filter((s) => s.status === "SELESAI"),
-  ];
+  const setoranSelesai = [...allSelesaiLangsung, ...allSelesaiEkspedisi];
 
   // Stats
+  const langsungStats = totalLangsungStats[0] || { count: 0 };
+  const ekspedisiStats = totalEkspedisiStats[0] || { count: 0 };
+
   const totalBerat = setoranSelesai.reduce(
     (a, s) => a + (s.beratAktual ?? s.beratEstimasi),
     0,
   );
   const totalSaldo = nasabah?.saldo ?? 0;
-  const totalSetoran = setoranLangsungList.length + setoranEkspedisiList.length;
+  const totalSetoran = (langsungStats.count ?? 0) + (ekspedisiStats.count ?? 0);
   const selesaiCount = setoranSelesai.length;
 
   // Chart: monthly data (last 6 months)

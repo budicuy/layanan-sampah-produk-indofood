@@ -4,7 +4,6 @@ import {
   ClipboardList,
   Clock,
   Recycle,
-  TrendingUp,
   Users,
   Wallet,
 } from "lucide-react";
@@ -18,28 +17,48 @@ import {
 } from "@/lib/db/schema";
 import { WasteLineChart, WasteTypeChart } from "./components/Charts";
 import LiveClock from "./components/Clock";
+import { CompFilters, TrendFilters } from "./components/Filters";
 
-export default async function DashboardPage() {
+export default async function DashboardPage(props: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
   const session = await getSession();
   const user = session?.user;
   const displayName = user?.name ?? user?.username;
 
-  // ─── Fetch Dynamic Stats & Charts ──────────────────────────────────────────
-  const now = new Date();
-  const last6Months = Array.from({ length: 6 }, (_, i) => {
-    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    return {
-      month: d.getMonth(),
-      year: d.getFullYear(),
-      label: d.toLocaleDateString("id-ID", { month: "short" }),
-    };
-  }).reverse();
+  const searchParams = await props.searchParams;
 
-  const startDate = new Date(last6Months[0].year, last6Months[0].month, 1);
-  const endDate = new Date(
-    last6Months[last6Months.length - 1].year,
-    last6Months[last6Months.length - 1].month + 1,
-    0,
+  const filterTahunTrend =
+    typeof searchParams.trendYear === "string"
+      ? searchParams.trendYear
+      : String(new Date().getFullYear());
+  const filterBulanTrend =
+    typeof searchParams.trendMonth === "string"
+      ? searchParams.trendMonth
+      : "ALL";
+  const filterTahunKomposisi =
+    typeof searchParams.compYear === "string"
+      ? searchParams.compYear
+      : String(new Date().getFullYear());
+
+  // ─── Filter Dynamic Dates ──────────────────────────────────────────────────
+  let trendStartDate: Date;
+  let trendEndDate: Date;
+
+  if (filterBulanTrend === "ALL") {
+    trendStartDate = new Date(Number(filterTahunTrend), 0, 1, 0, 0, 0);
+    trendEndDate = new Date(Number(filterTahunTrend), 11, 31, 23, 59, 59);
+  } else {
+    const mVal = Number(filterBulanTrend);
+    trendStartDate = new Date(Number(filterTahunTrend), mVal, 1, 0, 0, 0);
+    trendEndDate = new Date(Number(filterTahunTrend), mVal + 1, 0, 23, 59, 59);
+  }
+
+  const compStartDate = new Date(Number(filterTahunKomposisi), 0, 1, 0, 0, 0);
+  const compEndDate = new Date(
+    Number(filterTahunKomposisi),
+    11,
+    31,
     23,
     59,
     59,
@@ -47,16 +66,12 @@ export default async function DashboardPage() {
 
   const [
     totalNasabah,
-    langsungSelesai,
-    ekspedisiSelesai,
+    langsungSelesaiResult,
+    ekspedisiSelesaiResult,
     recentLangsung,
     recentEkspedisi,
-    plastikLangsung,
-    plastikEkspedisi,
-    kartonLangsung,
-    kartonEkspedisi,
-    paperCupLangsung,
-    paperCupEkspedisi,
+    langsungComposition,
+    ekspedisiComposition,
     pencairanPendingCount,
     langsungPeriod,
     ekspedisiPeriod,
@@ -67,15 +82,15 @@ export default async function DashboardPage() {
       .then((r) => r[0]?.count ?? 0),
     db
       .select({
-        beratAktual: setorLangsung.beratAktual,
-        totalPoin: setorLangsung.totalPoin,
+        totalBerat: sql<number>`sum(coalesce("beratAktual", 0))::float8`,
+        totalPoin: sql<number>`sum(coalesce("totalPoin", 0))::int`,
       })
       .from(setorLangsung)
       .where(eq(setorLangsung.status, "SELESAI")),
     db
       .select({
-        beratAktual: setorEkspedisi.beratAktual,
-        totalPoin: setorEkspedisi.totalPoin,
+        totalBerat: sql<number>`sum(coalesce("beratAktual", 0))::float8`,
+        totalPoin: sql<number>`sum(coalesce("totalPoin", 0))::int`,
       })
       .from(setorEkspedisi)
       .where(eq(setorEkspedisi.status, "SELESAI")),
@@ -108,65 +123,33 @@ export default async function DashboardPage() {
       },
     }),
     db
-      .select({ sum: sql<number>`sum(${setorLangsung.beratAktual})::float8` })
+      .select({
+        jenisSampah: setorLangsung.jenisSampah,
+        sum: sql<number>`sum(${setorLangsung.beratAktual})::float8`,
+      })
       .from(setorLangsung)
       .where(
         and(
           eq(setorLangsung.status, "SELESAI"),
-          eq(setorLangsung.jenisSampah, "PLASTIK"),
+          gte(setorLangsung.createdAt, compStartDate),
+          lte(setorLangsung.createdAt, compEndDate),
         ),
       )
-      .then((r) => ({ _sum: { beratAktual: r[0]?.sum ?? 0 } })),
+      .groupBy(setorLangsung.jenisSampah),
     db
-      .select({ sum: sql<number>`sum(${setorEkspedisi.beratAktual})::float8` })
+      .select({
+        jenisSampah: setorEkspedisi.jenisSampah,
+        sum: sql<number>`sum(${setorEkspedisi.beratAktual})::float8`,
+      })
       .from(setorEkspedisi)
       .where(
         and(
           eq(setorEkspedisi.status, "SELESAI"),
-          eq(setorEkspedisi.jenisSampah, "PLASTIK"),
+          gte(setorEkspedisi.createdAt, compStartDate),
+          lte(setorEkspedisi.createdAt, compEndDate),
         ),
       )
-      .then((r) => ({ _sum: { beratAktual: r[0]?.sum ?? 0 } })),
-    db
-      .select({ sum: sql<number>`sum(${setorLangsung.beratAktual})::float8` })
-      .from(setorLangsung)
-      .where(
-        and(
-          eq(setorLangsung.status, "SELESAI"),
-          eq(setorLangsung.jenisSampah, "KARTON"),
-        ),
-      )
-      .then((r) => ({ _sum: { beratAktual: r[0]?.sum ?? 0 } })),
-    db
-      .select({ sum: sql<number>`sum(${setorEkspedisi.beratAktual})::float8` })
-      .from(setorEkspedisi)
-      .where(
-        and(
-          eq(setorEkspedisi.status, "SELESAI"),
-          eq(setorEkspedisi.jenisSampah, "KARTON"),
-        ),
-      )
-      .then((r) => ({ _sum: { beratAktual: r[0]?.sum ?? 0 } })),
-    db
-      .select({ sum: sql<number>`sum(${setorLangsung.beratAktual})::float8` })
-      .from(setorLangsung)
-      .where(
-        and(
-          eq(setorLangsung.status, "SELESAI"),
-          eq(setorLangsung.jenisSampah, "PAPER_CUP"),
-        ),
-      )
-      .then((r) => ({ _sum: { beratAktual: r[0]?.sum ?? 0 } })),
-    db
-      .select({ sum: sql<number>`sum(${setorEkspedisi.beratAktual})::float8` })
-      .from(setorEkspedisi)
-      .where(
-        and(
-          eq(setorEkspedisi.status, "SELESAI"),
-          eq(setorEkspedisi.jenisSampah, "PAPER_CUP"),
-        ),
-      )
-      .then((r) => ({ _sum: { beratAktual: r[0]?.sum ?? 0 } })),
+      .groupBy(setorEkspedisi.jenisSampah),
     db
       .select({ count: sql<number>`count(*)::int` })
       .from(pencairan)
@@ -181,8 +164,8 @@ export default async function DashboardPage() {
       .where(
         and(
           eq(setorLangsung.status, "SELESAI"),
-          gte(setorLangsung.createdAt, startDate),
-          lte(setorLangsung.createdAt, endDate),
+          gte(setorLangsung.createdAt, trendStartDate),
+          lte(setorLangsung.createdAt, trendEndDate),
         ),
       ),
     db
@@ -194,37 +177,74 @@ export default async function DashboardPage() {
       .where(
         and(
           eq(setorEkspedisi.status, "SELESAI"),
-          gte(setorEkspedisi.createdAt, startDate),
-          lte(setorEkspedisi.createdAt, endDate),
+          gte(setorEkspedisi.createdAt, trendStartDate),
+          lte(setorEkspedisi.createdAt, trendEndDate),
         ),
       ),
   ]);
 
-  const monthlyStats = last6Months.map((m) => {
-    const start = new Date(m.year, m.month, 1).getTime();
-    const end = new Date(m.year, m.month + 1, 0, 23, 59, 59).getTime();
+  const langsungSelesai = langsungSelesaiResult[0] || {
+    totalBerat: 0,
+    totalPoin: 0,
+  };
+  const ekspedisiSelesai = ekspedisiSelesaiResult[0] || {
+    totalBerat: 0,
+    totalPoin: 0,
+  };
 
-    let sum = 0;
+  // Kalkulasi data point chart trend (bulanan atau harian)
+  let chartLabels: string[];
+  let chartDataPoints: number[];
+
+  if (filterBulanTrend === "ALL") {
+    const monthsList = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "Mei",
+      "Jun",
+      "Jul",
+      "Agu",
+      "Sep",
+      "Okt",
+      "Nov",
+      "Des",
+    ];
+    chartLabels = monthsList;
+    chartDataPoints = Array.from({ length: 12 }, () => 0);
+
     for (const s of langsungPeriod) {
       if (s.createdAt) {
-        const time = new Date(s.createdAt).getTime();
-        if (time >= start && time <= end) {
-          sum += s.beratAktual || 0;
-        }
+        const d = new Date(s.createdAt);
+        chartDataPoints[d.getMonth()] += s.beratAktual || 0;
       }
     }
     for (const s of ekspedisiPeriod) {
       if (s.createdAt) {
-        const time = new Date(s.createdAt).getTime();
-        if (time >= start && time <= end) {
-          sum += s.beratAktual || 0;
-        }
+        const d = new Date(s.createdAt);
+        chartDataPoints[d.getMonth()] += s.beratAktual || 0;
       }
     }
-    return sum;
-  });
+  } else {
+    const totalDays = trendEndDate.getDate();
+    chartLabels = Array.from({ length: totalDays }, (_, i) => String(i + 1));
+    chartDataPoints = Array.from({ length: totalDays }, () => 0);
 
-  const setoranSelesai = [...langsungSelesai, ...ekspedisiSelesai];
+    for (const s of langsungPeriod) {
+      if (s.createdAt) {
+        const d = new Date(s.createdAt);
+        chartDataPoints[d.getDate() - 1] += s.beratAktual || 0;
+      }
+    }
+    for (const s of ekspedisiPeriod) {
+      if (s.createdAt) {
+        const d = new Date(s.createdAt);
+        chartDataPoints[d.getDate() - 1] += s.beratAktual || 0;
+      }
+    }
+  }
+
   const recentActivities = [
     ...recentLangsung.map((a) => ({ ...a, jenisSetor: "LANGSUNG" as const })),
     ...recentEkspedisi.map((a) => ({ ...a, jenisSetor: "EKSPEDISI" as const })),
@@ -234,36 +254,31 @@ export default async function DashboardPage() {
         new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
     )
     .slice(0, 5);
-  const plastikStats = {
-    _sum: {
-      beratAktual:
-        (plastikLangsung._sum.beratAktual || 0) +
-        (plastikEkspedisi._sum.beratAktual || 0),
-    },
-  };
-  const kartonStats = {
-    _sum: {
-      beratAktual:
-        (kartonLangsung._sum.beratAktual || 0) +
-        (kartonEkspedisi._sum.beratAktual || 0),
-    },
-  };
-  const paperCupStats = {
-    _sum: {
-      beratAktual:
-        (paperCupLangsung._sum.beratAktual || 0) +
-        (paperCupEkspedisi._sum.beratAktual || 0),
-    },
+
+  const getSumForType = (type: string) => {
+    const sumLangsung =
+      langsungComposition.find((c) => c.jenisSampah === type)?.sum ?? 0;
+    const sumEkspedisi =
+      ekspedisiComposition.find((c) => c.jenisSampah === type)?.sum ?? 0;
+    return sumLangsung + sumEkspedisi;
   };
 
-  const totalSampah = setoranSelesai.reduce(
-    (acc, s) => acc + (s.beratAktual || 0),
-    0,
-  );
-  const totalPayout = setoranSelesai.reduce(
-    (acc, s) => acc + (s.totalPoin || 0),
-    0,
-  );
+  const plastikKg = getSumForType("PLASTIK");
+  const kartonKg = getSumForType("KARTON");
+  const paperCupKg = getSumForType("PAPER_CUP");
+  const totalTipe = plastikKg + kartonKg + paperCupKg;
+
+  const plastikPersen =
+    totalTipe > 0 ? ((plastikKg / totalTipe) * 100).toFixed(1) : "0.0";
+  const kartonPersen =
+    totalTipe > 0 ? ((kartonKg / totalTipe) * 100).toFixed(1) : "0.0";
+  const paperCupPersen =
+    totalTipe > 0 ? ((paperCupKg / totalTipe) * 100).toFixed(1) : "0.0";
+
+  const totalSampah =
+    (langsungSelesai.totalBerat ?? 0) + (ekspedisiSelesai.totalBerat ?? 0);
+  const totalPayout =
+    (langsungSelesai.totalPoin ?? 0) + (ekspedisiSelesai.totalPoin ?? 0);
 
   const stats = [
     {
@@ -351,38 +366,94 @@ export default async function DashboardPage() {
       {/* Charts Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Main Chart */}
-        <div className="bg-white rounded-2xl border border-zinc-200 p-6 shadow-sm">
-          <div className="flex items-center justify-between mb-6">
-            <div>
+        <div className="bg-white rounded-2xl border border-zinc-200 p-6 shadow-sm flex flex-col">
+          <div>
+            <div className="flex items-center justify-between gap-4 mb-1">
               <h3 className="text-lg font-bold text-zinc-900 tracking-tight">
                 Tren Setoran
               </h3>
-              <p className="text-xs text-zinc-400">
-                Statistik 6 bulan terakhir
-              </p>
+              <TrendFilters
+                currentYear={filterTahunTrend}
+                currentMonth={filterBulanTrend}
+              />
             </div>
-            <TrendingUp className="w-5 h-5 text-primary/20" />
+            <p className="text-xs text-zinc-400 mb-6">
+              {filterBulanTrend === "ALL"
+                ? `Statistik setoran bulanan tahun ${filterTahunTrend}`
+                : `Statistik setoran harian bulan ${
+                    [
+                      "Januari",
+                      "Februari",
+                      "Maret",
+                      "April",
+                      "Mei",
+                      "Juni",
+                      "Juli",
+                      "Agustus",
+                      "September",
+                      "Oktober",
+                      "November",
+                      "Desember",
+                    ][Number(filterBulanTrend)]
+                  } ${filterTahunTrend}`}
+            </p>
           </div>
-          <WasteLineChart
-            labels={last6Months.map((m) => m.label)}
-            data={monthlyStats}
-          />
+          <div className="flex-1 flex items-center w-full">
+            <WasteLineChart labels={chartLabels} data={chartDataPoints} />
+          </div>
         </div>
 
         {/* Distribution Chart */}
-        <div className="bg-white rounded-2xl border border-zinc-200 p-6 shadow-sm">
-          <h3 className="text-lg font-bold text-zinc-900 tracking-tight mb-1">
-            Komposisi Sampah
-          </h3>
-          <p className="text-xs text-zinc-400 mb-6">
-            Perbandingan berat plastik, karton, & paper cup
-          </p>
-          <div className="flex items-center justify-center py-4">
-            <WasteTypeChart
-              plastik={plastikStats._sum.beratAktual || 0}
-              karton={kartonStats._sum.beratAktual || 0}
-              paperCup={paperCupStats._sum.beratAktual || 0}
-            />
+        <div className="bg-white rounded-2xl border border-zinc-200 p-6 shadow-sm flex flex-col">
+          <div>
+            <div className="flex items-center justify-between mb-1">
+              <h3 className="text-lg font-bold text-zinc-900 tracking-tight">
+                Komposisi Sampah
+              </h3>
+              <CompFilters currentYear={filterTahunKomposisi} />
+            </div>
+            <p className="text-xs text-zinc-400 mb-6">
+              Perbandingan berat plastik, karton, & paper cup tahun{" "}
+              {filterTahunKomposisi}
+            </p>
+          </div>
+          <div className="flex-1 flex flex-col sm:flex-row items-center gap-8 justify-center py-2 w-full">
+            <div className="w-40 h-40 shrink-0">
+              <WasteTypeChart
+                plastik={plastikKg}
+                karton={kartonKg}
+                paperCup={paperCupKg}
+              />
+            </div>
+            <div className="flex flex-col gap-2.5 text-xs font-bold text-zinc-600 w-full max-w-[200px]">
+              <div className="flex items-center justify-between p-2 rounded-xl bg-red-50/50 border border-red-100/50">
+                <div className="flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full bg-red-600" />
+                  <span className="text-red-700">Plastik</span>
+                </div>
+                <span className="text-red-800">
+                  {plastikKg.toFixed(1)} kg ({plastikPersen}%)
+                </span>
+              </div>
+              <div className="flex items-center justify-between p-2 rounded-xl bg-orange-50/50 border border-orange-100/50">
+                <div className="flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full bg-orange-400" />
+                  <span className="text-orange-700">Karton</span>
+                </div>
+                <span className="text-orange-800">
+                  {kartonKg.toFixed(1)} kg ({kartonPersen}%)
+                </span>
+              </div>
+              <div className="flex items-center justify-between p-2 rounded-xl bg-blue-50/50 border border-blue-100/50">
+                <div className="flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full bg-blue-500" />
+                  <span className="text-blue-700">Paper Cup</span>
+                </div>
+                <span className="text-blue-800">
+                  {paperCupKg.toFixed(1)} kg ({paperCupPersen}%)
+                </span>
+              </div>
+            </div>
           </div>
         </div>
       </div>

@@ -1,6 +1,6 @@
 "use server";
 
-import { desc, eq, sql } from "drizzle-orm";
+import { desc, eq, inArray, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { getSession } from "@/app/login/auth/session";
 import { db } from "@/lib/db";
@@ -425,19 +425,37 @@ export async function batchVerifikasiSetorEkspedisi(ids: string[]) {
       ),
   });
 
+  const aiValidIds = setoranList
+    .filter((s) => s.statusValidasi === "VALID")
+    .map((s) => s.id);
+  const manualValidIds = setoranList
+    .filter((s) => s.statusValidasi !== "VALID")
+    .map((s) => s.id);
+
   await db.transaction(async (tx) => {
-    for (const setor of setoranList) {
-      const isAiValid = setor.statusValidasi === "VALID";
+    if (aiValidIds.length > 0) {
       await tx
         .update(setorEkspedisi)
         .set({
           status: "TERVERIFIKASI",
           catatanAdmin: null,
-          verifiedBy: isAiValid ? "Sistem (AI)" : `Otomatis oleh ${name}`,
+          verifiedBy: "Sistem (AI)",
           verifikasiAt: now,
           updatedAt: now,
         })
-        .where(eq(setorEkspedisi.id, setor.id));
+        .where(inArray(setorEkspedisi.id, aiValidIds));
+    }
+    if (manualValidIds.length > 0) {
+      await tx
+        .update(setorEkspedisi)
+        .set({
+          status: "TERVERIFIKASI",
+          catatanAdmin: null,
+          verifiedBy: `Otomatis oleh ${name}`,
+          verifikasiAt: now,
+          updatedAt: now,
+        })
+        .where(inArray(setorEkspedisi.id, manualValidIds));
     }
   });
 

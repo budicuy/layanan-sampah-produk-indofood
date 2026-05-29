@@ -23,38 +23,42 @@ export async function getSetorSampahHistory(
     throw new Error("Nasabah profile not found");
   }
 
-  // Fetch overall statistics for the cards
-  const [langsungStats, ekspedisiStats] = await Promise.all([
+  // Fetch overall statistics for the cards using SQL aggregation
+  const [langsungStatsResult, ekspedisiStatsResult] = await Promise.all([
     db
       .select({
-        beratEstimasi: setorLangsung.beratEstimasi,
-        beratAktual: setorLangsung.beratAktual,
-        totalPoin: setorLangsung.totalPoin,
+        count: sql<number>`count(*)::int`,
+        totalPoin: sql<number>`sum(coalesce("totalPoin", 0))::int`,
+        totalBerat: sql<number>`sum(coalesce("beratAktual", "beratEstimasi"))::float8`,
       })
       .from(setorLangsung)
       .where(eq(setorLangsung.nasabahId, nasabahData.id)),
     db
       .select({
-        beratEstimasi: setorEkspedisi.beratEstimasi,
-        beratAktual: setorEkspedisi.beratAktual,
-        totalPoin: setorEkspedisi.totalPoin,
+        count: sql<number>`count(*)::int`,
+        totalPoin: sql<number>`sum(coalesce("totalPoin", 0))::int`,
+        totalBerat: sql<number>`sum(coalesce("beratAktual", "beratEstimasi"))::float8`,
       })
       .from(setorEkspedisi)
       .where(eq(setorEkspedisi.nasabahId, nasabahData.id)),
   ]);
 
-  const totalSetoran = langsungStats.length + ekspedisiStats.length;
-  let totalPoin = 0;
-  let totalBerat = 0;
+  const langsungStats = langsungStatsResult[0] || {
+    count: 0,
+    totalPoin: 0,
+    totalBerat: 0,
+  };
+  const ekspedisiStats = ekspedisiStatsResult[0] || {
+    count: 0,
+    totalPoin: 0,
+    totalBerat: 0,
+  };
 
-  for (const s of langsungStats) {
-    totalPoin += s.totalPoin ?? 0;
-    totalBerat += s.beratAktual ?? s.beratEstimasi;
-  }
-  for (const s of ekspedisiStats) {
-    totalPoin += s.totalPoin ?? 0;
-    totalBerat += s.beratAktual ?? s.beratEstimasi;
-  }
+  const totalSetoran = (langsungStats.count ?? 0) + (ekspedisiStats.count ?? 0);
+  const totalPoin =
+    (langsungStats.totalPoin ?? 0) + (ekspedisiStats.totalPoin ?? 0);
+  const totalBerat =
+    (langsungStats.totalBerat ?? 0) + (ekspedisiStats.totalBerat ?? 0);
 
   // Fetch paginated history list
   let data: {

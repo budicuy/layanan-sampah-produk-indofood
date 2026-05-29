@@ -34,6 +34,7 @@ interface RawMaterialData {
 
 export default function RawMaterialPage() {
   const [materials, setMaterials] = useState<RawMaterialData[]>([]);
+  const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -58,19 +59,49 @@ export default function RawMaterialPage() {
   });
   const [submittingAdd, setSubmittingAdd] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [filterKategori, setFilterKategori] = useState<string>("ALL");
+  const [filterKlasifikasi, setFilterKlasifikasi] = useState<string>("ALL");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize] = useState(10);
+  const [_refreshTrigger, setRefreshTrigger] = useState(0);
+
+  const triggerRefresh = () => setRefreshTrigger((prev) => prev + 1);
+
+  const handleSearchChange = (val: string) => {
+    setSearchTerm(val);
+    setCurrentPage(1);
+  };
+
+  const handleKategoriChange = (val: string) => {
+    setFilterKategori(val);
+    setCurrentPage(1);
+  };
+
+  const handleKlasifikasiChange = (val: string) => {
+    setFilterKlasifikasi(val);
+    setCurrentPage(1);
+  };
 
   const fetchMaterials = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await getRawMaterials();
-      setMaterials(data as unknown as RawMaterialData[]);
+      const res = await getRawMaterials({
+        page: currentPage,
+        pageSize,
+        searchTerm,
+        filterKategori,
+        filterKlasifikasi,
+      });
+      const result = res as { data: RawMaterialData[]; total: number };
+      setMaterials(result.data);
+      setTotal(result.total);
     } catch (error) {
       console.error(error);
       toast.error("Gagal mengambil data raw material");
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [currentPage, pageSize, searchTerm, filterKategori, filterKlasifikasi]);
 
   useEffect(() => {
     fetchMaterials();
@@ -106,7 +137,7 @@ export default function RawMaterialPage() {
       if (res.success) {
         toast.success("Master data raw material berhasil disimpan!");
         setIsAddModalOpen(false);
-        await fetchMaterials();
+        triggerRefresh();
       }
     } catch (error) {
       console.error(error);
@@ -137,7 +168,7 @@ export default function RawMaterialPage() {
       if (res.success) {
         toast.success("Berat raw material berhasil diperbarui!");
         setIsEditModalOpen(false);
-        await fetchMaterials();
+        triggerRefresh();
       }
     } catch (error) {
       console.error(error);
@@ -160,7 +191,7 @@ export default function RawMaterialPage() {
       if (res.success) {
         toast.success("Baris raw material berhasil dihapus!");
         setIsDeleteModalOpen(false);
-        await fetchMaterials();
+        triggerRefresh();
       }
     } catch (error) {
       console.error(error);
@@ -175,23 +206,20 @@ export default function RawMaterialPage() {
     });
   };
 
-  // Filter & Process Grouping dynamically
-  const filteredMaterials = materials.filter(
-    (m) =>
-      m.kategori.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      m.klasifikasi.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      getPeriodName(m.periode).toLowerCase().includes(searchTerm.toLowerCase()),
-  );
+  const totalPages = Math.ceil(total / pageSize);
 
-  // Grouping variables for rendering
-  let currentPeriodName = "";
-  let periodCounter = 0;
-
-  const processedMaterials = filteredMaterials.map((m) => {
+  // Grouping/Rendering variables per page:
+  let periodCounter = (currentPage - 1) * pageSize;
+  const paginatedProcessedMaterials = materials.map((m, index) => {
+    const isFirstInPage = index === 0;
+    const prevItem = index > 0 ? materials[index - 1] : null;
     const periodName = getPeriodName(m.periode);
-    const isFirstInPeriod = periodName !== currentPeriodName;
+    const isFirstInPeriod =
+      isFirstInPage ||
+      (prevItem
+        ? getPeriodName(m.periode) !== getPeriodName(prevItem.periode)
+        : true);
     if (isFirstInPeriod) {
-      currentPeriodName = periodName;
       periodCounter++;
     }
     return {
@@ -239,69 +267,100 @@ export default function RawMaterialPage() {
 
       {/* Table Section */}
       <div className="bg-white rounded-3xl border border-zinc-100 shadow-sm overflow-hidden">
-        <div className="p-5 md:p-8 border-b border-zinc-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="p-5 md:p-8 border-b border-zinc-100 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <h3 className="text-xl font-bold text-zinc-900 font-heading">
             Daftar Berat Standar
           </h3>
-          <div className="flex items-center gap-3">
-            <div className="relative w-full md:w-auto">
+          <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
+            <div className="relative flex-1 lg:flex-none">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 w-4 h-4" />
               <input
                 type="text"
                 placeholder="Cari kategori, klasifikasi, periode..."
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 pr-4 py-2.5 text-sm bg-zinc-50 border-none rounded-xl focus:ring-2 focus:ring-orange-500/20 w-full md:w-72 focus:outline-none"
+                onChange={(e) => handleSearchChange(e.target.value)}
+                className="pl-10 pr-4 py-2.5 text-sm bg-zinc-50 border-none rounded-xl focus:ring-2 focus:ring-orange-500/20 w-full lg:w-72 focus:outline-none"
               />
             </div>
+            <select
+              value={filterKategori}
+              onChange={(e) => handleKategoriChange(e.target.value)}
+              className="px-3 py-2 bg-zinc-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-orange-500/20 text-zinc-700 font-medium cursor-pointer">
+              <option value="ALL">Semua Kategori</option>
+              <option value="Etiket">Etiket</option>
+              <option value="Karton">Karton</option>
+              <option value="Cup">Cup</option>
+            </select>
+            <select
+              value={filterKlasifikasi}
+              onChange={(e) => handleKlasifikasiChange(e.target.value)}
+              className="px-3 py-2 bg-zinc-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-orange-500/20 text-zinc-700 font-medium cursor-pointer">
+              <option value="ALL">Semua Klasifikasi</option>
+              <option value="NN">Normal Noodle (NN)</option>
+              <option value="GN">Glass Noodle (GN)</option>
+              <option value="CN">Cup Noodle (CN)</option>
+            </select>
           </div>
         </div>
 
-        {loading ? (
-          <div className="flex flex-col items-center justify-center py-20 text-zinc-400 gap-2">
-            <RefreshCw className="w-8 h-8 animate-spin" />
-            <p className="text-sm font-medium">Memuat data raw material...</p>
-          </div>
-        ) : processedMaterials.length === 0 ? (
-          <div className="text-center py-20 text-zinc-400">
-            <Layers className="w-12 h-12 text-zinc-300 mx-auto mb-3" />
-            <p className="text-sm font-bold text-zinc-500">
-              Tidak ada data ditemukan
-            </p>
-            <p className="text-xs text-zinc-400 mt-1">
-              Coba input data baru atau ubah kata kunci pencarian Anda.
-            </p>
-          </div>
-        ) : (
-          <div className="overflow-x-auto w-full">
-            <table className="w-full text-left border-collapse whitespace-nowrap">
-              <thead>
-                <tr className="bg-zinc-50/50 border-b border-zinc-100">
-                  <th className="px-6 py-4 text-xs font-bold text-zinc-400 uppercase tracking-widest text-center w-16">
-                    No
-                  </th>
-                  <th className="px-6 py-4 text-xs font-bold text-zinc-400 uppercase tracking-widest">
-                    Periode
-                  </th>
-                  <th className="px-6 py-4 text-xs font-bold text-zinc-400 uppercase tracking-widest">
-                    Kategori
-                  </th>
-                  <th className="px-6 py-4 text-xs font-bold text-zinc-400 uppercase tracking-widest">
-                    Klasifikasi
-                  </th>
-                  <th className="px-6 py-4 text-xs font-bold text-zinc-400 uppercase tracking-widest">
-                    Berat (gr)
-                  </th>
-                  <th className="px-6 py-4 text-xs font-bold text-zinc-400 uppercase tracking-widest">
-                    Berat (kg)
-                  </th>
-                  <th className="px-6 py-4 text-xs font-bold text-zinc-400 uppercase tracking-widest text-center w-32">
-                    Action
-                  </th>
+        <div className="overflow-x-auto w-full">
+          <table className="w-full text-left border-collapse whitespace-nowrap">
+            <thead>
+              <tr className="bg-zinc-50/50 border-b border-zinc-100">
+                <th className="px-6 py-4 text-xs font-bold text-zinc-400 uppercase tracking-widest text-center w-16">
+                  No
+                </th>
+                <th className="px-6 py-4 text-xs font-bold text-zinc-400 uppercase tracking-widest">
+                  Periode
+                </th>
+                <th className="px-6 py-4 text-xs font-bold text-zinc-400 uppercase tracking-widest">
+                  Kategori
+                </th>
+                <th className="px-6 py-4 text-xs font-bold text-zinc-400 uppercase tracking-widest">
+                  Klasifikasi
+                </th>
+                <th className="px-6 py-4 text-xs font-bold text-zinc-400 uppercase tracking-widest">
+                  Berat (gr)
+                </th>
+                <th className="px-6 py-4 text-xs font-bold text-zinc-400 uppercase tracking-widest">
+                  Berat (kg)
+                </th>
+                <th className="px-6 py-4 text-xs font-bold text-zinc-400 uppercase tracking-widest text-center w-32">
+                  Action
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-zinc-50">
+              {loading ? (
+                <tr>
+                  <td
+                    colSpan={7}
+                    className="px-6 py-12 text-center text-zinc-500">
+                    <div className="flex justify-center items-center gap-2">
+                      <RefreshCw className="w-5 h-5 animate-spin text-primary" />
+                      <span>Memuat data raw material...</span>
+                    </div>
+                  </td>
                 </tr>
-              </thead>
-              <tbody className="divide-y divide-zinc-50">
-                {processedMaterials.map((m) => (
+              ) : materials.length === 0 ? (
+                <tr>
+                  <td
+                    colSpan={7}
+                    className="px-6 py-12 text-center text-zinc-500">
+                    <div className="text-center py-6 text-zinc-400">
+                      <Layers className="w-12 h-12 text-zinc-300 mx-auto mb-3" />
+                      <p className="text-sm font-bold text-zinc-500">
+                        Tidak ada data ditemukan
+                      </p>
+                      <p className="text-xs text-zinc-400 mt-1">
+                        Coba input data baru atau ubah kata kunci pencarian
+                        Anda.
+                      </p>
+                    </div>
+                  </td>
+                </tr>
+              ) : (
+                paginatedProcessedMaterials.map((m) => (
                   <tr
                     key={m.id}
                     className="hover:bg-zinc-50/30 transition-colors">
@@ -355,9 +414,58 @@ export default function RawMaterialPage() {
                       </div>
                     </td>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Pagination Footer */}
+        {!loading && totalPages > 1 && (
+          <div className="p-5 md:p-8 border-t border-zinc-100 flex flex-col sm:flex-row items-center justify-between gap-4 bg-zinc-50/30">
+            <p className="text-sm text-zinc-500">
+              Menampilkan{" "}
+              <span className="font-bold text-zinc-700">
+                {paginatedProcessedMaterials.length}
+              </span>{" "}
+              dari <span className="font-bold text-zinc-700">{total}</span>{" "}
+              baris standar
+            </p>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                disabled={currentPage === 1}
+                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                className="px-4 py-2 bg-white border border-zinc-200 rounded-xl text-sm font-semibold text-zinc-700 hover:bg-zinc-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                Sebelumnya
+              </button>
+              <div className="flex items-center gap-1">
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                  (page) => (
+                    <button
+                      key={page}
+                      type="button"
+                      onClick={() => setCurrentPage(page)}
+                      className={`w-9 h-9 flex items-center justify-center rounded-xl text-sm font-semibold transition-all ${
+                        currentPage === page
+                          ? "bg-primary text-white shadow-md shadow-primary/20"
+                          : "bg-white border border-zinc-200 text-zinc-700 hover:bg-zinc-50"
+                      }`}>
+                      {page}
+                    </button>
+                  ),
+                )}
+              </div>
+              <button
+                type="button"
+                disabled={currentPage === totalPages}
+                onClick={() =>
+                  setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                }
+                className="px-4 py-2 bg-white border border-zinc-200 rounded-xl text-sm font-semibold text-zinc-700 hover:bg-zinc-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                Selanjutnya
+              </button>
+            </div>
           </div>
         )}
       </div>

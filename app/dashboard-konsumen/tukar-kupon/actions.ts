@@ -1,6 +1,6 @@
 "use server";
 
-import { eq, sql } from "drizzle-orm";
+import { and, eq, gte, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { getSession } from "@/app/login/auth/session";
 import { db } from "@/lib/db";
@@ -67,11 +67,18 @@ export async function redeemCoupon(tierId: string) {
   const couponCode = `SCN-${generateSegment()}-${generateSegment()}`;
 
   await db.transaction(async (tx) => {
-    // Deduct points
-    await tx
+    // Deduct points (with point safeguard for race conditions)
+    const updated = await tx
       .update(nasabah)
       .set({ poin: sql`poin - ${tier.poinMin}`, updatedAt: new Date() })
-      .where(eq(nasabah.id, nasabahData.id));
+      .where(
+        and(eq(nasabah.id, nasabahData.id), gte(nasabah.poin, tier.poinMin)),
+      )
+      .returning();
+
+    if (updated.length === 0) {
+      throw new Error("Poin Anda tidak mencukupi untuk melakukan penukaran");
+    }
 
     // Create Coupon record
     await tx.insert(kupon).values({

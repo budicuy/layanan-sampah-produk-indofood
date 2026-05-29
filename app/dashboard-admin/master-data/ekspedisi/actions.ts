@@ -1,6 +1,6 @@
 "use server";
 
-import { desc, eq } from "drizzle-orm";
+import { and, desc, eq, ilike, or, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { getSession } from "@/app/login/auth/session";
 import { db } from "@/lib/db";
@@ -69,11 +69,61 @@ export async function deleteEkpedisi(id: string) {
   }
 }
 
-export async function getEkpedisiData() {
+export async function getEkpedisiData(params?: {
+  page?: number;
+  pageSize?: number;
+  searchTerm?: string;
+}) {
   await checkAdminAuth();
+
+  if (!params) {
+    const data = await db
+      .select()
+      .from(ekpedisi)
+      .orderBy(desc(ekpedisi.updatedAt));
+    return { ekpedisi: data, total: data.length, totalRecords: data.length };
+  }
+
+  const { page = 1, pageSize = 10, searchTerm } = params;
+  const offset = (page - 1) * pageSize;
+
+  const conditions = [];
+
+  if (searchTerm && searchTerm.trim() !== "") {
+    const term = `%${searchTerm.trim()}%`;
+    conditions.push(
+      or(
+        ilike(ekpedisi.nama, term),
+        ilike(ekpedisi.alamat, term),
+        ilike(ekpedisi.noTelp, term),
+      ),
+    );
+  }
+
+  const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+
+  const [statsRes] = await db
+    .select({ total: sql<number>`count(*)` })
+    .from(ekpedisi);
+
+  const [countRes] = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(ekpedisi)
+    .where(whereClause);
+
+  const totalFiltered = Number(countRes?.count || 0);
+
   const data = await db
     .select()
     .from(ekpedisi)
-    .orderBy(desc(ekpedisi.updatedAt));
-  return { ekpedisi: data };
+    .where(whereClause)
+    .orderBy(desc(ekpedisi.updatedAt))
+    .limit(pageSize)
+    .offset(offset);
+
+  return {
+    ekpedisi: data,
+    total: totalFiltered,
+    totalRecords: Number(statsRes?.total || 0),
+  };
 }

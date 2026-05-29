@@ -2,7 +2,6 @@
 
 import {
   Edit2,
-  Filter,
   MapPin,
   Phone,
   Plus,
@@ -28,11 +27,9 @@ export type EkpedisiData = {
 };
 
 export default function EkpedisiPage() {
-  const [data, setData] = useState<{
-    ekpedisi: EkpedisiData[];
-  }>({
-    ekpedisi: [],
-  });
+  const [data, setData] = useState<EkpedisiData[]>([]);
+  const [total, setTotal] = useState(0);
+  const [totalRecords, setTotalRecords] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -40,32 +37,32 @@ export default function EkpedisiPage() {
     null,
   );
   const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize] = useState(10);
+  const [_refreshTrigger, setRefreshTrigger] = useState(0);
+
+  const triggerRefresh = () => setRefreshTrigger((prev) => prev + 1);
 
   useEffect(() => {
-    getEkpedisiData().then((res) => {
-      setData({
-        ekpedisi: res.ekpedisi as EkpedisiData[],
-      });
+    setIsLoading(true);
+    getEkpedisiData({
+      page: currentPage,
+      pageSize,
+      searchTerm,
+    }).then((res) => {
+      setData(res.ekpedisi as EkpedisiData[]);
+      setTotal(res.total);
+      setTotalRecords(res.totalRecords);
       setIsLoading(false);
     });
-  }, []);
+  }, [currentPage, pageSize, searchTerm]);
 
-  const initialData = data.ekpedisi;
+  const handleSearchChange = (val: string) => {
+    setSearchTerm(val);
+    setCurrentPage(1);
+  };
 
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
-
-  const filteredData = initialData.filter(
-    (e: EkpedisiData) =>
-      e.nama.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      e.alamat.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      e.noTelp.includes(searchTerm),
-  );
+  const totalPages = Math.ceil(total / pageSize);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -92,11 +89,7 @@ export default function EkpedisiPage() {
       }
     }
 
-    // Refetch data after action completes
-    const updatedData = await getEkpedisiData();
-    setData({
-      ekpedisi: updatedData.ekpedisi as EkpedisiData[],
-    });
+    triggerRefresh();
     closeModal();
   };
 
@@ -109,11 +102,7 @@ export default function EkpedisiPage() {
         toast.error(res.error || "Gagal menghapus ekpedisi");
       }
 
-      // Refetch data after action completes
-      const updatedData = await getEkpedisiData();
-      setData({
-        ekpedisi: updatedData.ekpedisi as EkpedisiData[],
-      });
+      triggerRefresh();
       closeDeleteModal();
     }
   };
@@ -172,7 +161,7 @@ export default function EkpedisiPage() {
             </span>
           </div>
           <p className="text-3xl font-heading font-extrabold text-zinc-900">
-            {initialData.length}
+            {totalRecords}
           </p>
           <p className="text-xs text-zinc-500 mt-1">Seluruh Armada</p>
         </div>
@@ -183,22 +172,17 @@ export default function EkpedisiPage() {
           <h3 className="text-xl font-bold text-zinc-900 font-heading">
             Daftar Ekspedisi
           </h3>
-          <div className="flex items-center gap-3">
-            <div className="relative w-full md:w-auto">
+          <div className="flex items-center gap-3 w-full md:w-auto">
+            <div className="relative w-full md:w-auto flex-1 md:flex-none">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 w-4 h-4" />
               <input
                 type="text"
                 placeholder="Cari ekspedisi..."
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={(e) => handleSearchChange(e.target.value)}
                 className="pl-10 pr-4 py-2 bg-zinc-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-primary/20 w-full md:w-64"
               />
             </div>
-            <button
-              type="button"
-              className="p-2 bg-zinc-50 text-zinc-600 rounded-xl hover:bg-zinc-100 transition-colors">
-              <Filter size={20} />
-            </button>
           </div>
         </div>
 
@@ -221,7 +205,18 @@ export default function EkpedisiPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-zinc-100">
-              {filteredData.length === 0 ? (
+              {isLoading ? (
+                <tr>
+                  <td
+                    colSpan={5}
+                    className="px-4 md:px-8 py-12 text-center text-zinc-500">
+                    <div className="flex justify-center items-center gap-2">
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary"></div>
+                      <span>Memuat data...</span>
+                    </div>
+                  </td>
+                </tr>
+              ) : data.length === 0 ? (
                 <tr>
                   <td
                     colSpan={5}
@@ -230,7 +225,7 @@ export default function EkpedisiPage() {
                   </td>
                 </tr>
               ) : (
-                filteredData.map((e: EkpedisiData) => (
+                data.map((e: EkpedisiData) => (
                   <tr
                     key={e.id}
                     className="hover:bg-zinc-50/50 transition-colors group">
@@ -292,6 +287,53 @@ export default function EkpedisiPage() {
             </tbody>
           </table>
         </div>
+
+        {/* Pagination Footer */}
+        {totalPages > 1 && (
+          <div className="p-5 md:p-8 border-t border-zinc-100 flex flex-col sm:flex-row items-center justify-between gap-4 bg-zinc-50/30">
+            <p className="text-sm text-zinc-500">
+              Menampilkan{" "}
+              <span className="font-bold text-zinc-700">{data.length}</span>{" "}
+              dari <span className="font-bold text-zinc-700">{total}</span>{" "}
+              armada ekspedisi
+            </p>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                disabled={currentPage === 1}
+                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                className="px-4 py-2 bg-white border border-zinc-200 rounded-xl text-sm font-semibold text-zinc-700 hover:bg-zinc-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                Sebelumnya
+              </button>
+              <div className="flex items-center gap-1">
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                  (page) => (
+                    <button
+                      key={page}
+                      type="button"
+                      onClick={() => setCurrentPage(page)}
+                      className={`w-9 h-9 flex items-center justify-center rounded-xl text-sm font-semibold transition-all ${
+                        currentPage === page
+                          ? "bg-primary text-white shadow-md shadow-primary/20"
+                          : "bg-white border border-zinc-200 text-zinc-700 hover:bg-zinc-50"
+                      }`}>
+                      {page}
+                    </button>
+                  ),
+                )}
+              </div>
+              <button
+                type="button"
+                disabled={currentPage === totalPages}
+                onClick={() =>
+                  setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                }
+                className="px-4 py-2 bg-white border border-zinc-200 rounded-xl text-sm font-semibold text-zinc-700 hover:bg-zinc-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                Selanjutnya
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Form Modal */}

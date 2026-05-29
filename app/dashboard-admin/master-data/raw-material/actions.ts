@@ -1,6 +1,6 @@
 "use server";
 
-import { asc, desc, eq } from "drizzle-orm";
+import { and, asc, desc, eq, ilike, or, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { getSession } from "@/app/login/auth/session";
 import { db } from "@/lib/db";
@@ -13,19 +13,81 @@ async function checkAdminAuth() {
   }
 }
 
-export async function getRawMaterials() {
+export async function getRawMaterials(params?: {
+  page?: number;
+  pageSize?: number;
+  searchTerm?: string;
+  filterKategori?: string;
+  filterKlasifikasi?: string;
+}) {
   await checkAdminAuth();
 
-  const materials = await db
+  if (!params) {
+    const materials = await db
+      .select()
+      .from(rawMaterial)
+      .orderBy(
+        desc(rawMaterial.periode),
+        asc(rawMaterial.kategori),
+        asc(rawMaterial.klasifikasi),
+      );
+    return { data: materials, total: materials.length };
+  }
+
+  const {
+    page = 1,
+    pageSize = 10,
+    searchTerm,
+    filterKategori,
+    filterKlasifikasi,
+  } = params;
+  const offset = (page - 1) * pageSize;
+
+  const conditions = [];
+
+  if (searchTerm && searchTerm.trim() !== "") {
+    const term = `%${searchTerm.trim()}%`;
+    conditions.push(
+      or(
+        ilike(rawMaterial.kategori, term),
+        ilike(rawMaterial.klasifikasi, term),
+      ),
+    );
+  }
+
+  if (filterKategori && filterKategori !== "ALL") {
+    conditions.push(eq(rawMaterial.kategori, filterKategori));
+  }
+
+  if (filterKlasifikasi && filterKlasifikasi !== "ALL") {
+    conditions.push(eq(rawMaterial.klasifikasi, filterKlasifikasi));
+  }
+
+  const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+
+  const [countRes] = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(rawMaterial)
+    .where(whereClause);
+
+  const totalFiltered = Number(countRes?.count || 0);
+
+  const data = await db
     .select()
     .from(rawMaterial)
+    .where(whereClause)
     .orderBy(
       desc(rawMaterial.periode),
       asc(rawMaterial.kategori),
       asc(rawMaterial.klasifikasi),
-    );
+    )
+    .limit(pageSize)
+    .offset(offset);
 
-  return materials;
+  return {
+    data,
+    total: totalFiltered,
+  };
 }
 
 export async function createRawMaterials(
@@ -55,32 +117,30 @@ export async function createRawMaterials(
     { kategori: "Cup", klasifikasi: "CN", beratGr: weights.cupCN },
   ];
 
-  await db.transaction(async (tx) => {
-    for (const item of items) {
-      await tx
-        .insert(rawMaterial)
-        .values({
-          id: crypto.randomUUID(),
-          periode: periodDate,
-          kategori: item.kategori,
-          klasifikasi: item.klasifikasi,
-          beratGr: item.beratGr,
-          beratKg: item.beratGr / 1000,
-        })
-        .onConflictDoUpdate({
-          target: [
-            rawMaterial.periode,
-            rawMaterial.kategori,
-            rawMaterial.klasifikasi,
-          ],
-          set: {
-            beratGr: item.beratGr,
-            beratKg: item.beratGr / 1000,
-            updatedAt: new Date(),
-          },
-        });
-    }
-  });
+  await db
+    .insert(rawMaterial)
+    .values(
+      items.map((item) => ({
+        id: crypto.randomUUID(),
+        periode: periodDate,
+        kategori: item.kategori,
+        klasifikasi: item.klasifikasi,
+        beratGr: item.beratGr,
+        beratKg: item.beratGr / 1000,
+      })),
+    )
+    .onConflictDoUpdate({
+      target: [
+        rawMaterial.periode,
+        rawMaterial.kategori,
+        rawMaterial.klasifikasi,
+      ],
+      set: {
+        beratGr: sql`EXCLUDED."beratGr"`,
+        beratKg: sql`EXCLUDED."beratKg"`,
+        updatedAt: new Date(),
+      },
+    });
 
   revalidatePath("/dashboard-admin/master-data/raw-material");
   return { success: true };

@@ -5,7 +5,6 @@ import {
   CheckCircle2,
   CreditCard,
   Edit2,
-  Filter,
   MapPin,
   Phone,
   Plus,
@@ -44,11 +43,23 @@ export type Nasabah = {
 
 export default function NasabahPage() {
   const [data, setData] = useState<Nasabah[]>([]);
+  const [total, setTotal] = useState(0);
+  const [stats, setStats] = useState({
+    total: 0,
+    aktif: 0,
+    perorangan: 0,
+    warmiendo: 0,
+    bankSampah: 0,
+  });
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedNasabah, setSelectedNasabah] = useState<Nasabah | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [filterKategori, setFilterKategori] = useState<string>("ALL");
+  const [filterStatus, setFilterStatus] = useState<string>("ALL");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize] = useState(10);
   const [availableUsers, setAvailableUsers] = useState<
     { id: string; name: string; username: string }[]
   >([]);
@@ -59,6 +70,9 @@ export default function NasabahPage() {
     username: string;
   } | null>(null);
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
+  const [_refreshTrigger, setRefreshTrigger] = useState(0);
+
+  const triggerRefresh = () => setRefreshTrigger((prev) => prev + 1);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -72,27 +86,48 @@ export default function NasabahPage() {
   }, []);
 
   useEffect(() => {
-    getNasabahData().then((res) => {
-      setData(res as Nasabah[]);
+    setIsLoading(true);
+    getNasabahData({
+      page: currentPage,
+      pageSize,
+      searchTerm,
+      filterKategori,
+      filterStatus,
+    }).then((res) => {
+      const result = res as {
+        data: Nasabah[];
+        total: number;
+        stats: {
+          total: number;
+          aktif: number;
+          perorangan: number;
+          warmiendo: number;
+          bankSampah: number;
+        };
+      };
+      setData(result.data);
+      setTotal(result.total);
+      setStats(result.stats);
       setIsLoading(false);
     });
-  }, []);
+  }, [currentPage, pageSize, searchTerm, filterKategori, filterStatus]);
 
-  const initialData = data;
+  const handleSearchChange = (val: string) => {
+    setSearchTerm(val);
+    setCurrentPage(1);
+  };
 
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
+  const handleKategoriChange = (val: string) => {
+    setFilterKategori(val);
+    setCurrentPage(1);
+  };
 
-  const filteredData = initialData.filter(
-    (n) =>
-      n.user?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      n.nik.includes(searchTerm),
-  );
+  const handleStatusChange = (val: string) => {
+    setFilterStatus(val);
+    setCurrentPage(1);
+  };
+
+  const totalPages = Math.ceil(total / pageSize);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -123,9 +158,7 @@ export default function NasabahPage() {
       toast.success("Data nasabah berhasil ditambahkan!");
     }
 
-    // Refetch data after action completes
-    const updatedData = await getNasabahData();
-    setData(updatedData as Nasabah[]);
+    triggerRefresh();
     closeModal();
   };
 
@@ -133,10 +166,7 @@ export default function NasabahPage() {
     if (selectedNasabah) {
       await deleteNasabah(selectedNasabah.id);
       toast.success("Data nasabah berhasil dihapus!");
-
-      // Refetch data after action completes
-      const updatedData = await getNasabahData();
-      setData(updatedData as Nasabah[]);
+      triggerRefresh();
       closeDeleteModal();
     }
   };
@@ -208,7 +238,7 @@ export default function NasabahPage() {
             </span>
           </div>
           <p className="text-3xl font-heading font-extrabold text-zinc-900">
-            {initialData.length}
+            {stats.total}
           </p>
           <p className="text-xs text-zinc-500 mt-1">Seluruh Nasabah</p>
         </div>
@@ -224,7 +254,7 @@ export default function NasabahPage() {
             </span>
           </div>
           <p className="text-3xl font-heading font-extrabold text-green-600">
-            {initialData.filter((n) => n.status === "AKTIF").length}
+            {stats.aktif}
           </p>
           <p className="text-xs text-zinc-500 mt-1">Nasabah Aktif</p>
         </div>
@@ -240,7 +270,7 @@ export default function NasabahPage() {
             </span>
           </div>
           <p className="text-3xl font-heading font-extrabold text-zinc-900">
-            {initialData.filter((n) => n.kategori === "PERORANGAN").length}
+            {stats.perorangan}
           </p>
           <p className="text-xs text-zinc-500 mt-1">Kategori Perorangan</p>
         </div>
@@ -256,7 +286,7 @@ export default function NasabahPage() {
             </span>
           </div>
           <p className="text-3xl font-heading font-extrabold text-zinc-900">
-            {initialData.filter((n) => n.kategori === "WARMIENDO").length}
+            {stats.warmiendo}
           </p>
           <p className="text-xs text-zinc-500 mt-1">Mitra Warmiendo</p>
         </div>
@@ -272,33 +302,45 @@ export default function NasabahPage() {
             </span>
           </div>
           <p className="text-3xl font-heading font-extrabold text-zinc-900">
-            {initialData.filter((n) => n.kategori === "BANK_SAMPAH").length}
+            {stats.bankSampah}
           </p>
           <p className="text-xs text-zinc-500 mt-1">Unit SICUAN</p>
         </div>
       </div>
 
       <div className="bg-white rounded-[24px] md:rounded-[32px] border border-zinc-100 shadow-sm overflow-hidden">
-        <div className="p-5 md:p-8 border-b border-zinc-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="p-5 md:p-8 border-b border-zinc-100 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <h3 className="text-xl font-bold text-zinc-900 font-heading">
             Daftar Nasabah
           </h3>
-          <div className="flex items-center gap-3">
-            <div className="relative w-full md:w-auto">
+          <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
+            <div className="relative flex-1 lg:flex-none">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 w-4 h-4" />
               <input
                 type="text"
                 placeholder="Cari nasabah..."
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 pr-4 py-2 bg-zinc-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-primary/20 w-full md:w-64"
+                onChange={(e) => handleSearchChange(e.target.value)}
+                className="pl-10 pr-4 py-2 bg-zinc-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-primary/20 w-full lg:w-64"
               />
             </div>
-            <button
-              type="button"
-              className="p-2 bg-zinc-50 text-zinc-600 rounded-xl hover:bg-zinc-100 transition-colors">
-              <Filter size={20} />
-            </button>
+            <select
+              value={filterKategori}
+              onChange={(e) => handleKategoriChange(e.target.value)}
+              className="px-3 py-2 bg-zinc-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-primary/20 text-zinc-700 font-medium cursor-pointer">
+              <option value="ALL">Semua Kategori</option>
+              <option value="PERORANGAN">Perorangan</option>
+              <option value="BANK_SAMPAH">SICUAN</option>
+              <option value="WARMIENDO">Warmiendo</option>
+            </select>
+            <select
+              value={filterStatus}
+              onChange={(e) => handleStatusChange(e.target.value)}
+              className="px-3 py-2 bg-zinc-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-primary/20 text-zinc-700 font-medium cursor-pointer">
+              <option value="ALL">Semua Status</option>
+              <option value="AKTIF">Aktif</option>
+              <option value="NONAKTIF">Nonaktif</option>
+            </select>
           </div>
         </div>
 
@@ -330,7 +372,18 @@ export default function NasabahPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-zinc-100">
-              {filteredData.length === 0 ? (
+              {isLoading ? (
+                <tr>
+                  <td
+                    colSpan={7}
+                    className="px-4 md:px-8 py-12 text-center text-zinc-500">
+                    <div className="flex justify-center items-center gap-2">
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary"></div>
+                      <span>Memuat data...</span>
+                    </div>
+                  </td>
+                </tr>
+              ) : data.length === 0 ? (
                 <tr>
                   <td
                     colSpan={7}
@@ -339,7 +392,7 @@ export default function NasabahPage() {
                   </td>
                 </tr>
               ) : (
-                filteredData.map((n) => (
+                data.map((n) => (
                   <tr
                     key={n.id}
                     className="hover:bg-zinc-50/50 transition-colors group">
@@ -449,6 +502,53 @@ export default function NasabahPage() {
             </tbody>
           </table>
         </div>
+
+        {/* Pagination Footer */}
+        {totalPages > 1 && (
+          <div className="p-5 md:p-8 border-t border-zinc-100 flex flex-col sm:flex-row items-center justify-between gap-4 bg-zinc-50/30">
+            <p className="text-sm text-zinc-500">
+              Menampilkan{" "}
+              <span className="font-bold text-zinc-700">{data.length}</span>{" "}
+              dari <span className="font-bold text-zinc-700">{total}</span>{" "}
+              nasabah
+            </p>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                disabled={currentPage === 1}
+                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                className="px-4 py-2 bg-white border border-zinc-200 rounded-xl text-sm font-semibold text-zinc-700 hover:bg-zinc-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                Sebelumnya
+              </button>
+              <div className="flex items-center gap-1">
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                  (page) => (
+                    <button
+                      key={page}
+                      type="button"
+                      onClick={() => setCurrentPage(page)}
+                      className={`w-9 h-9 flex items-center justify-center rounded-xl text-sm font-semibold transition-all ${
+                        currentPage === page
+                          ? "bg-primary text-white shadow-md shadow-primary/20"
+                          : "bg-white border border-zinc-200 text-zinc-700 hover:bg-zinc-50"
+                      }`}>
+                      {page}
+                    </button>
+                  ),
+                )}
+              </div>
+              <button
+                type="button"
+                disabled={currentPage === totalPages}
+                onClick={() =>
+                  setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                }
+                className="px-4 py-2 bg-white border border-zinc-200 rounded-xl text-sm font-semibold text-zinc-700 hover:bg-zinc-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                Selanjutnya
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Form Modal */}

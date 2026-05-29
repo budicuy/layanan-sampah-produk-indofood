@@ -1,6 +1,6 @@
 "use server";
 
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { kupon } from "@/lib/db/schema";
@@ -31,26 +31,25 @@ export async function getCouponDetails(code: string) {
 
 export async function claimCoupon(code: string) {
   try {
-    const couponItem = await db.query.kupon.findFirst({
-      where: (kupon, { eq }) => eq(kupon.kode, code),
-    });
-
-    if (!couponItem) {
-      throw new Error("Kupon tidak ditemukan");
-    }
-
-    if (couponItem.status !== "AKTIF") {
-      throw new Error("Kupon sudah tidak aktif atau telah digunakan");
-    }
-
-    await db
+    const updated = await db
       .update(kupon)
       .set({
         status: "DIGUNAKAN",
         digunakanAt: new Date(),
         updatedAt: new Date(),
       })
-      .where(eq(kupon.kode, code));
+      .where(and(eq(kupon.kode, code), eq(kupon.status, "AKTIF")))
+      .returning();
+
+    if (updated.length === 0) {
+      const exist = await db.query.kupon.findFirst({
+        where: (kupon, { eq }) => eq(kupon.kode, code),
+      });
+      if (!exist) {
+        throw new Error("Kupon tidak ditemukan");
+      }
+      throw new Error("Kupon sudah tidak aktif atau telah digunakan");
+    }
 
     revalidatePath(`/kupon-validasi/${code}`);
     return { success: true };
