@@ -106,55 +106,42 @@ Aturan:
 - terbaca: true jika display terlihat jelas, false jika tidak
 - alasan_gagal: string penjelasan jika terbaca=false, atau null jika terbaca=true`;
 
-  // Create array of model attempts with optimized timeouts
-  // Known flash models get shorter timeout, while other models get longer
+  // Timeout mapping for known models
+  // Flash models get shorter timeout due to faster expected response time
   const modelTimeoutMap: { [key: string]: number } = {
     "gemini-3.1-flash-lite": 10000,
     "gemini-3.2-flash": 10000,
     "gemini-3.1-flash": 10000,
   };
 
-  const modelAttempts = models.map((model, index) => {
-    const timeout = modelTimeoutMap[model] || 15000; // Default 15s for unknown models
-    return attemptModelAnalysis(
-      model,
-      index,
-      apiKey,
-      prompt,
-      base64Image,
-      mimeType,
-      timeout,
-    );
-  });
-
   // Try models sequentially, starting with the primary model (first in list)
-  try {
-    // First, try the primary model
-    const result = await modelAttempts[0];
-    console.log(`✅ Model 1 (${models[0]}) parsed successfully:`, result);
-    return result;
-  } catch (err) {
-    console.warn(`⚠️ Model 1 (${models[0]}) failed, trying fallbacks:`, err);
-    // Fall back to remaining models sequentially
-    for (let i = 1; i < modelAttempts.length; i++) {
-      try {
-        const result = await modelAttempts[i];
-        console.log(
-          `✅ Model ${i + 1} (${models[i]}) parsed successfully:`,
-          result,
-        );
-        return result;
-      } catch (fallbackErr) {
-        console.warn(
-          `⚠️ Model ${i + 1} (${models[i]}) failed:`,
-          fallbackErr,
-        );
-        // Continue to next model
+  for (let i = 0; i < models.length; i++) {
+    const model = models[i];
+    const timeout = modelTimeoutMap[model] || 15000; // Default 15s for unknown models
+    
+    try {
+      const result = await attemptModelAnalysis(
+        model,
+        i,
+        apiKey,
+        prompt,
+        base64Image,
+        mimeType,
+        timeout,
+      );
+      console.log(`✅ Model ${i + 1} (${model}) parsed successfully:`, result);
+      return result;
+    } catch (err) {
+      console.warn(`⚠️ Model ${i + 1} (${model}) failed:`, err);
+      // Continue to next model if available
+      if (i === models.length - 1) {
+        // Last model failed, throw error
+        throw new Error("All Gemini models failed to process the request");
       }
     }
   }
 
-  // If all models failed
+  // Should not reach here due to the error throw in the loop
   throw new Error("All Gemini models failed to process the request");
 }
 
