@@ -117,7 +117,7 @@ Aturan:
       };
 
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 20000); // 20s timeout
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout (reduced from 20s)
 
       const response = await fetch(url, {
         method: "POST",

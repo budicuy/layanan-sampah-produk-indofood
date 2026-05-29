@@ -29,7 +29,16 @@ interface SubmitBaseData {
   gambarBuktiMimeList: string[];
 }
 
-/** Analisis gambar AI, upload ke R2, return metadata untuk disimpan ke DB */
+/**
+ * Prepare submission: AI validation → Upload on success only
+ * Flow:
+ * 1. AI Validation FIRST (gatekeeper - jika gagal, throw error langsung)
+ * 2. Jika VALID, PARALEL:
+ *    - Compress proof images
+ *    - Upload scale image ke R2
+ *    - Query hargaSampah
+ * 3. Upload proof images ke R2 (PARALEL)
+ */
 async function prepareSubmission(data: SubmitBaseData) {
   const session = await getSession();
   if (!session) throw new Error("Unauthorized");
@@ -40,70 +49,75 @@ async function prepareSubmission(data: SubmitBaseData) {
   if (!nasabahData)
     throw new Error("Profil nasabah belum terdaftar. Hubungi admin.");
 
-  // 1. Analisis gambar timbangan via AI
+  // ═══════════════════════════════════════════════════════════════════
+  // GATEKEEPER: AI VALIDATION PERTAMA (hanya foto timbangan)
+  // ═══════════════════════════════════════════════════════════════════
   const scaleBuffer = Buffer.from(data.gambarTimbanganBase64, "base64");
-  let statusValidasi = "PERLU_REVIEW";
   let beratTerbacaKg: number | null = null;
 
-  try {
-    const analysis = await analyzeScaleImage(
-      scaleBuffer,
-      data.gambarTimbanganMime,
-    );
-    if (!analysis.terbaca) {
-      throw new Error(
-        `Gambar timbangan tidak terdeteksi: ${analysis.alasan_gagal || "Ambil gambar yang lebih jelas."}`,
-      );
-    }
-    const rawWeight = analysis.berat_terbaca ?? 0;
-    const unit = (analysis.satuan || "").toLowerCase();
-    beratTerbacaKg =
-      unit === "gram" || unit === "g" || unit === "gr" || unit === "grams"
-        ? rawWeight / 1000
-        : rawWeight;
-
-    if (Math.abs(beratTerbacaKg - data.beratEstimasi) <= 0.1) {
-      statusValidasi = "VALID";
-    } else {
-      throw new Error(
-        `Gambar timbangan tidak sesuai: input ${data.beratEstimasi} kg, AI terdeteksi ${beratTerbacaKg.toFixed(2)} kg. Selisih maks 100 gram.`,
-      );
-    }
-  } catch (err) {
-    console.warn("⚠️ AI Validation error:", err);
-    if (
-      err instanceof Error &&
-      (err.message.startsWith("Gambar timbangan tidak terdeteksi") ||
-        err.message.startsWith("Gambar timbangan tidak sesuai"))
-    ) {
-      throw err;
-    }
-    statusValidasi = "PERLU_REVIEW";
-  }
-
-  // 2. Upload gambar ke R2
-  const scaleUrl = await uploadToR2(
+  const analysis = await analyzeScaleImage(
     scaleBuffer,
     data.gambarTimbanganMime,
-    "setor-sampah",
   );
-  const proofUrls: string[] = [];
-  for (let i = 0; i < data.gambarBuktiBase64List.length; i++) {
-    const buf = Buffer.from(data.gambarBuktiBase64List[i], "base64");
-    proofUrls.push(
-      await uploadToR2(
-        buf,
-        data.gambarBuktiMimeList[i] || "image/jpeg",
-        "setor-sampah",
-      ),
+
+  // ❌ JIKA TIDAK TERBACA: Stop & throw error (jangan upload apapun)
+  if (!analysis.terbaca) {
+    throw new Error(
+      `Gambar timbangan tidak terdeteksi: ${analysis.alasan_gagal || "Ambil gambar yang lebih jelas."}`,
     );
   }
+
+  // Convert berat AI ke KG
+  const rawWeight = analysis.berat_terbaca ?? 0;
+  const unit = (analysis.satuan || "").toLowerCase();
+  beratTerbacaKg =
+    unit === "gram" || unit === "g" || unit === "gr" || unit === "grams"
+      ? rawWeight / 1000
+      : rawWeight;
+
+  // ❌ JIKA SELISIH > 100g: Stop & throw error (jangan upload apapun)
+  if (Math.abs(beratTerbacaKg - data.beratEstimasi) > 0.1) {
+    throw new Error(
+      `Gambar timbangan tidak sesuai: input ${data.beratEstimasi} kg, AI terdeteksi ${beratTerbacaKg.toFixed(2)} kg. Selisih maks 100 gram.`,
+    );
+  }
+
+  // ✅ AI VALID! Sekarang proses upload PARALEL:
+  // 1. Upload scale image ke R2
+  // 2. Compress proof images
+  // 3. Query hargaSampah
+  const [scaleUrl, proofBuffersWithMime, hargaDB] = await Promise.all([
+    // Upload scale image
+    uploadToR2(scaleBuffer, data.gambarTimbanganMime, "setor-sampah"),
+
+    // Prepare proof image buffers (convert base64 → Buffer)
+    Promise.all(
+      data.gambarBuktiBase64List.map((base64, idx) => ({
+        buffer: Buffer.from(base64, "base64"),
+        mimeType: data.gambarBuktiMimeList[idx] || "image/jpeg",
+      })),
+    ),
+
+    // Query harga sampah
+    db.query.hargaSampah.findFirst({
+      where: (hargaSampah, { eq }) =>
+        eq(hargaSampah.jenisSampah, data.jenisSampah),
+      orderBy: (hargaSampah, { desc }) => [desc(hargaSampah.bulan)],
+    }),
+  ]);
+
+  // Upload proof images ke R2 PARALEL (bukan sequential)
+  const proofUrls = await Promise.all(
+    proofBuffersWithMime.map(({ buffer, mimeType }) =>
+      uploadToR2(buffer, mimeType, "setor-sampah"),
+    ),
+  );
 
   return {
     nasabah: nasabahData,
     scaleUrl,
     proofUrls,
-    statusValidasi,
+    hargaDB,
     beratTerbacaKg,
   };
 }
@@ -114,71 +128,53 @@ async function prepareSubmission(data: SubmitBaseData) {
 
 export async function submitSetorLangsung(data: SubmitBaseData) {
   try {
+    // prepareSubmission akan throw error jika AI validation gagal
     const {
       nasabah: nsb,
       scaleUrl,
       proofUrls,
-      statusValidasi,
+      hargaDB,
       beratTerbacaKg,
     } = await prepareSubmission(data);
 
-    if (statusValidasi === "VALID") {
-      const hargaDB = await db.query.hargaSampah.findFirst({
-        where: (hargaSampah, { eq }) =>
-          eq(hargaSampah.jenisSampah, data.jenisSampah),
-        orderBy: (hargaSampah, { desc }) => [desc(hargaSampah.bulan)],
-      });
-      const poinPerKg = hargaDB?.point ?? 0;
-      const beratFinal = beratTerbacaKg ?? data.beratEstimasi;
-      const totalPoin = Math.round(beratFinal * poinPerKg);
+    // ✅ AI VALID! Hitung poin dan insert ke DB
+    const poinPerKg = hargaDB?.point ?? 0;
+    const beratFinal = beratTerbacaKg ?? data.beratEstimasi;
+    const totalPoin = Math.round(beratFinal * poinPerKg);
 
-      await db.transaction(async (tx) => {
-        const newId = crypto.randomUUID();
-        await tx.insert(setorLangsung).values({
-          id: newId,
-          nasabahId: nsb.id,
-          jenisSampah: data.jenisSampah,
-          beratEstimasi: data.beratEstimasi,
-          beratAktual: beratFinal,
-          keterangan: data.keterangan || null,
-          gambarTimbangan: scaleUrl,
-          gambarBukti: proofUrls,
-          statusValidasi,
-          beratTerbaca: beratTerbacaKg,
-          status: "SELESAI",
-          poinPerKg,
-          totalPoin,
-          verifiedBy: "Sistem (AI)",
-          verifikasiAt: new Date(),
-          selesaiAt: new Date(),
-        });
-        await tx
-          .update(nasabah)
-          .set({ poin: sql`poin + ${totalPoin}`, updatedAt: new Date() })
-          .where(eq(nasabah.id, nsb.id));
-        await tx.insert(mutasiSaldo).values({
-          id: crypto.randomUUID(),
-          nasabahId: nsb.id,
-          jumlah: totalPoin,
-          keterangan: `Setor langsung (AI) ${data.jenisSampah} ${beratFinal.toFixed(2)} kg`,
-          referensiId: newId,
-          jenisReferensi: "LANGSUNG",
-        });
-      });
-    } else {
-      await db.insert(setorLangsung).values({
-        id: crypto.randomUUID(),
+    await db.transaction(async (tx) => {
+      const newId = crypto.randomUUID();
+      await tx.insert(setorLangsung).values({
+        id: newId,
         nasabahId: nsb.id,
         jenisSampah: data.jenisSampah,
         beratEstimasi: data.beratEstimasi,
+        beratAktual: beratFinal,
         keterangan: data.keterangan || null,
         gambarTimbangan: scaleUrl,
         gambarBukti: proofUrls,
-        statusValidasi,
+        statusValidasi: "VALID",
         beratTerbaca: beratTerbacaKg,
-        status: "MENUNGGU_VERIFIKASI",
+        status: "SELESAI",
+        poinPerKg,
+        totalPoin,
+        verifiedBy: "Sistem (AI)",
+        verifikasiAt: new Date(),
+        selesaiAt: new Date(),
       });
-    }
+      await tx
+        .update(nasabah)
+        .set({ poin: sql`poin + ${totalPoin}`, updatedAt: new Date() })
+        .where(eq(nasabah.id, nsb.id));
+      await tx.insert(mutasiSaldo).values({
+        id: crypto.randomUUID(),
+        nasabahId: nsb.id,
+        jumlah: totalPoin,
+        keterangan: `Setor langsung (AI) ${data.jenisSampah} ${beratFinal.toFixed(2)} kg`,
+        referensiId: newId,
+        jenisReferensi: "LANGSUNG",
+      });
+    });
 
     for (const p of REVALIDATE_PATHS) revalidatePath(p);
     return { success: true };
@@ -202,14 +198,15 @@ export async function submitSetorSampah(
   data: SubmitBaseData & { alamatPenjemputan: string },
 ) {
   try {
+    // prepareSubmission akan throw error jika AI validation gagal
     const {
       nasabah: nsb,
       scaleUrl,
       proofUrls,
-      statusValidasi,
       beratTerbacaKg,
     } = await prepareSubmission(data);
 
+    // ✅ AI VALID! Insert data ekspedisi (status MENUNGGU_VERIFIKASI untuk flow ekspedisi)
     await db.insert(setorEkspedisi).values({
       id: crypto.randomUUID(),
       nasabahId: nsb.id,
@@ -219,7 +216,7 @@ export async function submitSetorSampah(
       alamatPenjemputan: data.alamatPenjemputan,
       gambarTimbangan: scaleUrl,
       gambarBukti: proofUrls,
-      statusValidasi,
+      statusValidasi: "VALID",
       beratTerbaca: beratTerbacaKg,
       status: "MENUNGGU_VERIFIKASI",
     });

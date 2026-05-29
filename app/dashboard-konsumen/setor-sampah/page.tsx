@@ -48,8 +48,8 @@ const fileToBase64 = (
 // Helper to compress and convert file
 const compressAndGetBase64 = async (file: File) => {
   const options = {
-    maxSizeMB: 0.8,
-    maxWidthOrHeight: 1200,
+    maxSizeMB: 0.5,
+    maxWidthOrHeight: 800,
     useWebWorker: true,
   };
   try {
@@ -66,37 +66,37 @@ const STATUS_STEPS: {
   label: string;
   desc: string;
 }[] = [
-  {
-    key: "MENUNGGU_VERIFIKASI",
-    label: "Menunggu Verifikasi",
-    desc: "Admin sedang meninjau data setoran Anda",
-  },
-  {
-    key: "TERVERIFIKASI",
-    label: "Terverifikasi",
-    desc: "Data valid, menunggu penjemputan",
-  },
-  {
-    key: "DALAM_PENJEMPUTAN",
-    label: "Dalam Penjemputan",
-    desc: "Kurir sedang dalam perjalanan ke lokasi Anda",
-  },
-  {
-    key: "SUDAH_DISERAHKAN",
-    label: "Sudah Diserahkan",
-    desc: "Sampah telah diserahkan kepada kurir",
-  },
-  {
-    key: "SAMPAH_DITERIMA",
-    label: "Sampah Diterima",
-    desc: "Sampah telah tiba di pusat pengolahan",
-  },
-  {
-    key: "SELESAI",
-    label: "Selesai",
-    desc: "Poin telah dikreditkan ke akun Anda",
-  },
-];
+    {
+      key: "MENUNGGU_VERIFIKASI",
+      label: "Menunggu Verifikasi",
+      desc: "Admin sedang meninjau data setoran Anda",
+    },
+    {
+      key: "TERVERIFIKASI",
+      label: "Terverifikasi",
+      desc: "Data valid, menunggu penjemputan",
+    },
+    {
+      key: "DALAM_PENJEMPUTAN",
+      label: "Dalam Penjemputan",
+      desc: "Kurir sedang dalam perjalanan ke lokasi Anda",
+    },
+    {
+      key: "SUDAH_DISERAHKAN",
+      label: "Sudah Diserahkan",
+      desc: "Sampah telah diserahkan kepada kurir",
+    },
+    {
+      key: "SAMPAH_DITERIMA",
+      label: "Sampah Diterima",
+      desc: "Sampah telah tiba di pusat pengolahan",
+    },
+    {
+      key: "SELESAI",
+      label: "Selesai",
+      desc: "Poin telah dikreditkan ke akun Anda",
+    },
+  ];
 
 function getStepIndex(status: string): number {
   if (status === "DITOLAK") return -1;
@@ -216,6 +216,7 @@ function FormSetorSampah({
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [analysisStatus, setAnalysisStatus] = useState<string>("");
 
   const [form, setForm] = useState({
     jenisSampah: "PLASTIK" as JenisSampah,
@@ -246,19 +247,19 @@ function FormSetorSampah({
 
     setLoading(true);
     setError(null);
+    setAnalysisStatus("Menyiapkan foto...");
     try {
-      // 1. Compress and convert scale image
+      // 1. Compress scale + proof images IN PARALLEL
       const scaleRes = await compressAndGetBase64(scaleFile);
+      setAnalysisStatus(`Kompresi ${proofFiles.length} foto bukti...`);
+      const proofResults = await Promise.all(
+        proofFiles.map((file) => compressAndGetBase64(file)),
+      );
+      const proofBase64List = proofResults.map((r) => r.base64);
+      const proofMimeList = proofResults.map((r) => r.mime);
 
-      // 2. Compress and convert proof images
-      const proofBase64List: string[] = [];
-      const proofMimeList: string[] = [];
-      for (const file of proofFiles) {
-        const res = await compressAndGetBase64(file);
-        proofBase64List.push(res.base64);
-        proofMimeList.push(res.mime);
-      }
-
+      // 2. AI VALIDATION FIRST - Jika gagal, langsung error (stop di sini)
+      setAnalysisStatus("Validasi foto timbangan dengan AI...");
       const res = await submitSetorSampah({
         jenisSampah: form.jenisSampah,
         beratEstimasi: Number(form.beratEstimasi),
@@ -290,6 +291,7 @@ function FormSetorSampah({
       setError(err instanceof Error ? err.message : "Terjadi kesalahan");
     } finally {
       setLoading(false);
+      setAnalysisStatus("");
     }
   }
 
@@ -536,13 +538,21 @@ function FormSetorSampah({
         disabled={loading}
         className="w-full flex items-center justify-center gap-2 py-4 bg-primary text-white rounded-2xl font-bold text-sm hover:bg-primary/90 disabled:opacity-60 disabled:cursor-not-allowed transition-all active:scale-95 cursor-pointer">
         {loading ? (
-          <Loader2 size={16} className="animate-spin" />
+          <>
+            <Loader2 size={16} className="animate-spin" />
+            <div className="flex flex-col items-start gap-0">
+              <span>Memproses...</span>
+              {analysisStatus && (
+                <span className="text-xs opacity-80">{analysisStatus}</span>
+              )}
+            </div>
+          </>
         ) : (
-          <Recycle size={16} />
+          <>
+            <Recycle size={16} />
+            Daftarkan Setoran
+          </>
         )}
-        {loading
-          ? "Memproses & Menganalisis dengan AI..."
-          : "Daftarkan Setoran"}
       </button>
     </form>
   );
@@ -562,6 +572,7 @@ function FormSetorLangsung({
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [analysisStatus, setAnalysisStatus] = useState<string>("");
   const [form, setForm] = useState({
     jenisSampah: "PLASTIK" as JenisSampah,
     beratEstimasi: "",
@@ -590,19 +601,19 @@ function FormSetorLangsung({
 
     setLoading(true);
     setError(null);
+    setAnalysisStatus("Menyiapkan foto...");
     try {
-      // 1. Compress and convert scale image
+      // 1. Compress scale + proof images IN PARALLEL
       const scaleRes = await compressAndGetBase64(scaleFile);
+      setAnalysisStatus(`Kompresi ${proofFiles.length} foto bukti...`);
+      const proofResults = await Promise.all(
+        proofFiles.map((file) => compressAndGetBase64(file)),
+      );
+      const proofBase64List = proofResults.map((r) => r.base64);
+      const proofMimeList = proofResults.map((r) => r.mime);
 
-      // 2. Compress and convert proof images
-      const proofBase64List: string[] = [];
-      const proofMimeList: string[] = [];
-      for (const file of proofFiles) {
-        const res = await compressAndGetBase64(file);
-        proofBase64List.push(res.base64);
-        proofMimeList.push(res.mime);
-      }
-
+      // 2. AI VALIDATION FIRST - Jika gagal, langsung error (stop di sini)
+      setAnalysisStatus("Validasi foto timbangan dengan AI...");
       const res = await submitSetorLangsung({
         jenisSampah: form.jenisSampah,
         beratEstimasi: Number(form.beratEstimasi),
@@ -628,6 +639,7 @@ function FormSetorLangsung({
       setError(err instanceof Error ? err.message : "Terjadi kesalahan");
     } finally {
       setLoading(false);
+      setAnalysisStatus("");
     }
   }
 
@@ -974,13 +986,23 @@ function FormSetorLangsung({
                 disabled={loading || !nasabah}
                 className="w-full flex items-center justify-center gap-1.5 py-3.5 bg-zinc-950 text-white rounded-xl font-bold text-xs hover:bg-zinc-800 disabled:opacity-60 disabled:cursor-not-allowed transition-all active:scale-95 cursor-pointer">
                 {loading ? (
-                  <Loader2 size={14} className="animate-spin" />
+                  <>
+                    <Loader2 size={14} className="animate-spin" />
+                    <div className="flex flex-col items-start gap-0">
+                      <span>Memproses...</span>
+                      {analysisStatus && (
+                        <span className="text-[10px] opacity-80">
+                          {analysisStatus}
+                        </span>
+                      )}
+                    </div>
+                  </>
                 ) : (
-                  <Recycle size={14} />
+                  <>
+                    <Recycle size={14} />
+                    Daftarkan Setoran
+                  </>
                 )}
-                {loading
-                  ? "Memproses & Menganalisis dengan AI..."
-                  : "Daftarkan Setoran"}
               </button>
             </form>
           )}
@@ -1007,33 +1029,33 @@ function FormSetorLangsung({
               }
 
               const statusMap: Record<string, { label: string; cls: string }> =
-                {
-                  MENUNGGU_VERIFIKASI: {
-                    label: "Menunggu",
-                    cls: "bg-amber-100 text-amber-700",
-                  },
-                  TERVERIFIKASI: {
-                    label: "Terverifikasi",
-                    cls: "bg-blue-100 text-blue-700",
-                  },
-                  DITOLAK: { label: "Ditolak", cls: "bg-red-100 text-red-700" },
-                  DALAM_PENJEMPUTAN: {
-                    label: "Penjemputan",
-                    cls: "bg-purple-100 text-purple-700",
-                  },
-                  SUDAH_DISERAHKAN: {
-                    label: "Diserahkan",
-                    cls: "bg-indigo-100 text-indigo-700",
-                  },
-                  SAMPAH_DITERIMA: {
-                    label: "Diterima",
-                    cls: "bg-teal-100 text-teal-700",
-                  },
-                  SELESAI: {
-                    label: "Selesai ✓",
-                    cls: "bg-green-100 text-green-700",
-                  },
-                };
+              {
+                MENUNGGU_VERIFIKASI: {
+                  label: "Menunggu",
+                  cls: "bg-amber-100 text-amber-700",
+                },
+                TERVERIFIKASI: {
+                  label: "Terverifikasi",
+                  cls: "bg-blue-100 text-blue-700",
+                },
+                DITOLAK: { label: "Ditolak", cls: "bg-red-100 text-red-700" },
+                DALAM_PENJEMPUTAN: {
+                  label: "Penjemputan",
+                  cls: "bg-purple-100 text-purple-700",
+                },
+                SUDAH_DISERAHKAN: {
+                  label: "Diserahkan",
+                  cls: "bg-indigo-100 text-indigo-700",
+                },
+                SAMPAH_DITERIMA: {
+                  label: "Diterima",
+                  cls: "bg-teal-100 text-teal-700",
+                },
+                SELESAI: {
+                  label: "Selesai ✓",
+                  cls: "bg-green-100 text-green-700",
+                },
+              };
               const { label, cls } = statusMap[item.status];
 
               return (
