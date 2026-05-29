@@ -190,8 +190,6 @@ async function attemptModelAnalysis(
       signal: controller.signal,
     });
 
-    clearTimeout(timeoutId);
-
     if (!response.ok) {
       throw new Error(
         `HTTP Error ${response.status}: ${response.statusText}`,
