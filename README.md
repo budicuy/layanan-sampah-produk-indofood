@@ -17,10 +17,7 @@ Platform digital pengelolaan sampah modern berbasis web, dibangun untuk membantu
    - **Dashboard Admin & HRD** (`/dashboard-admin`): Kelola Master Data (Nasabah, Produk, Ekspedisi, Rate Harga), pemrosesan transaksi setoran, tabungan poin, riwayat mutasi, dan laporan analitik pendataan.
    - **Dashboard Konsumen & Bank Sampah** (`/dashboard-konsumen` & `/dashboard-bank-sampah`): Mengusung desain **Pure Mobile-first** dengan navigasi bilah bawah (bottom navigation bar) yang dioptimalkan untuk perangkat seluler/smartphone, susunan kartu statistik (stats grid) yang presisi tanpa ada slot kosong, layout compact yang rapi tanpa scroll horizontal, form input minimalis, tracker alur setoran yang responsif, serta dialog konfirmasi interaktif untuk keluar (logout).
 7. **Autentikasi Aman & Cepat**: Proteksi route menggunakan Custom JWT session di httpOnly cookie yang divalidasi pada tingkat Edge/Middleware (`proxy.ts`).
-8. **Dukungan Progressive Web App (PWA) & Mobile Installation Gate**:
-   - Mendukung instalasi aplikasi secara native di ponsel Android/iOS melalui file `manifest.ts` dan caching Service Worker (`sw.js`).
-   - Dilengkapi dengan fitur **PwaGate**: Ketika pengguna mengakses platform dari browser perangkat mobile, antarmuka akan terkunci oleh layar instruksi premium yang meminta mereka menginstal PWA terlebih dahulu sebelum dapat mengakses dashboard.
-9. **Verifikasi Timbangan Cerdas dengan AI (Gemini)**:
+8. **Verifikasi Timbangan Cerdas dengan AI (Gemini)**:
    - Konsumen mengunggah foto display timbangan yang dianalisis secara otomatis oleh AI Gemini (mendukung sistem fallback berantai Model 1 $\rightarrow$ Model 2 $\rightarrow$ Model 3 jika terjadi error API).
    - Melakukan parsing otomatis angka timbangan & konversi satuan (gram ke kg), membandingkannya dengan estimasi berat user. Jika selisih $\le$ 0.5 kg, status validasi otomatis `"VALID"`, jika tidak status menjadi `"PERLU_REVIEW"`.
    - Admin dapat meninjau detail foto timbangan utama dan foto-foto bukti tambahan (1-4 foto wajib pendukung) melalui modal galeri interaktif.
@@ -231,6 +228,16 @@ bun run format
 - **Penanganan Error Server Actions (Produksi)**:
   - Mengubah aksi server `submitSetorLangsung`, `submitSetorSampah`, dan `konfirmasiSerahTerima` di dashboard konsumen agar menangkap error menggunakan `try/catch` dan mengembalikan objek status `{ success, error }` alih-alih melempar error langsung.
   - Hal ini mencegah Next.js menyamarkan pesan error asli di lingkungan produksi dengan pesan generic *"An error occurred in the Server Components render"*, sehingga memudahkan diagnosis kendala konfigurasi R2, Neon DB, atau API Key Gemini secara langsung di antarmuka konsumen.
+
+- **Penyederhanaan & Proteksi Pengajuan Setoran Konsumen**:
+  - Menghapus daftar *Riwayat Setoran* dari halaman `/dashboard-konsumen/setor-sampah` agar antarmuka fokus pada proses pengajuan.
+  - Memperbaiki alur proteksi transaksi: Halaman Setor Langsung tetap dapat diakses kapan saja oleh konsumen tanpa terpengaruh oleh adanya ekspedisi aktif.
+  - Panel pelacak progres ekspedisi aktif kini hanya akan ditampilkan secara khusus ketika konsumen memilih opsi metode "Setor Via Ekspedisi" saat masih memiliki penjemputan aktif yang sedang berlangsung (belum berstatus `SELESAI` atau `DITOLAK`), lengkap dengan tombol kembali ke menu pilihan metode agar konsumen tetap dapat beralih ke Setor Langsung jika diinginkan.
+  - Pembersihan duplikasi kode rendering di halaman `page.tsx` konsumen agar berjalan dengan optimal dan bebas dari redundansi.
+  - Perbaikan warna border: Mengganti utility class warna border tidak valid `border-zinc-150` dan `border-zinc-150/70` menjadi standard `border-zinc-200` pada seluruh halaman pengusulan setoran & riwayat konsumen untuk menghilangkan tampilan border hitam default bawaan browser yang merusak estetika antarmuka.
+  - Pembaruan Data Seeder (`SetorEkspedisi`): Mengubah seeder data agar tidak ada lagi data ekspedisi dengan status `MENUNGGU_VERIFIKASI`. Seluruh seed transaksi kurir yang sebelumnya menunggu kini didefinisikan dalam berbagai tahapan status terverifikasi (`TERVERIFIKASI`, `DALAM_PENJEMPUTAN`, `SUDAH_DISERAHKAN`, dan `SAMPAH_DITERIMA`) dengan informasi verifikator dan penugasan kurir ekspedisi yang lengkap.
+  - Pembatasan Riwayat Setor Langsung: Membatasi tampilan daftar Riwayat Setor Langsung pada halaman konsumen maksimal sebanyak 3 entri saja (`riwayat.slice(0, 3)`) agar tata letak halaman tetap ringkas, bersih, dan nyaman dibaca tanpa scroll yang terlalu panjang.
+  - Implementasi Pagination Riwayat Konsumen: Menambahkan fitur pagination dinamis pada halaman `/dashboard-konsumen/riwayat` dengan batasan maksimal 20 data per halaman. Data riwayat setoran diambil langsung dari database secara real-time berdasarkan halaman aktif dan tab metode setoran yang dipilih, mengurangi beban render dan meningkatkan performa aplikasi secara signifikan.
 
 
 

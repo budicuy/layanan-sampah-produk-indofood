@@ -15,7 +15,7 @@ const jenisList = ["PLASTIK", "KARTON", "PAPER_CUP"] as const;
 const users = ["budi", "warmiendo"];
 
 // 10 data MENUNGGU_VERIFIKASI
-for (let i = 0; i < 10; i++) {
+for (let i = 0; i < 50; i++) {
   const jenis = jenisList[i % jenisList.length];
   const berat = Number((2.0 + i * 0.8).toFixed(1));
   SetorLangsungSeed.push({

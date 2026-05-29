@@ -151,9 +151,13 @@ async function main() {
     const nasabah = nasabahMap.get(item.username) || nasabahUsers[0];
     const isBS = nasabah.kategori === "BANK_SAMPAH";
     const id = randomUUID();
-    // Assign a kurir to completed ones (round-robin)
+    // Assign a kurir to completed/assigned ones (round-robin)
     const ekpedisiId =
-      item.status === "SELESAI" && ekpedisiList.length > 0
+      (item.status === "SELESAI" ||
+        item.status === "DALAM_PENJEMPUTAN" ||
+        item.status === "SUDAH_DISERAHKAN" ||
+        item.status === "SAMPAH_DITERIMA") &&
+      ekpedisiList.length > 0
         ? ekpedisiList[idx % ekpedisiList.length].id
         : null;
     return {

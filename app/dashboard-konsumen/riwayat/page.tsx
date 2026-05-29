@@ -100,12 +100,22 @@ export default function RiwayatSetorPage() {
   const [activeTab, setActiveTab] = useState<"LANGSUNG" | "EKSPEDISI">(
     "LANGSUNG",
   );
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [globalStats, setGlobalStats] = useState({
+    totalSetoran: 0,
+    totalPoin: 0,
+    totalBerat: 0,
+  });
 
   useEffect(() => {
     async function loadHistory() {
+      setIsLoading(true);
       try {
-        const data = await getSetorSampahHistory();
-        setHistory(data as unknown as SetorSampahItem[]);
+        const res = await getSetorSampahHistory(activeTab, page, 20);
+        setHistory(res.data as unknown as SetorSampahItem[]);
+        setTotalPages(res.totalPages);
+        setGlobalStats(res.stats);
       } catch (err) {
         toast.error(
           err instanceof Error ? err.message : "Gagal memuat riwayat",
@@ -115,48 +125,41 @@ export default function RiwayatSetorPage() {
       }
     }
     loadHistory();
-  }, []);
+  }, [activeTab, page]);
 
-  const filteredHistory = useMemo(() => {
-    return history.filter((item) => item.jenisSetor === activeTab);
-  }, [history, activeTab]);
+  const filteredHistory = history;
 
   // Premium Top Statistics Cards
   const stats = useMemo(() => {
-    const totalSetoran = history.length;
-    const totalPoin = history.reduce(
-      (sum, item) => sum + (item.totalPoin ?? 0),
-      0,
-    );
-    const totalBerat = history.reduce(
-      (sum, item) => sum + (item.beratAktual ?? item.beratEstimasi),
-      0,
-    );
-
     return [
       {
         label: "Total Setor",
-        value: `${totalSetoran} Kali`,
+        value: `${globalStats.totalSetoran} Kali`,
         icon: Recycle,
         color: "text-primary",
         bg: "bg-green-50 border-green-100/50",
       },
       {
         label: "Poin Didapat",
-        value: `${totalPoin} Poin`,
+        value: `${globalStats.totalPoin} Poin`,
         icon: Coins,
         color: "text-amber-600",
         bg: "bg-amber-50 border-amber-100/50",
       },
       {
         label: "Berat Sampah",
-        value: `${totalBerat.toFixed(1)} Kg`,
+        value: `${globalStats.totalBerat.toFixed(1)} Kg`,
         icon: Scale,
         color: "text-blue-600",
         bg: "bg-blue-50 border-blue-100/50",
       },
     ];
-  }, [history]);
+  }, [globalStats]);
+
+  const handleTabChange = (tab: "LANGSUNG" | "EKSPEDISI") => {
+    setActiveTab(tab);
+    setPage(1);
+  };
 
   if (isLoading) {
     return (
@@ -210,7 +213,7 @@ export default function RiwayatSetorPage() {
       <div className="flex p-1 bg-zinc-100 border border-zinc-200/50 rounded-2xl">
         <button
           type="button"
-          onClick={() => setActiveTab("LANGSUNG")}
+          onClick={() => handleTabChange("LANGSUNG")}
           className={`flex-1 py-2.5 text-center text-xs font-bold rounded-xl transition-all cursor-pointer ${
             activeTab === "LANGSUNG"
               ? "bg-white text-primary shadow-sm"
@@ -220,7 +223,7 @@ export default function RiwayatSetorPage() {
         </button>
         <button
           type="button"
-          onClick={() => setActiveTab("EKSPEDISI")}
+          onClick={() => handleTabChange("EKSPEDISI")}
           className={`flex-1 py-2.5 text-center text-xs font-bold rounded-xl transition-all cursor-pointer ${
             activeTab === "EKSPEDISI"
               ? "bg-white text-primary shadow-sm"
@@ -249,7 +252,7 @@ export default function RiwayatSetorPage() {
           filteredHistory.map((item) => {
             const st = STATUS_MAP[item.status] ?? {
               label: item.status,
-              cls: "bg-zinc-50 text-zinc-500 border-zinc-150",
+              cls: "bg-zinc-50 text-zinc-500 border-zinc-200",
               icon: Clock,
             };
             const StatusIcon = st.icon;
@@ -366,6 +369,29 @@ export default function RiwayatSetorPage() {
           })
         )}
       </div>
+
+      {/* Pagination Controls */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between pt-4 border-t border-zinc-200 mt-4 select-none">
+          <button
+            type="button"
+            disabled={page === 1}
+            onClick={() => setPage((p) => Math.max(p - 1, 1))}
+            className="px-3.5 py-2 bg-white border border-zinc-200 text-zinc-700 text-[10px] font-bold rounded-xl disabled:opacity-50 hover:bg-zinc-50 transition-all active:scale-95 cursor-pointer">
+            ← Sebelum
+          </button>
+          <span className="text-[10px] font-bold text-zinc-500">
+            Halaman {page} dari {totalPages}
+          </span>
+          <button
+            type="button"
+            disabled={page === totalPages}
+            onClick={() => setPage((p) => Math.min(p + 1, totalPages))}
+            className="px-3.5 py-2 bg-white border border-zinc-200 text-zinc-700 text-[10px] font-bold rounded-xl disabled:opacity-50 hover:bg-zinc-50 transition-all active:scale-95 cursor-pointer">
+            Berikut →
+          </button>
+        </div>
+      )}
     </div>
   );
 }

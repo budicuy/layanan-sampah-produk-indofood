@@ -13,9 +13,9 @@ import {
   Recycle,
   Send,
   Trash2,
+  Truck,
   Upload,
   Wallet,
-  XCircle,
 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import type { JenisSampah } from "@/prisma/generated/prisma/client";
@@ -995,7 +995,7 @@ function FormSetorLangsung({
             Riwayat Setor Langsung
           </h2>
           <div className="space-y-2.5">
-            {riwayat.map((item) => {
+            {riwayat.slice(0, 3).map((item) => {
               let typeLabel = "Plastik";
               let typeCls = "bg-red-50 text-red-500";
               if (item.jenisSampah === "KARTON") {
@@ -1193,7 +1193,7 @@ export default function SetorSampahPage() {
           <button
             type="button"
             onClick={() => setView("LANGSUNG")}
-            className="relative group flex flex-col w-full text-left bg-white border-2 border-zinc-150/70 p-6 rounded-[24px] transition-all hover:border-zinc-300 hover:shadow-lg overflow-hidden cursor-pointer">
+            className="relative group flex flex-col w-full text-left bg-white border-2 border-zinc-200 p-6 rounded-[24px] transition-all hover:border-zinc-300 hover:shadow-lg overflow-hidden cursor-pointer">
             <div className="mb-4 relative">
               <div className="w-12 h-12 bg-zinc-100 rounded-2xl flex items-center justify-center relative z-10 group-hover:scale-105 transition-transform duration-500">
                 <Recycle className="text-zinc-600 w-6 h-6 group-hover:rotate-12 transition-transform" />
@@ -1243,7 +1243,7 @@ export default function SetorSampahPage() {
           <button
             type="button"
             onClick={() => setView("EKSPEDISI")}
-            className="relative group flex flex-col w-full text-left bg-white border-2 border-zinc-150/70 p-6 rounded-[24px] transition-all hover:border-primary/30 hover:shadow-lg overflow-hidden cursor-pointer">
+            className="relative group flex flex-col w-full text-left bg-white border-2 border-zinc-200 p-6 rounded-[24px] transition-all hover:border-primary/30 hover:shadow-lg overflow-hidden cursor-pointer">
             {/* Top Badge */}
             <div className="absolute top-4 right-4">
               <div className="px-2.5 py-1 bg-primary/10 text-primary rounded-full text-[9px] font-black tracking-wider uppercase">
@@ -1315,7 +1315,166 @@ export default function SetorSampahPage() {
     );
   }
 
-  const riwayat = nasabah?.setorSampah ?? [];
+  const activeEkspedisi = nasabah?.setorSampah.find(
+    (item) =>
+      item.jenisSetor === "EKSPEDISI" &&
+      item.status !== "SELESAI" &&
+      item.status !== "DITOLAK",
+  );
+
+  if (activeEkspedisi) {
+    const stepIdx = getStepIndex(activeEkspedisi.status);
+
+    let typeLabel = "Plastik";
+    let typeCls = "bg-red-50 text-red-500";
+    if (activeEkspedisi.jenisSampah === "KARTON") {
+      typeLabel = "Karton";
+      typeCls = "bg-orange-50 text-orange-500";
+    } else if (activeEkspedisi.jenisSampah === "PAPER_CUP") {
+      typeLabel = "Paper Cup";
+      typeCls = "bg-blue-50 text-blue-500";
+    }
+
+    return (
+      <div className="space-y-6 animate-in fade-in duration-500">
+        <div>
+          <button
+            type="button"
+            onClick={() => setView("MENU")}
+            className="text-[10px] font-bold text-zinc-400 hover:text-primary transition-colors flex items-center gap-1.5 group mb-3 px-2 py-1 rounded-lg hover:bg-zinc-100 w-fit cursor-pointer">
+            <span className="group-hover:-translate-x-0.5 transition-transform">
+              ←
+            </span>{" "}
+            Kembali ke Pilihan Metode
+          </button>
+          <h1 className="text-xl font-heading font-black text-zinc-900 tracking-tight">
+            Setoran Ekspedisi{" "}
+            <span className="text-primary">Sedang Berlangsung</span>
+          </h1>
+          <p className="text-zinc-500 mt-1 text-xs leading-relaxed">
+            Anda memiliki pengiriman sampah via kurir yang sedang berjalan.
+            Selesaikan proses ini terlebih dahulu sebelum mengajukan setoran
+            baru.
+          </p>
+        </div>
+
+        <div className="bg-white rounded-3xl border border-zinc-200 p-6 space-y-5 shadow-sm">
+          {/* Header */}
+          <div className="flex items-start justify-between gap-3 border-b border-zinc-100 pb-4">
+            <div className="flex items-center gap-3">
+              <div
+                className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${typeCls}`}>
+                <Recycle size={18} />
+              </div>
+              <div>
+                <p className="font-bold text-zinc-900 text-sm">
+                  {typeLabel} · {activeEkspedisi.beratEstimasi} kg
+                </p>
+                <p className="text-[10px] text-zinc-400 mt-0.5">
+                  Diajukan pada{" "}
+                  {new Date(activeEkspedisi.createdAt).toLocaleDateString(
+                    "id-ID",
+                    {
+                      day: "numeric",
+                      month: "long",
+                      year: "numeric",
+                    },
+                  )}
+                </p>
+              </div>
+            </div>
+            <StatusBadge status={activeEkspedisi.status} />
+          </div>
+
+          {/* Progress Tracker */}
+          <div className="py-2">
+            <p className="text-xs font-bold text-zinc-700 mb-4 text-center">
+              Progres Pengiriman
+            </p>
+            <div className="flex items-start gap-0">
+              {STATUS_STEPS.map((step, idx) => {
+                const done = stepIdx >= idx;
+                const current = stepIdx === idx;
+                const isLast = idx === STATUS_STEPS.length - 1;
+
+                return (
+                  <div
+                    key={step.key}
+                    className="flex-1 flex flex-col items-center gap-1">
+                    <div className="flex items-center w-full">
+                      {/* Left line */}
+                      <div
+                        className={`flex-1 h-0.5 ${idx === 0 ? "invisible" : done ? "bg-primary" : "bg-zinc-200"}`}
+                      />
+                      {/* Circle Dot */}
+                      {done ? (
+                        <CheckCircle2
+                          size={16}
+                          className={`shrink-0 ${current ? "text-amber-500 animate-pulse" : "text-primary"}`}
+                        />
+                      ) : (
+                        <Circle size={16} className="shrink-0 text-zinc-300" />
+                      )}
+                      {/* Right line */}
+                      <div
+                        className={`flex-1 h-0.5 ${isLast ? "invisible" : done && stepIdx > idx ? "bg-primary" : "bg-zinc-200"}`}
+                      />
+                    </div>
+                    <p
+                      className={`text-[8px] text-center leading-tight px-0.5 font-bold mt-1 ${done ? "text-zinc-800" : "text-zinc-450"}`}>
+                      {step.label
+                        .replace("Menunggu ", "")
+                        .replace("Dalam ", "")}
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Courier Info */}
+          {activeEkspedisi.ekpedisi && (
+            <div className="p-4 bg-zinc-50 rounded-2xl text-xs text-zinc-650 space-y-1 border border-zinc-200">
+              <p className="font-bold text-zinc-800 flex items-center gap-1.5">
+                <Truck size={14} className="text-zinc-500" />
+                Informasi Kurir Penjemput
+              </p>
+              <p className="pl-5">
+                <span className="text-zinc-400">Nama/Alamat:</span>{" "}
+                {activeEkspedisi.ekpedisi.alamat}
+              </p>
+              <p className="pl-5">
+                <span className="text-zinc-400">No. Telepon:</span>{" "}
+                {activeEkspedisi.ekpedisi.noTelp}
+              </p>
+            </div>
+          )}
+
+          {/* Action button if hand over is pending */}
+          {activeEkspedisi.status === "DALAM_PENJEMPUTAN" && (
+            <div className="pt-2 border-t border-zinc-100">
+              <div className="flex items-start gap-2 text-xs text-amber-700 bg-amber-50 p-4 rounded-2xl mb-4 border border-amber-100">
+                <Clock size={16} className="shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-bold">
+                    Kurir Sedang Menuju ke Lokasi Anda
+                  </p>
+                  <p className="text-[11px] text-amber-600 mt-0.5 leading-relaxed">
+                    Serahkan sampah Anda kepada kurir saat tiba, lalu
+                    konfirmasikan penyerahan dengan menekan tombol di bawah.
+                  </p>
+                </div>
+              </div>
+              <BtnKonfirmasiSerahTerima
+                setorSampahId={activeEkspedisi.id}
+                onSuccess={fetchData}
+              />
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-5 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -1441,177 +1600,6 @@ export default function SetorSampahPage() {
           </div>
         </div>
       </div>
-
-      {/* Riwayat Setoran */}
-      {riwayat.length > 0 && (
-        <div className="bg-white rounded-2xl border border-zinc-100 p-4 shadow-xs">
-          <h2 className="text-xs font-bold text-zinc-900 mb-4 flex items-center gap-1.5">
-            <Recycle size={16} className="text-zinc-400" />
-            Riwayat Setoran
-          </h2>
-          <div className="space-y-4">
-            {riwayat.map((item) => {
-              const stepIdx = getStepIndex(item.status);
-              const isDitolak = item.status === "DITOLAK";
-              const isSelesai = item.status === "SELESAI";
-
-              let typeLabel = "Plastik";
-              let typeCls = "bg-red-50 text-red-500";
-              if (item.jenisSampah === "KARTON") {
-                typeLabel = "Karton";
-                typeCls = "bg-orange-50 text-orange-500";
-              } else if (item.jenisSampah === "PAPER_CUP") {
-                typeLabel = "Paper Cup";
-                typeCls = "bg-blue-50 text-blue-500";
-              }
-
-              return (
-                <div
-                  key={item.id}
-                  className="border border-zinc-100 rounded-xl p-4 space-y-3 hover:shadow-xs transition-shadow">
-                  {/* Header kartu */}
-                  <div className="flex items-start justify-between gap-2.5">
-                    <div className="flex items-center gap-2">
-                      <div
-                        className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${typeCls}`}>
-                        <Recycle size={14} />
-                      </div>
-                      <div>
-                        <p className="font-bold text-zinc-900 text-xs">
-                          {typeLabel} · {item.beratEstimasi} kg
-                          {item.beratAktual != null && (
-                            <span className="text-zinc-600 font-bold">
-                              {" "}
-                              → {item.beratAktual} kg
-                            </span>
-                          )}
-                        </p>
-                        <p className="text-[9px] text-zinc-400 mt-0.5">
-                          {new Date(item.createdAt).toLocaleDateString(
-                            "id-ID",
-                            {
-                              day: "numeric",
-                              month: "short",
-                              year: "numeric",
-                            },
-                          )}
-                        </p>
-                      </div>
-                    </div>
-                    <StatusBadge status={item.status} />
-                  </div>
-
-                  {/* Catatan admin jika ditolak */}
-                  {isDitolak && item.catatanAdmin && (
-                    <div className="flex items-start gap-2 p-2.5 bg-red-50 border border-red-100 rounded-lg">
-                      <XCircle
-                        size={14}
-                        className="text-red-500 shrink-0 mt-0.5"
-                      />
-                      <p className="text-red-700 text-[10px] leading-relaxed">
-                        <strong>Alasan:</strong> {item.catatanAdmin}
-                      </p>
-                    </div>
-                  )}
-
-                  {/* Verified by admin */}
-                  {item.verifiedBy && !isDitolak && (
-                    <div className="flex items-center justify-between gap-2 p-2.5 bg-emerald-50 border border-emerald-100 rounded-lg">
-                      <span className="text-emerald-600 text-[10px] font-semibold">
-                        ✅ Diverifikasi oleh
-                      </span>
-                      <span className="text-emerald-800 text-[10px] font-bold">
-                        {item.verifiedBy}
-                      </span>
-                    </div>
-                  )}
-
-                  {isSelesai && item.totalPoin != null && (
-                    <div className="flex items-center gap-2.5 p-2.5 bg-green-50 border border-green-100 rounded-lg">
-                      <Wallet size={14} className="text-green-600 shrink-0" />
-                      <p className="text-green-700 text-xs font-bold">
-                        +{item.totalPoin} poin dikreditkan ke poin Anda
-                      </p>
-                    </div>
-                  )}
-
-                  {/* Progress tracker */}
-                  {!isDitolak && (
-                    <div className="pt-1">
-                      <div className="flex items-start gap-0">
-                        {STATUS_STEPS.map((step, idx) => {
-                          const done = stepIdx >= idx;
-                          const current = stepIdx === idx;
-                          const isLast = idx === STATUS_STEPS.length - 1;
-
-                          return (
-                            <div
-                              key={step.key}
-                              className="flex-1 flex flex-col items-center gap-0.5">
-                              <div className="flex items-center w-full">
-                                {/* Line kiri */}
-                                <div
-                                  className={`flex-1 h-0.5 ${idx === 0 ? "invisible" : done ? "bg-primary" : "bg-zinc-200"}`}
-                                />
-                                {/* Dot */}
-                                {done ? (
-                                  <CheckCircle2
-                                    size={14}
-                                    className={`shrink-0 ${current && !isSelesai ? "text-amber-500 animate-pulse" : "text-primary"}`}
-                                  />
-                                ) : (
-                                  <Circle
-                                    size={14}
-                                    className="shrink-0 text-zinc-300"
-                                  />
-                                )}
-                                {/* Line kanan */}
-                                <div
-                                  className={`flex-1 h-0.5 ${isLast ? "invisible" : done && stepIdx > idx ? "bg-primary" : "bg-zinc-200"}`}
-                                />
-                              </div>
-                              <p
-                                className={`text-[7px] text-center leading-tight px-0.5 font-bold ${done ? "text-zinc-700" : "text-zinc-400"}`}>
-                                {step.label
-                                  .replace("Menunggu ", "")
-                                  .replace("Dalam ", "")}
-                              </p>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Ekpedisi info */}
-                  {item.ekpedisi && (
-                    <div className="p-2.5 bg-zinc-50 rounded-xl text-[10px] text-zinc-600 space-y-0.5 border border-zinc-100">
-                      <p className="font-bold text-zinc-700">Info Kurir</p>
-                      <p>No. Telp: {item.ekpedisi.noTelp}</p>
-                      <p>Alamat: {item.ekpedisi.alamat}</p>
-                    </div>
-                  )}
-
-                  {/* Tombol konfirmasi serah terima */}
-                  {item.status === "DALAM_PENJEMPUTAN" && (
-                    <div className="pt-1">
-                      <div className="flex items-center gap-1.5 text-[10px] text-amber-700 bg-amber-50 p-2.5 rounded-xl mb-2">
-                        <Clock size={12} className="shrink-0" />
-                        Kurir sedang dalam perjalanan ke lokasi Anda. Tekan
-                        tombol di bawah setelah sampah diserahkan.
-                      </div>
-                      <BtnKonfirmasiSerahTerima
-                        setorSampahId={item.id}
-                        onSuccess={fetchData}
-                      />
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
     </div>
   );
 }

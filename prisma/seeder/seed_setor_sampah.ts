@@ -105,7 +105,7 @@ for (let i = 0; i < 10; i++) {
 }
 
 // Generate 10 LANGSUNG, SELESAI
-for (let i = 0; i < 10; i++) {
+for (let i = 0; i < 50; i++) {
   const jenis = jenisSampahList[i % jenisSampahList.length];
   const berat = Number((4.0 + i * 1.5).toFixed(1));
   const rate = jenis === "PLASTIK" ? 40 : jenis === "KARTON" ? 22 : 21;
