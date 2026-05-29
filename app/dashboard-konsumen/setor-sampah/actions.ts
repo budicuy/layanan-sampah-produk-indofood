@@ -100,69 +100,81 @@ async function prepareSubmission(data: SubmitBaseData) {
 // ═══════════════════════════════════════════════════════════════════
 
 export async function submitSetorLangsung(data: SubmitBaseData) {
-  const { nasabah, scaleUrl, proofUrls, statusValidasi, beratTerbacaKg } =
-    await prepareSubmission(data);
+  try {
+    const { nasabah, scaleUrl, proofUrls, statusValidasi, beratTerbacaKg } =
+      await prepareSubmission(data);
 
-  if (statusValidasi === "VALID") {
-    const hargaDB = await prisma.hargaSampah.findFirst({
-      where: { jenisSampah: data.jenisSampah },
-      orderBy: { bulan: "desc" },
-    });
-    const poinPerKg = hargaDB?.point ?? 0;
-    const beratFinal = beratTerbacaKg ?? data.beratEstimasi;
-    const totalPoin = Math.round(beratFinal * poinPerKg);
+    if (statusValidasi === "VALID") {
+      const hargaDB = await prisma.hargaSampah.findFirst({
+        where: { jenisSampah: data.jenisSampah },
+        orderBy: { bulan: "desc" },
+      });
+      const poinPerKg = hargaDB?.point ?? 0;
+      const beratFinal = beratTerbacaKg ?? data.beratEstimasi;
+      const totalPoin = Math.round(beratFinal * poinPerKg);
 
-    await prisma.$transaction(async (tx) => {
-      const newSetor = await tx.setorLangsung.create({
+      await prisma.$transaction(async (tx) => {
+        const newSetor = await tx.setorLangsung.create({
+          data: {
+            nasabahId: nasabah.id,
+            jenisSampah: data.jenisSampah,
+            beratEstimasi: data.beratEstimasi,
+            beratAktual: beratFinal,
+            keterangan: data.keterangan,
+            gambarTimbangan: scaleUrl,
+            gambarBukti: proofUrls,
+            statusValidasi,
+            beratTerbaca: beratTerbacaKg,
+            status: "SELESAI",
+            poinPerKg,
+            totalPoin,
+            verifiedBy: "Sistem (AI)",
+            verifikasiAt: new Date(),
+            selesaiAt: new Date(),
+          },
+        });
+        await tx.nasabah.update({
+          where: { id: nasabah.id },
+          data: { poin: { increment: totalPoin } },
+        });
+        await tx.mutasiSaldo.create({
+          data: {
+            nasabahId: nasabah.id,
+            jumlah: totalPoin,
+            keterangan: `Setor langsung (AI) ${data.jenisSampah} ${beratFinal.toFixed(2)} kg`,
+            referensiId: newSetor.id,
+            jenisReferensi: "LANGSUNG",
+          },
+        });
+      });
+    } else {
+      await prisma.setorLangsung.create({
         data: {
           nasabahId: nasabah.id,
           jenisSampah: data.jenisSampah,
           beratEstimasi: data.beratEstimasi,
-          beratAktual: beratFinal,
           keterangan: data.keterangan,
           gambarTimbangan: scaleUrl,
           gambarBukti: proofUrls,
           statusValidasi,
           beratTerbaca: beratTerbacaKg,
-          status: "SELESAI",
-          poinPerKg,
-          totalPoin,
-          verifiedBy: "Sistem (AI)",
-          verifikasiAt: new Date(),
-          selesaiAt: new Date(),
+          status: "MENUNGGU_VERIFIKASI",
         },
       });
-      await tx.nasabah.update({
-        where: { id: nasabah.id },
-        data: { poin: { increment: totalPoin } },
-      });
-      await tx.mutasiSaldo.create({
-        data: {
-          nasabahId: nasabah.id,
-          jumlah: totalPoin,
-          keterangan: `Setor langsung (AI) ${data.jenisSampah} ${beratFinal.toFixed(2)} kg`,
-          referensiId: newSetor.id,
-          jenisReferensi: "LANGSUNG",
-        },
-      });
-    });
-  } else {
-    await prisma.setorLangsung.create({
-      data: {
-        nasabahId: nasabah.id,
-        jenisSampah: data.jenisSampah,
-        beratEstimasi: data.beratEstimasi,
-        keterangan: data.keterangan,
-        gambarTimbangan: scaleUrl,
-        gambarBukti: proofUrls,
-        statusValidasi,
-        beratTerbaca: beratTerbacaKg,
-        status: "MENUNGGU_VERIFIKASI",
-      },
-    });
-  }
+    }
 
-  for (const p of REVALIDATE_PATHS) revalidatePath(p);
+    for (const p of REVALIDATE_PATHS) revalidatePath(p);
+    return { success: true };
+  } catch (error) {
+    console.error("submitSetorLangsung error:", error);
+    return {
+      success: false,
+      error:
+        error instanceof Error
+          ? error.message
+          : "Gagal mengirim setor langsung",
+    };
+  }
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -172,50 +184,72 @@ export async function submitSetorLangsung(data: SubmitBaseData) {
 export async function submitSetorSampah(
   data: SubmitBaseData & { alamatPenjemputan: string },
 ) {
-  const { nasabah, scaleUrl, proofUrls, statusValidasi, beratTerbacaKg } =
-    await prepareSubmission(data);
+  try {
+    const { nasabah, scaleUrl, proofUrls, statusValidasi, beratTerbacaKg } =
+      await prepareSubmission(data);
 
-  await prisma.setorEkspedisi.create({
-    data: {
-      nasabahId: nasabah.id,
-      jenisSampah: data.jenisSampah,
-      beratEstimasi: data.beratEstimasi,
-      keterangan: data.keterangan,
-      alamatPenjemputan: data.alamatPenjemputan,
-      gambarTimbangan: scaleUrl,
-      gambarBukti: proofUrls,
-      statusValidasi,
-      beratTerbaca: beratTerbacaKg,
-      status: "MENUNGGU_VERIFIKASI",
-    },
-  });
+    await prisma.setorEkspedisi.create({
+      data: {
+        nasabahId: nasabah.id,
+        jenisSampah: data.jenisSampah,
+        beratEstimasi: data.beratEstimasi,
+        keterangan: data.keterangan,
+        alamatPenjemputan: data.alamatPenjemputan,
+        gambarTimbangan: scaleUrl,
+        gambarBukti: proofUrls,
+        statusValidasi,
+        beratTerbaca: beratTerbacaKg,
+        status: "MENUNGGU_VERIFIKASI",
+      },
+    });
 
-  for (const p of REVALIDATE_PATHS) revalidatePath(p);
+    for (const p of REVALIDATE_PATHS) revalidatePath(p);
+    return { success: true };
+  } catch (error) {
+    console.error("submitSetorSampah error:", error);
+    return {
+      success: false,
+      error:
+        error instanceof Error ? error.message : "Gagal mengirim penjemputan",
+    };
+  }
 }
 
 /** Konsumen konfirmasi sudah menyerahkan sampah ke kurir */
 export async function konfirmasiSerahTerima(setorEkspedisiId: string) {
-  const session = await getSession();
-  if (!session) throw new Error("Unauthorized");
+  try {
+    const session = await getSession();
+    if (!session) throw new Error("Unauthorized");
 
-  const nasabah = await prisma.nasabah.findUnique({
-    where: { userId: session.user.sub },
-  });
-  if (!nasabah) throw new Error("Nasabah tidak ditemukan");
+    const nasabah = await prisma.nasabah.findUnique({
+      where: { userId: session.user.sub },
+    });
+    if (!nasabah) throw new Error("Nasabah tidak ditemukan");
 
-  const setor = await prisma.setorEkspedisi.findFirst({
-    where: { id: setorEkspedisiId, nasabahId: nasabah.id },
-  });
-  if (!setor) throw new Error("Data setor tidak ditemukan");
-  if (setor.status !== "DALAM_PENJEMPUTAN")
-    throw new Error("Status tidak valid untuk aksi ini");
+    const setor = await prisma.setorEkspedisi.findFirst({
+      where: { id: setorEkspedisiId, nasabahId: nasabah.id },
+    });
+    if (!setor) throw new Error("Data setor tidak ditemukan");
+    if (setor.status !== "DALAM_PENJEMPUTAN")
+      throw new Error("Status tidak valid untuk aksi ini");
 
-  await prisma.setorEkspedisi.update({
-    where: { id: setorEkspedisiId },
-    data: { status: "SUDAH_DISERAHKAN", diserahkanAt: new Date() },
-  });
+    await prisma.setorEkspedisi.update({
+      where: { id: setorEkspedisiId },
+      data: { status: "SUDAH_DISERAHKAN", diserahkanAt: new Date() },
+    });
 
-  for (const p of REVALIDATE_PATHS) revalidatePath(p);
+    for (const p of REVALIDATE_PATHS) revalidatePath(p);
+    return { success: true };
+  } catch (error) {
+    console.error("konfirmasiSerahTerima error:", error);
+    return {
+      success: false,
+      error:
+        error instanceof Error
+          ? error.message
+          : "Gagal konfirmasi serah terima",
+    };
+  }
 }
 
 /** Fetch data nasabah + kedua jenis setoran (gabung untuk halaman setor-sampah konsumen) */

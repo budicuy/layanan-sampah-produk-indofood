@@ -228,5 +228,10 @@ bun run format
   - Mempercepat kueri nasabah pada fitur pencairan Bank Sampah dengan mengganti relasi JOIN `findFirst` yang lambat menjadi lookup langsung menggunakan kunci unik/primer `findUnique` berdasarkan `userId` dari session.
   - Menyelesaikan tipe data tidak cocok pada admin tabungan dengan merelasikan serta menggabungkan alur `setorLangsung` dan `setorEkspedisi` menjadi list `setorSampah` yang terurut di server sebelum dikirimkan ke frontend, guna menghindari potensi crash akibat properti `.setorSampah` bernilai `undefined`.
 
+- **Penanganan Error Server Actions (Produksi)**:
+  - Mengubah aksi server `submitSetorLangsung`, `submitSetorSampah`, dan `konfirmasiSerahTerima` di dashboard konsumen agar menangkap error menggunakan `try/catch` dan mengembalikan objek status `{ success, error }` alih-alih melempar error langsung.
+  - Hal ini mencegah Next.js menyamarkan pesan error asli di lingkungan produksi dengan pesan generic *"An error occurred in the Server Components render"*, sehingga memudahkan diagnosis kendala konfigurasi R2, Neon DB, atau API Key Gemini secara langsung di antarmuka konsumen.
+
+
 
 

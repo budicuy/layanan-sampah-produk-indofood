@@ -164,9 +164,13 @@ function BtnKonfirmasiSerahTerima({
     setLoading(true);
     setError(null);
     try {
-      await konfirmasiSerahTerima(setorSampahId);
-      setDone(true);
-      onSuccess();
+      const res = await konfirmasiSerahTerima(setorSampahId);
+      if (res && !res.success) {
+        setError(res.error || "Terjadi kesalahan");
+      } else {
+        setDone(true);
+        onSuccess();
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Terjadi kesalahan");
     } finally {
@@ -255,7 +259,7 @@ function FormSetorSampah({
         proofMimeList.push(res.mime);
       }
 
-      await submitSetorSampah({
+      const res = await submitSetorSampah({
         jenisSampah: form.jenisSampah,
         beratEstimasi: Number(form.beratEstimasi),
         keterangan: form.keterangan || undefined,
@@ -266,18 +270,22 @@ function FormSetorSampah({
         gambarBuktiMimeList: proofMimeList,
       });
 
-      setSuccess(true);
-      setForm({
-        jenisSampah: "PLASTIK",
-        beratEstimasi: "",
-        keterangan: "",
-        alamatPenjemputan: defaultAlamat ?? "",
-      });
-      setScaleFile(null);
-      setScalePreview(null);
-      setProofFiles([]);
-      setProofPreviews([]);
-      onSuccess();
+      if (res && !res.success) {
+        setError(res.error || "Terjadi kesalahan");
+      } else {
+        setSuccess(true);
+        setForm({
+          jenisSampah: "PLASTIK",
+          beratEstimasi: "",
+          keterangan: "",
+          alamatPenjemputan: defaultAlamat ?? "",
+        });
+        setScaleFile(null);
+        setScalePreview(null);
+        setProofFiles([]);
+        setProofPreviews([]);
+        onSuccess();
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Terjadi kesalahan");
     } finally {
@@ -595,7 +603,7 @@ function FormSetorLangsung({
         proofMimeList.push(res.mime);
       }
 
-      await submitSetorLangsung({
+      const res = await submitSetorLangsung({
         jenisSampah: form.jenisSampah,
         beratEstimasi: Number(form.beratEstimasi),
         keterangan: form.keterangan || undefined,
@@ -605,13 +613,17 @@ function FormSetorLangsung({
         gambarBuktiMimeList: proofMimeList,
       });
 
-      setSuccess(true);
-      setForm({ jenisSampah: "PLASTIK", beratEstimasi: "", keterangan: "" });
-      setScaleFile(null);
-      setScalePreview(null);
-      setProofFiles([]);
-      setProofPreviews([]);
-      onSuccess();
+      if (res && !res.success) {
+        setError(res.error || "Terjadi kesalahan");
+      } else {
+        setSuccess(true);
+        setForm({ jenisSampah: "PLASTIK", beratEstimasi: "", keterangan: "" });
+        setScaleFile(null);
+        setScalePreview(null);
+        setProofFiles([]);
+        setProofPreviews([]);
+        onSuccess();
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Terjadi kesalahan");
     } finally {
