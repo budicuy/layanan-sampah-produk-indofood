@@ -62,22 +62,17 @@ function extractJson(text: string): string | null {
 }
 
 /**
- * Optimizes image size by reducing quality if needed
- * This helps reduce API payload and improve response time
+ * Checks image size and warns if it's excessively large
+ * This helps identify potential performance issues with image payloads
  */
-function optimizeImageSize(imageBuffer: Buffer): Buffer {
-  // For now, just return the buffer as-is since image is already compressed on client
-  // The client-side compression (browser-image-compression) should already handle this
-  // If the buffer is still too large, we could implement server-side JPEG quality reduction
-  // but for now the client-side compression should be sufficient
-  
+function checkImageSize(imageBuffer: Buffer): Buffer {
   const sizeInMB = imageBuffer.length / (1024 * 1024);
   if (sizeInMB > 5) {
     console.warn(
       `⚠️ Image size is ${sizeInMB.toFixed(2)}MB, consider client-side compression`,
     );
   }
-  
+
   return imageBuffer;
 }
 
@@ -90,9 +85,9 @@ export async function analyzeScaleImage(
     throw new Error("GEMINI_API_KEY is not configured");
   }
 
-  // Optimize image size before sending to API
-  const optimizedBuffer = optimizeImageSize(imageBuffer);
-  const base64Image = optimizedBuffer.toString("base64");
+  // Check image size for potential optimization opportunities
+  const checkedBuffer = checkImageSize(imageBuffer);
+  const base64Image = checkedBuffer.toString("base64");
   const models = [
     process.env.GEMINI_MODEL_1,
     process.env.GEMINI_MODEL_2,
@@ -114,10 +109,15 @@ Aturan:
 - alasan_gagal: string penjelasan jika terbaca=false, atau null jika terbaca=true`;
 
   // Create array of model attempts with optimized timeouts
-  // Flash models (faster) get shorter timeout, while heavier models get longer
+  // Known flash models get shorter timeout, while other models get longer
+  const modelTimeoutMap: { [key: string]: number } = {
+    "gemini-3.1-flash-lite": 10000,
+    "gemini-3.2-flash": 10000,
+    "gemini-3.1-flash": 10000,
+  };
+
   const modelAttempts = models.map((model, index) => {
-    const isFlashModel = model.includes("flash");
-    const timeout = isFlashModel ? 10000 : 15000; // 10s for flash, 15s for heavier models
+    const timeout = modelTimeoutMap[model] || 15000; // Default 15s for unknown models
     return attemptModelAnalysis(
       model,
       index,
@@ -129,10 +129,9 @@ Aturan:
     );
   });
 
-  // Try models with Promise.race for faster failure - try all at once
-  // but return the first successful one or continue with fallback
+  // Try models sequentially, starting with the primary model (first in list)
   try {
-    // First, try the primary model (should be flash-lite for speed)
+    // First, try the primary model
     const result = await modelAttempts[0];
     console.log(`✅ Model 1 (${models[0]}) parsed successfully:`, result);
     return result;
