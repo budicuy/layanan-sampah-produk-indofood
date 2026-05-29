@@ -251,5 +251,8 @@ bun run format
   - `Nasabah.update` tetap individual karena sudah teragregasi per nasabah unik (biasanya hanya 1–5 update) dan harus menjaga atomisitas increment per nasabah.
   - Hasil akhir: batch verifikasi 49 item kini hanya membutuhkan **~5 SQL statements total** (1 raw UPDATE + N nasabah update + 1 createMany), dibanding ~100 sebelumnya.
 
-
-
+- **Pagination & Filter Tabungan Nasabah (Dashboard Admin)**:
+  - Mengimplementasikan server-side pagination, pencarian nama/NIK/rekening nasabah, serta filter kategori nasabah pada modul **Tabungan Nasabah** (`/dashboard-admin/tabungan-nasabah/tabungan`) untuk optimasi performa dan kenyamanan navigasi.
+  - Memindahkan perhitungan statistik global (`totalPoin`, `totalSaldo`, `totalSetoranSelesai`, `nasabahAktif`) langsung ke query database agregat di sisi server.
+  - Menggunakan query teroptimasi `findMany` dengan inArray ID nasabah terfilter untuk mencegah kelebihan pemuatan data relasional (`setorLangsung`, `setorEkspedisi`, `mutasiSaldo`).
+  - Menambahkan *inline loading spinner* di dalam body tabel untuk mempertahankan layout visual yang mulus tanpa geseran tata letak (*layout shift*), dan pagination footer premium yang intuitif.
