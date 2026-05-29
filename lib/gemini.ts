@@ -65,15 +65,13 @@ function extractJson(text: string): string | null {
  * Checks image size and warns if it's excessively large
  * This helps identify potential performance issues with image payloads
  */
-function checkImageSize(imageBuffer: Buffer): Buffer {
+function checkImageSize(imageBuffer: Buffer): void {
   const sizeInMB = imageBuffer.length / (1024 * 1024);
   if (sizeInMB > 5) {
     console.warn(
       `⚠️ Image size is ${sizeInMB.toFixed(2)}MB, consider client-side compression`,
     );
   }
-
-  return imageBuffer;
 }
 
 export async function analyzeScaleImage(
@@ -86,8 +84,8 @@ export async function analyzeScaleImage(
   }
 
   // Check image size for potential optimization opportunities
-  const checkedBuffer = checkImageSize(imageBuffer);
-  const base64Image = checkedBuffer.toString("base64");
+  checkImageSize(imageBuffer);
+  const base64Image = imageBuffer.toString("base64");
   const models = [
     process.env.GEMINI_MODEL_1,
     process.env.GEMINI_MODEL_2,
