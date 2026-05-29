@@ -1,7 +1,7 @@
 import "dotenv/config";
 import { randomUUID } from "node:crypto";
 import { hash } from "bcryptjs";
-import { db } from "../lib/db";
+import { db } from "../db";
 import {
   account,
   ekpedisi,
@@ -19,7 +19,7 @@ import {
   setorEkspedisi,
   setorLangsung,
   user,
-} from "../lib/db/schema";
+} from "./schema";
 
 import { AdminSeed } from "./seeder/seed_admin";
 import { EkpedisiSeed } from "./seeder/seed_ekspedisi";
