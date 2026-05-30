@@ -261,3 +261,10 @@ bun run format
   - Menambahkan **100 data seeder kupon** dengan berbagai variasi status (`AKTIF`, `DIGUNAKAN`, `EXPIRED`), tanggal klaim, biaya poin, serta nasabah asosiasi di file `lib/db/seed.ts`.
   - Mengimplementasikan server-side pagination dan pencarian debounced pada halaman **Riwayat Kupon Terklaim** (`/dashboard-admin/reward-poin/kupon`) agar pencarian nama nasabah, kode kupon, atau voucher belanja berjalan cepat dan terpaginasi langsung dari database.
   - Menyediakan *inline loading state* pada tabel kupon dan footer pagination navigasi yang seragam.
+
+- **Pagination & Seeder Pencairan Dana (Dashboard Admin)**:
+  - Menambahkan **50 data seeder pencairan dana** khusus untuk nasabah berkategori `BANK_SAMPAH` dengan variasi status (`DIAJUKAN`, `DIVERIFIKASI`, `DICAIRKAN`, `DITOLAK`), tanggal pengajuan, jumlah nominal kelipatan Rp 50.000, serta bukti transfer dummy di file `lib/db/seed.ts`.
+  - Mengimplementasikan server-side pagination, pencarian nama/username nasabah, dan filter status pencairan pada modul **Pencairan Dana Bank Sampah** (`/dashboard-admin/reward-poin/pencairan`) untuk mempercepat rendering antarmuka admin.
+  - Memindahkan kalkulasi statistik pencairan (`Menunggu`, `Diverifikasi`, `Dicairkan`, `Total Cair`) dari runtime javascript client ke query database agregat di sisi server.
+  - Menyediakan *inline loading spinner* dan pagination footer premium yang intuitif.
+```

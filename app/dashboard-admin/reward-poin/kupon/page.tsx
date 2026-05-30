@@ -141,7 +141,7 @@ export default function ClaimedCouponsPage() {
           </p>
         </div>
       ) : (
-        <div className="bg-white border border-zinc-100 rounded-[32px] overflow-hidden shadow-sm">
+        <div className="bg-white border border-zinc-100 rounded-4xl overflow-hidden shadow-sm">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>

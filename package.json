@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "biome check --write --unsafe",
     "format": "biome format --write",
+    "typecheck": "tsc --noEmit",
     "db:seed": "bun run lib/db/seed.ts"
   },
   "dependencies": {

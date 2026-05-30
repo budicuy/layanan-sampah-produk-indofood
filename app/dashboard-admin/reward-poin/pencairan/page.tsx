@@ -8,11 +8,12 @@ import {
   Clock,
   Eye,
   RefreshCw,
+  Search,
   Upload,
   XCircle,
 } from "lucide-react";
 import Image from "next/image";
-import { useEffect, useRef, useState, useTransition } from "react";
+import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import toast from "react-hot-toast";
 import {
   cairkanPencairan,
@@ -68,6 +69,18 @@ const STATUS_CONFIG: Record<
 export default function AdminPencairanPage() {
   const [list, setList] = useState<PencairanItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
+  const [filterStatus, setFilterStatus] = useState("ALL");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [total, setTotal] = useState(0);
+  const [stats, setStats] = useState({
+    diajukan: 0,
+    diverifikasi: 0,
+    dicairkan: 0,
+    totalNilai: 0,
+  });
+
   const [activeModal, setActiveModal] = useState<{
     type: "cairkan" | "tolak";
     item: PencairanItem;
@@ -80,17 +93,39 @@ export default function AdminPencairanPage() {
   const [isPending, startTransition] = useTransition();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const fetchData = async () => {
-    setLoading(true);
-    const data = await getPencairanAdminList();
-    setList(data as PencairanItem[]);
-    setLoading(false);
-  };
+  const pageSize = 10;
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: only run on mount
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearchQuery(searchTerm);
+      setCurrentPage(1);
+    }, 300);
+    return () => clearTimeout(handler);
+  }, [searchTerm]);
+
+  const fetchData = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await getPencairanAdminList({
+        page: currentPage,
+        pageSize,
+        searchTerm: debouncedSearchQuery,
+        filterStatus,
+      });
+      setList(res.data as unknown as PencairanItem[]);
+      setTotal(res.total);
+      setStats(res.stats);
+    } catch (error) {
+      console.error(error);
+      toast.error("Gagal mengambil data pencairan");
+    } finally {
+      setLoading(false);
+    }
+  }, [currentPage, debouncedSearchQuery, filterStatus]);
+
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [fetchData]);
 
   const handleFotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -100,7 +135,6 @@ export default function AdminPencairanPage() {
     try {
       const originalSizeKB = (file.size / 1024).toFixed(1);
 
-      // Kompresi tahap 1: target 45KB (buffer aman di bawah limit 50KB)
       let compressed = await imageCompression(file, {
         maxSizeMB: 0.045,
         maxWidthOrHeight: 1024,
@@ -109,7 +143,6 @@ export default function AdminPencairanPage() {
         initialQuality: 0.6,
       });
 
-      // Jika masih >48KB, lakukan kompresi ulang lebih agresif
       if (compressed.size > 49152) {
         compressed = await imageCompression(compressed, {
           maxSizeMB: 0.04,
@@ -120,7 +153,6 @@ export default function AdminPencairanPage() {
         });
       }
 
-      // Jika masih >48KB, kompresi terakhir paling agresif
       if (compressed.size > 49152) {
         compressed = await imageCompression(compressed, {
           maxSizeMB: 0.035,
@@ -201,25 +233,45 @@ export default function AdminPencairanPage() {
       minimumFractionDigits: 0,
     }).format(n);
 
-  const stats = {
-    diajukan: list.filter((x) => x.status === "DIAJUKAN").length,
-    diverifikasi: list.filter((x) => x.status === "DIVERIFIKASI").length,
-    dicairkan: list.filter((x) => x.status === "DICAIRKAN").length,
-    totalNilai: list
-      .filter((x) => x.status === "DICAIRKAN")
-      .reduce((s, x) => s + x.jumlah, 0),
-  };
+  const totalPages = Math.ceil(total / pageSize);
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-zinc-900">
-          Pencairan Dana Bank Sampah
-        </h1>
-        <p className="text-sm text-zinc-500 mt-1">
-          Kelola pengajuan pencairan dari nasabah bank sampah
-        </p>
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-zinc-900">
+            Pencairan Dana Bank Sampah
+          </h1>
+          <p className="text-sm text-zinc-500 mt-1">
+            Kelola pengajuan pencairan dari nasabah bank sampah
+          </p>
+        </div>
+        <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
+          <div className="relative flex-1 lg:flex-none">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 w-4 h-4" />
+            <input
+              type="text"
+              placeholder="Cari nasabah..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10 pr-4 py-2 bg-zinc-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-primary/20 w-full lg:w-64"
+            />
+          </div>
+          <select
+            value={filterStatus}
+            onChange={(e) => {
+              setFilterStatus(e.target.value);
+              setCurrentPage(1);
+            }}
+            className="px-3 py-2 bg-zinc-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-primary/20 text-zinc-700 font-medium cursor-pointer">
+            <option value="ALL">Semua Status</option>
+            <option value="DIAJUKAN">Diajukan</option>
+            <option value="DIVERIFIKASI">Diverifikasi</option>
+            <option value="DICAIRKAN">Dicairkan</option>
+            <option value="DITOLAK">Ditolak</option>
+          </select>
+        </div>
       </div>
 
       {/* Stats */}
@@ -275,7 +327,7 @@ export default function AdminPencairanPage() {
           </button>
         </div>
 
-        {loading ? (
+        {loading && list.length === 0 ? (
           <div className="p-6 space-y-3">
             {[1, 2, 3].map((i) => (
               <div
@@ -290,97 +342,156 @@ export default function AdminPencairanPage() {
             <p className="text-sm">Belum ada pengajuan pencairan</p>
           </div>
         ) : (
-          <div className="divide-y divide-zinc-50">
-            {list.map((item) => {
-              const cfg = STATUS_CONFIG[item.status];
-              return (
-                <div
-                  key={item.id}
-                  className="px-6 py-4 flex items-center gap-4 hover:bg-zinc-50/50 transition-colors">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1 flex-wrap">
-                      <span className="text-sm font-bold text-zinc-900">
-                        {item.nasabah.user.name}
-                      </span>
-                      <span className="text-xs text-zinc-400">
-                        @{item.nasabah.user.username}
-                      </span>
-                      <span
-                        className={`inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full border ${cfg.color}`}>
-                        {cfg.icon} {cfg.label}
-                      </span>
-                    </div>
-                    <p className="text-lg font-black text-zinc-900">
-                      {formatRupiah(item.jumlah)}
-                    </p>
-                    <p className="text-xs text-zinc-400 mt-0.5">
-                      {new Date(item.diajukanAt).toLocaleDateString("id-ID", {
-                        day: "numeric",
-                        month: "long",
-                        year: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </p>
-                    {item.catatan && (
-                      <p className="text-xs text-zinc-500 mt-1 truncate">
-                        "{item.catatan}"
-                      </p>
-                    )}
-                    {item.catatanAdmin && (
-                      <p className="text-xs text-blue-600 mt-1">
-                        Admin: {item.catatanAdmin}
-                      </p>
-                    )}
+          <div>
+            <div className="divide-y divide-zinc-50">
+              {loading && (
+                <div className="px-6 py-4 text-center text-zinc-500">
+                  <div className="flex justify-center items-center gap-2">
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary"></div>
+                    <span>Memuat data...</span>
                   </div>
-                  <div className="shrink-0 flex items-center gap-2">
-                    {item.buktiFoto && (
-                      <button
-                        type="button"
-                        onClick={() => setSelectedPhoto(item.buktiFoto)}
-                        className="p-2 text-blue-600 hover:bg-blue-50 rounded-xl transition-colors"
-                        title="Lihat bukti">
-                        <Eye size={16} />
-                      </button>
-                    )}
-                    {item.status === "DIAJUKAN" && (
-                      <>
+                </div>
+              )}
+              {list.map((item) => {
+                const cfg = STATUS_CONFIG[item.status];
+                return (
+                  <div
+                    key={item.id}
+                    className="px-6 py-4 flex items-center gap-4 hover:bg-zinc-50/50 transition-colors">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1 flex-wrap">
+                        <span className="text-sm font-bold text-zinc-900">
+                          {item.nasabah.user.name}
+                        </span>
+                        <span className="text-xs text-zinc-400">
+                          @{item.nasabah.user.username}
+                        </span>
+                        <span
+                          className={`inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full border ${cfg.color}`}>
+                          {cfg.icon} {cfg.label}
+                        </span>
+                      </div>
+                      <p className="text-lg font-black text-zinc-900">
+                        {formatRupiah(item.jumlah)}
+                      </p>
+                      <p className="text-xs text-zinc-400 mt-0.5">
+                        {new Date(item.diajukanAt).toLocaleDateString("id-ID", {
+                          day: "numeric",
+                          month: "long",
+                          year: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </p>
+                      {item.catatan && (
+                        <p className="text-xs text-zinc-500 mt-1 truncate">
+                          "{item.catatan}"
+                        </p>
+                      )}
+                      {item.catatanAdmin && (
+                        <p className="text-xs text-blue-600 mt-1">
+                          Admin: {item.catatanAdmin}
+                        </p>
+                      )}
+                    </div>
+                    <div className="shrink-0 flex items-center gap-2">
+                      {item.buktiFoto && (
                         <button
                           type="button"
-                          onClick={() => handleVerifikasi(item)}
-                          disabled={isPending}
-                          className="text-xs font-semibold px-3 py-1.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors disabled:opacity-60">
-                          Verifikasi
+                          onClick={() => setSelectedPhoto(item.buktiFoto)}
+                          className="p-2 text-blue-600 hover:bg-blue-50 rounded-xl transition-colors"
+                          title="Lihat bukti">
+                          <Eye size={16} />
                         </button>
+                      )}
+                      {item.status === "DIAJUKAN" && (
+                        <>
+                          <button
+                            type="button"
+                            onClick={() => handleVerifikasi(item)}
+                            disabled={isPending}
+                            className="text-xs font-semibold px-3 py-1.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors disabled:opacity-60">
+                            Verifikasi
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setActiveModal({ type: "tolak", item });
+                              setCatatanAdmin("");
+                            }}
+                            className="text-xs font-semibold px-3 py-1.5 bg-red-50 text-red-600 border border-red-200 rounded-xl hover:bg-red-100 transition-colors">
+                            Tolak
+                          </button>
+                        </>
+                      )}
+                      {item.status === "DIVERIFIKASI" && (
                         <button
                           type="button"
                           onClick={() => {
-                            setActiveModal({ type: "tolak", item });
+                            setActiveModal({ type: "cairkan", item });
                             setCatatanAdmin("");
+                            setFoto(null);
+                            setFotoPreview(null);
+                            setCompressionInfo("");
                           }}
-                          className="text-xs font-semibold px-3 py-1.5 bg-red-50 text-red-600 border border-red-200 rounded-xl hover:bg-red-100 transition-colors">
-                          Tolak
+                          className="text-xs font-bold px-3 py-1.5 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-colors">
+                          Cairkan
                         </button>
-                      </>
-                    )}
-                    {item.status === "DIVERIFIKASI" && (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setActiveModal({ type: "cairkan", item });
-                          setCatatanAdmin("");
-                          setFoto(null);
-                          setFotoPreview(null);
-                          setCompressionInfo("");
-                        }}
-                        className="text-xs font-bold px-3 py-1.5 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-colors">
-                        Cairkan
-                      </button>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Pagination Footer */}
+            {totalPages > 1 && (
+              <div className="p-5 md:p-8 border-t border-zinc-100 flex flex-col sm:flex-row items-center justify-between gap-4 bg-zinc-50/30">
+                <p className="text-sm text-zinc-500">
+                  Menampilkan{" "}
+                  <span className="font-bold text-zinc-700">{list.length}</span>{" "}
+                  dari <span className="font-bold text-zinc-700">{total}</span>{" "}
+                  pengajuan
+                </p>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    disabled={currentPage === 1}
+                    onClick={() =>
+                      setCurrentPage((prev) => Math.max(prev - 1, 1))
+                    }
+                    className="px-4 py-2 bg-white border border-zinc-200 rounded-xl text-sm font-semibold text-zinc-700 hover:bg-zinc-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                    Sebelumnya
+                  </button>
+                  <div className="flex items-center gap-1">
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                      (page) => (
+                        <button
+                          key={page}
+                          type="button"
+                          onClick={() => setCurrentPage(page)}
+                          className={`w-9 h-9 flex items-center justify-center rounded-xl text-sm font-semibold transition-all ${
+                            currentPage === page
+                              ? "bg-primary text-white shadow-md shadow-primary/20"
+                              : "bg-white border border-zinc-200 text-zinc-700 hover:bg-zinc-50"
+                          }`}>
+                          {page}
+                        </button>
+                      ),
                     )}
                   </div>
+                  <button
+                    type="button"
+                    disabled={currentPage === totalPages}
+                    onClick={() =>
+                      setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                    }
+                    className="px-4 py-2 bg-white border border-zinc-200 rounded-xl text-sm font-semibold text-zinc-700 hover:bg-zinc-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                    Selanjutnya
+                  </button>
                 </div>
-              );
-            })}
+              </div>
+            )}
           </div>
         )}
       </div>

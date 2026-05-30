@@ -547,6 +547,71 @@ async function main() {
     await db.insert(kupon).values(kp);
   }
 
+  // Seed 50 Pencairan
+  console.log("💸 Seeding 50 pencairan data...");
+  const pencairanList = [];
+  const bankSampahNasabahs = nasabahsData.filter(
+    (n) => n.kategori === "BANK_SAMPAH",
+  );
+
+  if (bankSampahNasabahs.length > 0) {
+    for (let i = 0; i < 50; i++) {
+      const nasabahItem = bankSampahNasabahs[i % bankSampahNasabahs.length];
+      const statusSeed =
+        i % 4 === 0
+          ? "DIAJUKAN"
+          : i % 4 === 1
+            ? "DIVERIFIKASI"
+            : i % 4 === 2
+              ? "DICAIRKAN"
+              : "DITOLAK";
+      const jumlah = (2 + (i % 5)) * 50000;
+
+      pencairanList.push({
+        id: randomUUID(),
+        nasabahId: nasabahItem.id,
+        jumlah,
+        status: statusSeed as
+          | "DIAJUKAN"
+          | "DIVERIFIKASI"
+          | "DICAIRKAN"
+          | "DITOLAK",
+        catatan: `Mohon dicairkan dana tabungan sebesar Rp ${jumlah.toLocaleString("id-ID")}`,
+        catatanAdmin:
+          statusSeed === "DITOLAK"
+            ? "Maaf, data rekening tidak valid atau tidak cocok."
+            : statusSeed === "DICAIRKAN"
+              ? "Transfer berhasil dilakukan."
+              : null,
+        buktiFoto:
+          statusSeed === "DICAIRKAN"
+            ? `https://placehold.co/600x400/png?text=Bukti+Transfer+${i}`
+            : null,
+        diajukanAt: new Date(Date.now() - (60 - i) * 24 * 60 * 60 * 1000),
+        diverifikasi:
+          statusSeed !== "DIAJUKAN"
+            ? new Date(
+                Date.now() -
+                  (60 - i) * 24 * 60 * 60 * 1000 +
+                  4 * 60 * 60 * 1000,
+              )
+            : null,
+        dicairkan:
+          statusSeed === "DICAIRKAN"
+            ? new Date(
+                Date.now() -
+                  (60 - i) * 24 * 60 * 60 * 1000 +
+                  8 * 60 * 60 * 1000,
+              )
+            : null,
+      });
+    }
+
+    for (const pc of pencairanList) {
+      await db.insert(pencairan).values(pc);
+    }
+  }
+
   console.log(`✨ Seeding completed!`);
 }
 

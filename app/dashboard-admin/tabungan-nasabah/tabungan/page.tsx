@@ -328,10 +328,10 @@ export default function TabunganNasabahPage() {
                             {nasabah.user?.name[0]?.toUpperCase()}
                           </div>
                           <div className="min-w-0">
-                            <p className="font-bold text-zinc-900 text-[13px] md:text-sm leading-tight truncate max-w-[120px] md:max-w-none">
+                            <p className="font-bold text-zinc-900 text-[13px] md:text-sm leading-tight truncate max-w-30 md:max-w-none">
                               {nasabah.user?.name}
                             </p>
-                            <p className="text-[10px] text-zinc-400 mt-0.5 truncate max-w-[120px] md:max-w-none">
+                            <p className="text-[10px] text-zinc-400 mt-0.5 truncate max-w-30 md:max-w-none">
                               {nasabah.kategori.replace(/_/g, " ")}
                             </p>
                           </div>
@@ -484,7 +484,7 @@ export default function TabunganNasabahPage() {
       {/* MODAL DETAIL */}
       {selectedNasabah && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-900/50 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-white rounded-[32px] w-full max-w-5xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl animate-in zoom-in-95 duration-200">
+          <div className="bg-white rounded-4xl w-full max-w-5xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl animate-in zoom-in-95 duration-200">
             {/* Modal Header */}
             <div className="px-6 py-4 md:px-8 md:py-6 border-b border-zinc-100 flex items-center justify-between bg-white shrink-0">
               <div className="flex items-center gap-4">
@@ -584,7 +584,7 @@ export default function TabunganNasabahPage() {
                   {/* Ringkasan poin & setoran */}
                   <div className="lg:col-span-2 grid grid-cols-2 gap-4">
                     {/* Poin / Saldo */}
-                    <div className="col-span-2 bg-primary rounded-[24px] p-6 text-white relative overflow-hidden shadow-xl shadow-primary/20">
+                    <div className="col-span-2 bg-primary rounded-3xl p-6 text-white relative overflow-hidden shadow-xl shadow-primary/20">
                       <div className="relative z-10">
                         <p className="text-white/70 text-sm font-medium">
                           {selectedNasabah.kategori === "BANK_SAMPAH"
@@ -698,7 +698,7 @@ export default function TabunganNasabahPage() {
                 </div>
 
                 {/* Riwayat setoran sampah */}
-                <div className="bg-white rounded-[32px] border border-zinc-100 shadow-sm overflow-hidden">
+                <div className="bg-white rounded-4xl border border-zinc-100 shadow-sm overflow-hidden">
                   <div className="p-5 md:p-8 border-b border-zinc-100">
                     <h3 className="text-lg md:text-xl font-heading font-bold text-zinc-900">
                       Riwayat Setoran Sampah
@@ -712,7 +712,7 @@ export default function TabunganNasabahPage() {
                     </div>
                   ) : (
                     <div className="overflow-x-auto w-full">
-                      <table className="w-full text-left border-collapse min-w-[800px]">
+                      <table className="w-full text-left border-collapse min-w-200">
                         <thead>
                           <tr className="bg-zinc-50/80">
                             {[
@@ -856,7 +856,7 @@ export default function TabunganNasabahPage() {
                                 </td>
                                 <td className="px-4 md:px-6 py-4 md:py-5">
                                   {s.ekpedisi ? (
-                                    <div className="flex items-start gap-1.5 min-w-[120px]">
+                                    <div className="flex items-start gap-1.5 min-w-30">
                                       <Truck
                                         size={13}
                                         className="text-zinc-400 mt-0.5 shrink-0"
@@ -893,7 +893,7 @@ export default function TabunganNasabahPage() {
 
                 {/* Riwayat mutasi poin / saldo */}
                 {selectedNasabah.mutasiSaldo.length > 0 && (
-                  <div className="bg-white rounded-[32px] border border-zinc-100 shadow-sm overflow-hidden">
+                  <div className="bg-white rounded-4xl border border-zinc-100 shadow-sm overflow-hidden">
                     <div className="p-5 md:p-8 border-b border-zinc-100">
                       <h3 className="text-lg md:text-xl font-heading font-bold text-zinc-900">
                         {selectedNasabah.kategori === "BANK_SAMPAH"

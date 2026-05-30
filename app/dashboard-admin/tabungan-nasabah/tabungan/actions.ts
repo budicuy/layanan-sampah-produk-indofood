@@ -12,6 +12,35 @@ async function checkAdminAuth() {
   }
 }
 
+async function fetchNasabahsWithRelations(filteredIds: string[]) {
+  return db.query.nasabah.findMany({
+    where: inArray(nasabah.id, filteredIds),
+    orderBy: (nasabah, { desc }) => [desc(nasabah.poin)],
+    with: {
+      user: {
+        columns: { name: true, role: true },
+      },
+      setorLangsung: {
+        orderBy: (setorLangsung, { desc }) => [desc(setorLangsung.createdAt)],
+        limit: 10,
+      },
+      setorEkspedisi: {
+        orderBy: (setorEkspedisi, { desc }) => [desc(setorEkspedisi.createdAt)],
+        limit: 10,
+        with: {
+          ekpedisi: {
+            columns: { alamat: true, noTelp: true },
+          },
+        },
+      },
+      mutasiSaldo: {
+        orderBy: (mutasiSaldo, { desc }) => [desc(mutasiSaldo.createdAt)],
+        limit: 20,
+      },
+    },
+  });
+}
+
 export async function getTabunganData(params?: {
   page?: number;
   pageSize?: number;
@@ -157,36 +186,9 @@ export async function getTabunganData(params?: {
 
   const filteredIds = filteredIdsRows.map((r) => r.id);
 
-  let data: Awaited<ReturnType<typeof db.query.nasabah.findMany>> = [];
+  let data: Awaited<ReturnType<typeof fetchNasabahsWithRelations>> = [];
   if (filteredIds.length > 0) {
-    data = await db.query.nasabah.findMany({
-      where: inArray(nasabah.id, filteredIds),
-      orderBy: (nasabah, { desc }) => [desc(nasabah.poin)],
-      with: {
-        user: {
-          columns: { name: true, role: true },
-        },
-        setorLangsung: {
-          orderBy: (setorLangsung, { desc }) => [desc(setorLangsung.createdAt)],
-          limit: 10,
-        },
-        setorEkspedisi: {
-          orderBy: (setorEkspedisi, { desc }) => [
-            desc(setorEkspedisi.createdAt),
-          ],
-          limit: 10,
-          with: {
-            ekpedisi: {
-              columns: { alamat: true, noTelp: true },
-            },
-          },
-        },
-        mutasiSaldo: {
-          orderBy: (mutasiSaldo, { desc }) => [desc(mutasiSaldo.createdAt)],
-          limit: 20,
-        },
-      },
-    });
+    data = await fetchNasabahsWithRelations(filteredIds);
   }
 
   const mappedData = data.map((nasabah) => {

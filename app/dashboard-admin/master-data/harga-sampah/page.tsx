@@ -161,12 +161,6 @@ export default function HargaSampahPage() {
     }).format(number);
   };
 
-  const _averageHarga = (jenis: JenisSampah) => {
-    const data = initialData.filter((h) => h.jenisSampah === jenis);
-    if (data.length === 0) return 0;
-    return data.reduce((acc, curr) => acc + curr.harga, 0) / data.length;
-  };
-
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
       {/* Header */}
@@ -190,7 +184,7 @@ export default function HargaSampahPage() {
 
       {/* Stats Summary Section */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-sky-50/50 rounded-[24px] border border-sky-100 p-6 shadow-sm group hover:bg-sky-50 transition-colors">
+        <div className="bg-sky-50/50 rounded-3xl border border-sky-100 p-6 shadow-sm group hover:bg-sky-50 transition-colors">
           <div className="flex items-center justify-between mb-4">
             <div className="w-10 h-10 rounded-xl bg-sky-100 flex items-center justify-center text-sky-600">
               <TrendingUp size={20} />
@@ -205,7 +199,7 @@ export default function HargaSampahPage() {
           <p className="text-xs text-zinc-500 mt-1">Rata-rata Harga Plastik</p>
         </div>
 
-        <div className="bg-amber-50/50 rounded-[24px] border border-amber-100 p-6 shadow-sm group hover:bg-amber-50 transition-colors">
+        <div className="bg-amber-50/50 rounded-3xl border border-amber-100 p-6 shadow-sm group hover:bg-amber-50 transition-colors">
           <div className="flex items-center justify-between mb-4">
             <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center text-amber-600">
               <TrendingUp size={20} />
@@ -220,7 +214,7 @@ export default function HargaSampahPage() {
           <p className="text-xs text-zinc-500 mt-1">Rata-rata Harga Karton</p>
         </div>
 
-        <div className="bg-blue-50/50 rounded-[24px] border border-blue-100 p-6 shadow-sm group hover:bg-blue-50 transition-colors">
+        <div className="bg-blue-50/50 rounded-3xl border border-blue-100 p-6 shadow-sm group hover:bg-blue-50 transition-colors">
           <div className="flex items-center justify-between mb-4">
             <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center text-blue-600">
               <TrendingUp size={20} />
@@ -237,7 +231,7 @@ export default function HargaSampahPage() {
           </p>
         </div>
 
-        <div className="bg-zinc-50 rounded-[24px] border border-zinc-200 p-6 shadow-sm">
+        <div className="bg-zinc-50 rounded-3xl border border-zinc-200 p-6 shadow-sm">
           <div className="flex items-center justify-between mb-4">
             <div className="w-10 h-10 rounded-xl bg-zinc-200 flex items-center justify-center text-zinc-600">
               <Coins size={20} />
@@ -253,7 +247,7 @@ export default function HargaSampahPage() {
         </div>
       </div>
 
-      <div className="bg-white rounded-[24px] md:rounded-[32px] border border-zinc-100 shadow-sm overflow-hidden">
+      <div className="bg-white rounded-3xl md:rounded-4xl border border-zinc-100 shadow-sm overflow-hidden">
         <div className="p-5 md:p-8 border-b border-zinc-100 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <h3 className="text-xl font-bold text-zinc-900 font-heading">
             Daftar Harga Acuan
@@ -371,19 +365,13 @@ export default function HargaSampahPage() {
                           type="button"
                           onClick={() => openModal(h)}
                           className="p-1.5 md:p-2 text-zinc-400 hover:text-primary transition-colors hover:bg-blue-50 rounded-lg">
-                          <Edit2
-                            size={16}
-                            className="md:w-[18px] md:h-[18px]"
-                          />
+                          <Edit2 size={16} className="md:w-4.5 md:h-4.5" />
                         </button>
                         <button
                           type="button"
                           onClick={() => openDeleteModal(h)}
                           className="p-1.5 md:p-2 text-zinc-400 hover:text-red-600 transition-colors hover:bg-red-50 rounded-lg">
-                          <Trash2
-                            size={16}
-                            className="md:w-[18px] md:h-[18px]"
-                          />
+                          <Trash2 size={16} className="md:w-4.5 md:h-4.5" />
                         </button>
                       </div>
                     </td>
@@ -445,7 +433,7 @@ export default function HargaSampahPage() {
       {/* Modal Form */}
       {isModalOpen && (
         <div className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-zinc-900/60 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-white w-full max-w-lg rounded-[32px] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+          <div className="bg-white w-full max-w-lg rounded-4xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
             <div className="p-8 border-b border-zinc-100 flex items-center justify-between">
               <h3 className="text-2xl font-bold text-zinc-900 font-heading">
                 {selectedHarga ? "Edit Harga" : "Tambah Harga Baru"}

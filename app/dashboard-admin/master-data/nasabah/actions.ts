@@ -178,7 +178,7 @@ export async function getNasabahData(params?: {
 
   const data = rows.map((row) => ({
     ...row.nasabah,
-    user: row.user.id ? row.user : null,
+    user: row.user?.id ? row.user : null,
   }));
 
   return {
