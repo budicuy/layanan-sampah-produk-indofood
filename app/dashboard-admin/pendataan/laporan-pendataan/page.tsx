@@ -20,12 +20,17 @@ import {
   X,
 } from "lucide-react";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   LaporanBarChart,
   LaporanDonutChart,
 } from "@/app/dashboard-admin/components/Charts";
-import { getLaporanData } from "@/app/dashboard-admin/pendataan/laporan-pendataan/actions";
+import {
+  getLaporanKupon,
+  getLaporanPencairan,
+  getLaporanSetoran,
+  getLaporanStats,
+} from "@/app/dashboard-admin/pendataan/laporan-pendataan/actions";
 
 // ─── Data helpers ────────────────────────────────────────────────────────────
 
@@ -139,24 +144,132 @@ const STATUS_KUPON_CONFIG = {
 // ─── Page ────────────────────────────────────────────────────────────────────
 
 export default function LaporanPage() {
+  // Data lists
   const [setoran, setSetoran] = useState<LaporanRow[]>([]);
   const [pencairan, setPencairan] = useState<PencairanRow[]>([]);
   const [kupon, setKupon] = useState<KuponRow[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+
+  // Loading states
+  const [isLoadingStats, setIsLoadingStats] = useState(true);
+  const [isLoadingTab, setIsLoadingTab] = useState(true);
+
+  // Search & Tab states
   const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [activeTab, setActiveTab] = useState<"setoran" | "pencairan" | "kupon">(
     "setoran",
   );
   const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
 
+  // Pagination states per tab
+  const [pageSetoran, setPageSetoran] = useState(1);
+  const [totalSetoran, setTotalSetoran] = useState(0);
+
+  const [pagePencairan, setPagePencairan] = useState(1);
+  const [totalPencairan, setTotalPencairan] = useState(0);
+
+  const [pageKupon, setPageKupon] = useState(1);
+  const [totalKupon, setTotalKupon] = useState(0);
+
+  const pageSize = 10;
+
+  // Stats & Charts data
+  const [statsData, setStatsData] = useState<{
+    setoranStats: {
+      totalBerat: number;
+      totalPoin: number;
+      jumlahSelesai: number;
+      nasabahUnik: number;
+      rawSetoran: {
+        selesaiAt: Date | null;
+        createdAt: Date;
+        jenisSampah: string;
+        beratAktual: number | null;
+        beratEstimasi: number;
+      }[];
+    };
+    pencairanStats: {
+      totalCairNominal: number;
+      totalDiajukanNominal: number;
+      totalTransCair: number;
+      totalTransPending: number;
+      totalCount: number;
+    };
+    kuponStats: {
+      totalKuponDitukar: number;
+      totalPoinTukar: number;
+      totalKuponAktif: number;
+      totalKuponDigunakan: number;
+    };
+  } | null>(null);
+
+  // Debounce search
   useEffect(() => {
-    getLaporanData().then((data) => {
-      setSetoran((data.setoran || []) as unknown as LaporanRow[]);
-      setPencairan((data.pencairan || []) as unknown as PencairanRow[]);
-      setKupon((data.kupon || []) as unknown as KuponRow[]);
-      setIsLoading(false);
-    });
+    const handler = setTimeout(() => {
+      setDebouncedSearch(search);
+      setPageSetoran(1);
+      setPagePencairan(1);
+      setPageKupon(1);
+    }, 300);
+    return () => clearTimeout(handler);
+  }, [search]);
+
+  // Load stats once on mount
+  const fetchStats = useCallback(async () => {
+    setIsLoadingStats(true);
+    try {
+      const data = await getLaporanStats();
+      setStatsData(data);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsLoadingStats(false);
+    }
   }, []);
+
+  useEffect(() => {
+    fetchStats();
+  }, [fetchStats]);
+
+  // Load tab data dynamically based on active tab and pagination
+  const fetchTabData = useCallback(async () => {
+    setIsLoadingTab(true);
+    try {
+      if (activeTab === "setoran") {
+        const res = await getLaporanSetoran({
+          page: pageSetoran,
+          pageSize,
+          search: debouncedSearch,
+        });
+        setSetoran(res.data as unknown as LaporanRow[]);
+        setTotalSetoran(res.total);
+      } else if (activeTab === "pencairan") {
+        const res = await getLaporanPencairan({
+          page: pagePencairan,
+          pageSize,
+          search: debouncedSearch,
+        });
+        setPencairan(res.data as unknown as PencairanRow[]);
+        setTotalPencairan(res.total);
+      } else if (activeTab === "kupon") {
+        const res = await getLaporanKupon({
+          page: pageKupon,
+          pageSize,
+          search: debouncedSearch,
+        });
+        setKupon(res.data as unknown as KuponRow[]);
+        setTotalKupon(res.total);
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsLoadingTab(false);
+    }
+  }, [activeTab, pageSetoran, pagePencairan, pageKupon, debouncedSearch]);
+
+  useEffect(() => {
+    fetchTabData();
+  }, [fetchTabData]);
 
   const formatRupiah = (n: number) =>
     new Intl.NumberFormat("id-ID", {
@@ -165,21 +278,13 @@ export default function LaporanPage() {
       minimumFractionDigits: 0,
     }).format(n);
 
-  // ── Statistik Setoran ──────────────────────────────────────────────────────
-  const totalBerat = setoran.reduce(
-    (acc, s) => acc + (s.beratAktual ?? s.beratEstimasi),
-    0,
-  );
-  const totalPoin = setoran.reduce((acc, s) => acc + (s.totalPoin ?? 0), 0);
-  const nasabahUnik = new Set(setoran.map((s) => s.nasabahId)).size;
-  const jumlahSelesai = setoran.length;
-
   // ── Data Chart Setoran ─────────────────────────────────────────────────────
+  const rawSetoranList = statsData?.setoranStats.rawSetoran || [];
   const monthMap = new Map<
     string,
     { plastik: number; karton: number; paperCup: number }
   >();
-  for (const s of [...setoran].reverse()) {
+  for (const s of [...rawSetoranList].reverse()) {
     const key = getMonthLabel(new Date(s.selesaiAt ?? s.createdAt));
     if (!monthMap.has(key)) {
       monthMap.set(key, { plastik: 0, karton: 0, paperCup: 0 });
@@ -198,7 +303,7 @@ export default function LaporanPage() {
     paperCup: Math.round(v.paperCup * 10) / 10,
   }));
 
-  const typeData = setoran.reduce(
+  const typeData = rawSetoranList.reduce(
     (acc, s) => {
       const berat = s.beratAktual ?? s.beratEstimasi;
       if (s.jenisSampah === "PLASTIK") acc.plastik += berat;
@@ -212,57 +317,9 @@ export default function LaporanPage() {
   typeData.karton = Math.round(typeData.karton * 10) / 10;
   typeData.paperCup = Math.round(typeData.paperCup * 10) / 10;
 
-  // ── Statistik Pencairan ────────────────────────────────────────────────────
-  const totalCairNominal = pencairan
-    .filter((p) => p.status === "DICAIRKAN")
-    .reduce((acc, p) => acc + p.jumlah, 0);
-  const totalDiajukanNominal = pencairan
-    .filter((p) => p.status === "DIAJUKAN" || p.status === "DIVERIFIKASI")
-    .reduce((acc, p) => acc + p.jumlah, 0);
-  const totalTransCair = pencairan.filter(
-    (p) => p.status === "DICAIRKAN",
-  ).length;
-  const totalTransPending = pencairan.filter(
-    (p) => p.status === "DIAJUKAN" || p.status === "DIVERIFIKASI",
-  ).length;
-
-  // ── Statistik Kupon ────────────────────────────────────────────────────────
-  const totalKuponDitukar = kupon.length;
-  const totalPoinTukar = kupon.reduce((acc, k) => acc + k.poinCost, 0);
-  const totalKuponAktif = kupon.filter((k) => k.status === "AKTIF").length;
-  const totalKuponDigunakan = kupon.filter(
-    (k) => k.status === "DIGUNAKAN",
-  ).length;
-
-  // ── Filtered List ──────────────────────────────────────────────────────────
-  const filteredSetoran = setoran.filter(
-    (r) =>
-      r.nasabah.user?.name.toLowerCase().includes(search.toLowerCase()) ||
-      r.nasabah.nik.toLowerCase().includes(search.toLowerCase()) ||
-      r.jenisSampah.toLowerCase().includes(search.toLowerCase()),
-  );
-
-  const filteredPencairan = pencairan.filter(
-    (p) =>
-      p.nasabah.user?.name.toLowerCase().includes(search.toLowerCase()) ||
-      p.nasabah.nik.toLowerCase().includes(search.toLowerCase()) ||
-      p.status.toLowerCase().includes(search.toLowerCase()),
-  );
-
-  const filteredKupon = kupon.filter(
-    (k) =>
-      k.nasabah.user?.name.toLowerCase().includes(search.toLowerCase()) ||
-      k.kode.toLowerCase().includes(search.toLowerCase()) ||
-      k.nama.toLowerCase().includes(search.toLowerCase()),
-  );
-
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
+  const totalPagesSetoran = Math.ceil(totalSetoran / pageSize);
+  const totalPagesPencairan = Math.ceil(totalPencairan / pageSize);
+  const totalPagesKupon = Math.ceil(totalKupon / pageSize);
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -281,13 +338,17 @@ export default function LaporanPage() {
       <div className="flex border-b border-zinc-200 overflow-x-auto scrollbar-none gap-2">
         {(
           [
-            { id: "setoran", label: "Setoran Sampah", count: setoran.length },
+            { id: "setoran", label: "Setoran Sampah", count: totalSetoran },
             {
               id: "pencairan",
               label: "Pencairan Dana",
-              count: pencairan.length,
+              count: statsData?.pencairanStats.totalCount || 0,
             },
-            { id: "kupon", label: "Penukaran Kupon", count: kupon.length },
+            {
+              id: "kupon",
+              label: "Penukaran Kupon",
+              count: statsData?.kuponStats.totalKuponDitukar || 0,
+            },
           ] as const
         ).map((t) => (
           <button
@@ -319,28 +380,28 @@ export default function LaporanPage() {
               {
                 icon: CheckCircle2,
                 label: "Total Setoran",
-                value: jumlahSelesai,
+                value: statsData?.setoranStats.jumlahSelesai || 0,
                 sub: "Transaksi selesai",
                 color: "text-green-600 bg-green-50",
               },
               {
                 icon: Scale,
                 label: "Total Berat",
-                value: `${totalBerat.toFixed(1)} kg`,
+                value: `${(statsData?.setoranStats.totalBerat || 0).toFixed(1)} kg`,
                 sub: "Berat aktual timbang",
                 color: "text-blue-600 bg-blue-50",
               },
               {
                 icon: Wallet,
                 label: "Total Poin",
-                value: `${totalPoin} Poin`,
+                value: `${statsData?.setoranStats.totalPoin || 0} Poin`,
                 sub: "Dikreditkan ke nasabah",
                 color: "text-primary bg-red-50",
               },
               {
                 icon: Users,
                 label: "Nasabah Aktif",
-                value: nasabahUnik,
+                value: statsData?.setoranStats.nasabahUnik || 0,
                 sub: "Unik berkontribusi",
                 color: "text-purple-600 bg-purple-50",
               },
@@ -353,7 +414,7 @@ export default function LaporanPage() {
                   <Icon size={20} />
                 </div>
                 <p className="text-2xl font-heading font-bold text-zinc-900 leading-tight">
-                  {value}
+                  {isLoadingStats ? "—" : value}
                 </p>
                 <p className="text-xs text-zinc-500 mt-1 font-medium">
                   {label}
@@ -381,7 +442,11 @@ export default function LaporanPage() {
                   Real Data
                 </div>
               </div>
-              {monthlyData.length > 0 ? (
+              {isLoadingStats ? (
+                <div className="h-[280px] flex items-center justify-center text-zinc-400 text-sm">
+                  Memuat chart...
+                </div>
+              ) : monthlyData.length > 0 ? (
                 <LaporanBarChart data={monthlyData} />
               ) : (
                 <div className="h-[280px] flex items-center justify-center text-zinc-400 text-sm">
@@ -400,7 +465,11 @@ export default function LaporanPage() {
                   Proporsi berat plastik, karton, & paper cup
                 </p>
               </div>
-              {typeData.plastik + typeData.karton + typeData.paperCup > 0 ? (
+              {isLoadingStats ? (
+                <div className="h-[280px] flex items-center justify-center text-zinc-400 text-sm">
+                  Memuat chart...
+                </div>
+              ) : typeData.plastik + typeData.karton + typeData.paperCup > 0 ? (
                 <>
                   <LaporanDonutChart data={typeData} />
                   <div className="mt-4 grid grid-cols-3 gap-2">
@@ -451,7 +520,7 @@ export default function LaporanPage() {
               </div>
               <div className="flex items-center gap-2 text-xs font-medium text-zinc-500 bg-zinc-50 px-4 py-2 rounded-xl">
                 <CalendarDays size={14} />
-                {filteredSetoran.length} transaksi
+                {totalSetoran} transaksi terfilter
               </div>
             </div>
 
@@ -466,7 +535,7 @@ export default function LaporanPage() {
                   type="text"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  placeholder="Cari nama nasabah / NIK / jenis..."
+                  placeholder="Cari nama nasabah / NIK..."
                   className="w-full pl-9 pr-4 py-2.5 bg-zinc-50 rounded-xl text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-primary/20"
                 />
               </div>
@@ -497,7 +566,16 @@ export default function LaporanPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-zinc-100">
-                  {filteredSetoran.length === 0 ? (
+                  {isLoadingTab ? (
+                    <tr>
+                      <td colSpan={9} className="px-8 py-14 text-center">
+                        <div className="flex justify-center items-center gap-2 text-zinc-500 text-sm">
+                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary"></div>
+                          <span>Memuat data setoran...</span>
+                        </div>
+                      </td>
+                    </tr>
+                  ) : setoran.length === 0 ? (
                     <tr>
                       <td
                         colSpan={9}
@@ -506,12 +584,12 @@ export default function LaporanPage() {
                       </td>
                     </tr>
                   ) : (
-                    filteredSetoran.map((row, idx) => (
+                    setoran.map((row, idx) => (
                       <tr
                         key={row.id}
                         className="hover:bg-zinc-50/50 transition-colors">
                         <td className="px-6 py-5 text-sm text-zinc-400 font-mono">
-                          {idx + 1}
+                          {(pageSetoran - 1) * pageSize + idx + 1}
                         </td>
                         <td className="px-6 py-5">
                           <div className="flex flex-col gap-0.5">
@@ -633,6 +711,63 @@ export default function LaporanPage() {
                 </tbody>
               </table>
             </div>
+
+            {/* Pagination Footer */}
+            {totalPagesSetoran > 1 && (
+              <div className="p-5 md:p-8 border-t border-zinc-100 flex flex-col sm:flex-row items-center justify-between gap-4 bg-zinc-50/30">
+                <p className="text-sm text-zinc-500">
+                  Menampilkan{" "}
+                  <span className="font-bold text-zinc-700">
+                    {setoran.length}
+                  </span>{" "}
+                  dari{" "}
+                  <span className="font-bold text-zinc-700">
+                    {totalSetoran}
+                  </span>{" "}
+                  transaksi
+                </p>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    disabled={pageSetoran === 1}
+                    onClick={() =>
+                      setPageSetoran((prev) => Math.max(prev - 1, 1))
+                    }
+                    className="px-4 py-2 bg-white border border-zinc-200 rounded-xl text-sm font-semibold text-zinc-700 hover:bg-zinc-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                    Sebelumnya
+                  </button>
+                  <div className="flex items-center gap-1">
+                    {Array.from(
+                      { length: totalPagesSetoran },
+                      (_, i) => i + 1,
+                    ).map((p) => (
+                      <button
+                        key={p}
+                        type="button"
+                        onClick={() => setPageSetoran(p)}
+                        className={`w-9 h-9 flex items-center justify-center rounded-xl text-sm font-semibold transition-all ${
+                          pageSetoran === p
+                            ? "bg-primary text-white shadow-md shadow-primary/20"
+                            : "bg-white border border-zinc-200 text-zinc-700 hover:bg-zinc-50"
+                        }`}>
+                        {p}
+                      </button>
+                    ))}
+                  </div>
+                  <button
+                    type="button"
+                    disabled={pageSetoran === totalPagesSetoran}
+                    onClick={() =>
+                      setPageSetoran((prev) =>
+                        Math.min(prev + 1, totalPagesSetoran),
+                      )
+                    }
+                    className="px-4 py-2 bg-white border border-zinc-200 rounded-xl text-sm font-semibold text-zinc-700 hover:bg-zinc-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                    Selanjutnya
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </>
       )}
@@ -646,28 +781,32 @@ export default function LaporanPage() {
               {
                 icon: Wallet,
                 label: "Total Cair",
-                value: formatRupiah(totalCairNominal),
+                value: formatRupiah(
+                  statsData?.pencairanStats.totalCairNominal || 0,
+                ),
                 sub: "Berhasil ditransfer",
                 color: "text-emerald-600 bg-emerald-50",
               },
               {
                 icon: Clock,
                 label: "Total Diajukan",
-                value: formatRupiah(totalDiajukanNominal),
+                value: formatRupiah(
+                  statsData?.pencairanStats.totalDiajukanNominal || 0,
+                ),
                 sub: "Menunggu verifikasi",
                 color: "text-amber-600 bg-amber-50",
               },
               {
                 icon: CheckCircle2,
                 label: "Pencairan Selesai",
-                value: `${totalTransCair} Transaksi`,
+                value: `${statsData?.pencairanStats.totalTransCair || 0} Transaksi`,
                 sub: "Telah diproses",
                 color: "text-blue-600 bg-blue-50",
               },
               {
                 icon: FileText,
                 label: "Pencairan Pending",
-                value: `${totalTransPending} Transaksi`,
+                value: `${statsData?.pencairanStats.totalTransPending || 0} Transaksi`,
                 sub: "Belum ditransfer",
                 color: "text-purple-600 bg-purple-50",
               },
@@ -680,7 +819,7 @@ export default function LaporanPage() {
                   <Icon size={20} />
                 </div>
                 <p className="text-xl font-heading font-bold text-zinc-900 leading-tight">
-                  {value}
+                  {isLoadingStats ? "—" : value}
                 </p>
                 <p className="text-xs text-zinc-500 mt-1 font-medium">
                   {label}
@@ -703,7 +842,7 @@ export default function LaporanPage() {
               </div>
               <div className="flex items-center gap-2 text-xs font-medium text-zinc-500 bg-zinc-50 px-4 py-2 rounded-xl">
                 <CalendarDays size={14} />
-                {filteredPencairan.length} total pengajuan
+                {totalPencairan} total pengajuan terfilter
               </div>
             </div>
 
@@ -749,7 +888,16 @@ export default function LaporanPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-zinc-100">
-                  {filteredPencairan.length === 0 ? (
+                  {isLoadingTab ? (
+                    <tr>
+                      <td colSpan={9} className="px-8 py-14 text-center">
+                        <div className="flex justify-center items-center gap-2 text-zinc-500 text-sm">
+                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary"></div>
+                          <span>Memuat data pencairan...</span>
+                        </div>
+                      </td>
+                    </tr>
+                  ) : pencairan.length === 0 ? (
                     <tr>
                       <td
                         colSpan={9}
@@ -758,14 +906,14 @@ export default function LaporanPage() {
                       </td>
                     </tr>
                   ) : (
-                    filteredPencairan.map((row, idx) => {
+                    pencairan.map((row, idx) => {
                       const cfg = STATUS_PENCAIRAN_CONFIG[row.status];
                       return (
                         <tr
                           key={row.id}
                           className="hover:bg-zinc-50/50 transition-colors">
                           <td className="px-6 py-5 text-sm text-zinc-400 font-mono">
-                            {idx + 1}
+                            {(pagePencairan - 1) * pageSize + idx + 1}
                           </td>
                           <td className="px-6 py-5">
                             <div className="flex flex-col gap-0.5">
@@ -852,6 +1000,63 @@ export default function LaporanPage() {
                 </tbody>
               </table>
             </div>
+
+            {/* Pagination Footer */}
+            {totalPagesPencairan > 1 && (
+              <div className="p-5 md:p-8 border-t border-zinc-100 flex flex-col sm:flex-row items-center justify-between gap-4 bg-zinc-50/30">
+                <p className="text-sm text-zinc-500">
+                  Menampilkan{" "}
+                  <span className="font-bold text-zinc-700">
+                    {pencairan.length}
+                  </span>{" "}
+                  dari{" "}
+                  <span className="font-bold text-zinc-700">
+                    {totalPencairan}
+                  </span>{" "}
+                  pengajuan
+                </p>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    disabled={pagePencairan === 1}
+                    onClick={() =>
+                      setPagePencairan((prev) => Math.max(prev - 1, 1))
+                    }
+                    className="px-4 py-2 bg-white border border-zinc-200 rounded-xl text-sm font-semibold text-zinc-700 hover:bg-zinc-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                    Sebelumnya
+                  </button>
+                  <div className="flex items-center gap-1">
+                    {Array.from(
+                      { length: totalPagesPencairan },
+                      (_, i) => i + 1,
+                    ).map((p) => (
+                      <button
+                        key={p}
+                        type="button"
+                        onClick={() => setPagePencairan(p)}
+                        className={`w-9 h-9 flex items-center justify-center rounded-xl text-sm font-semibold transition-all ${
+                          pagePencairan === p
+                            ? "bg-primary text-white shadow-md shadow-primary/20"
+                            : "bg-white border border-zinc-200 text-zinc-700 hover:bg-zinc-50"
+                        }`}>
+                        {p}
+                      </button>
+                    ))}
+                  </div>
+                  <button
+                    type="button"
+                    disabled={pagePencairan === totalPagesPencairan}
+                    onClick={() =>
+                      setPagePencairan((prev) =>
+                        Math.min(prev + 1, totalPagesPencairan),
+                      )
+                    }
+                    className="px-4 py-2 bg-white border border-zinc-200 rounded-xl text-sm font-semibold text-zinc-700 hover:bg-zinc-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                    Selanjutnya
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </>
       )}
@@ -865,28 +1070,28 @@ export default function LaporanPage() {
               {
                 icon: Ticket,
                 label: "Kupon Ditukarkan",
-                value: `${totalKuponDitukar} Kupon`,
+                value: `${statsData?.kuponStats.totalKuponDitukar || 0} Kupon`,
                 sub: "Total kupon dibuat",
                 color: "text-primary bg-red-50",
               },
               {
                 icon: Wallet,
                 label: "Poin Dibelanjakan",
-                value: `${totalPoinTukar} Poin`,
+                value: `${statsData?.kuponStats.totalPoinTukar || 0} Poin`,
                 sub: "Dari keseluruhan kupon",
                 color: "text-amber-600 bg-amber-50",
               },
               {
                 icon: Sparkles,
                 label: "Kupon Aktif (Belum Pakai)",
-                value: `${totalKuponAktif} Kupon`,
+                value: `${statsData?.kuponStats.totalKuponAktif || 0} Kupon`,
                 sub: "Siap digunakan nasabah",
                 color: "text-emerald-600 bg-emerald-50",
               },
               {
                 icon: CheckCircle2,
                 label: "Kupon Terpakai",
-                value: `${totalKuponDigunakan} Kupon`,
+                value: `${statsData?.kuponStats.totalKuponDigunakan || 0} Kupon`,
                 sub: "Sudah di-scan/claim",
                 color: "text-purple-600 bg-purple-50",
               },
@@ -899,7 +1104,7 @@ export default function LaporanPage() {
                   <Icon size={20} />
                 </div>
                 <p className="text-xl font-heading font-bold text-zinc-900 leading-tight">
-                  {value}
+                  {isLoadingStats ? "—" : value}
                 </p>
                 <p className="text-xs text-zinc-500 mt-1 font-medium">
                   {label}
@@ -922,7 +1127,7 @@ export default function LaporanPage() {
               </div>
               <div className="flex items-center gap-2 text-xs font-medium text-zinc-500 bg-zinc-50 px-4 py-2 rounded-xl">
                 <CalendarDays size={14} />
-                {filteredKupon.length} total kupon
+                {totalKupon} total kupon terfilter
               </div>
             </div>
 
@@ -967,7 +1172,16 @@ export default function LaporanPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-zinc-100">
-                  {filteredKupon.length === 0 ? (
+                  {isLoadingTab ? (
+                    <tr>
+                      <td colSpan={8} className="px-8 py-14 text-center">
+                        <div className="flex justify-center items-center gap-2 text-zinc-500 text-sm">
+                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary"></div>
+                          <span>Memuat data kupon...</span>
+                        </div>
+                      </td>
+                    </tr>
+                  ) : kupon.length === 0 ? (
                     <tr>
                       <td
                         colSpan={8}
@@ -976,14 +1190,14 @@ export default function LaporanPage() {
                       </td>
                     </tr>
                   ) : (
-                    filteredKupon.map((row, idx) => {
+                    kupon.map((row, idx) => {
                       const cfg = STATUS_KUPON_CONFIG[row.status];
                       return (
                         <tr
                           key={row.id}
                           className="hover:bg-zinc-50/50 transition-colors">
                           <td className="px-6 py-5 text-sm text-zinc-400 font-mono">
-                            {idx + 1}
+                            {(pageKupon - 1) * pageSize + idx + 1}
                           </td>
                           <td className="px-6 py-5">
                             <span className="font-mono font-bold bg-zinc-100 px-2 py-1 rounded text-zinc-800 text-xs">
@@ -1048,6 +1262,61 @@ export default function LaporanPage() {
                 </tbody>
               </table>
             </div>
+
+            {/* Pagination Footer */}
+            {totalPagesKupon > 1 && (
+              <div className="p-5 md:p-8 border-t border-zinc-100 flex flex-col sm:flex-row items-center justify-between gap-4 bg-zinc-50/30">
+                <p className="text-sm text-zinc-500">
+                  Menampilkan{" "}
+                  <span className="font-bold text-zinc-700">
+                    {kupon.length}
+                  </span>{" "}
+                  dari{" "}
+                  <span className="font-bold text-zinc-700">{totalKupon}</span>{" "}
+                  kupon
+                </p>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    disabled={pageKupon === 1}
+                    onClick={() =>
+                      setPageKupon((prev) => Math.max(prev - 1, 1))
+                    }
+                    className="px-4 py-2 bg-white border border-zinc-200 rounded-xl text-sm font-semibold text-zinc-700 hover:bg-zinc-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                    Sebelumnya
+                  </button>
+                  <div className="flex items-center gap-1">
+                    {Array.from(
+                      { length: totalPagesKupon },
+                      (_, i) => i + 1,
+                    ).map((p) => (
+                      <button
+                        key={p}
+                        type="button"
+                        onClick={() => setPageKupon(p)}
+                        className={`w-9 h-9 flex items-center justify-center rounded-xl text-sm font-semibold transition-all ${
+                          pageKupon === p
+                            ? "bg-primary text-white shadow-md shadow-primary/20"
+                            : "bg-white border border-zinc-200 text-zinc-700 hover:bg-zinc-50"
+                        }`}>
+                        {p}
+                      </button>
+                    ))}
+                  </div>
+                  <button
+                    type="button"
+                    disabled={pageKupon === totalPagesKupon}
+                    onClick={() =>
+                      setPageKupon((prev) =>
+                        Math.min(prev + 1, totalPagesKupon),
+                      )
+                    }
+                    className="px-4 py-2 bg-white border border-zinc-200 rounded-xl text-sm font-semibold text-zinc-700 hover:bg-zinc-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                    Selanjutnya
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </>
       )}

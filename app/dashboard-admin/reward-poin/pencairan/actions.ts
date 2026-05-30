@@ -18,44 +18,13 @@ async function checkAdminAuth() {
   }
 }
 
-export async function getPencairanAdminList(params?: {
+export async function getPencairanAdminList(params: {
   page?: number;
   pageSize?: number;
   searchTerm?: string;
   filterStatus?: string;
 }) {
   await checkAdminAuth();
-
-  if (!params) {
-    const data = await db.query.pencairan.findMany({
-      orderBy: (pencairan, { desc }) => [desc(pencairan.createdAt)],
-      with: {
-        nasabah: {
-          with: { user: { columns: { name: true, username: true } } },
-        },
-      },
-    });
-
-    const [statsRes] = await db
-      .select({
-        diajukan: sql<number>`count(case when status = 'DIAJUKAN' then 1 end)`,
-        diverifikasi: sql<number>`count(case when status = 'DIVERIFIKASI' then 1 end)`,
-        dicairkan: sql<number>`count(case when status = 'DICAIRKAN' then 1 end)`,
-        totalNilai: sql<number>`sum(case when status = 'DICAIRKAN' then jumlah else 0 end)`,
-      })
-      .from(pencairan);
-
-    return {
-      data,
-      total: data.length,
-      stats: {
-        diajukan: Number(statsRes?.diajukan || 0),
-        diverifikasi: Number(statsRes?.diverifikasi || 0),
-        dicairkan: Number(statsRes?.dicairkan || 0),
-        totalNilai: Number(statsRes?.totalNilai || 0),
-      },
-    };
-  }
 
   const { page = 1, pageSize = 10, searchTerm, filterStatus = "ALL" } = params;
   const offset = (page - 1) * pageSize;
